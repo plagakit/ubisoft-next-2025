@@ -27,26 +27,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -73,31 +73,52 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
+    <LibraryPath>$(ProjectDir)\external\next-api\glut\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <IncludePath>$(ProjectDir)\external\next-api\glut$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
+    <LibraryPath>$(ProjectDir)\external\next-api\glut\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <IncludePath>$(ProjectDir)\external\next-api\glut$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
+    <LibraryPath>$(ProjectDir)\external\next-api\glut\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>$(ProjectDir)\external\next-api\glut$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
+    <LibraryPath>$(ProjectDir)\external\next-api\glut\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>$(ProjectDir)\external\next-api\glut$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\next-api\glut\lib\x64</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -105,29 +126,59 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\next-api\glut\lib\x64</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\next-api\glut\lib\x64</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -135,25 +186,69 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>dxguid.lib;dsound.lib;</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\next-api\glut\lib\x64</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="external\next-api\App\app.h" />
+    <ClInclude Include="external\next-api\App\AppSettings.h" />
+    <ClInclude Include="external\next-api\App\DirectSound.h" />
+    <ClInclude Include="external\next-api\App\main.h" />
+    <ClInclude Include="external\next-api\App\mydirectsound.h" />
+    <ClInclude Include="external\next-api\App\SimpleController.h" />
+    <ClInclude Include="external\next-api\App\SimpleSound.h" />
+    <ClInclude Include="external\next-api\App\SimpleSprite.h" />
+    <ClInclude Include="external\next-api\glut\include\GL\freeglut.h" />
+    <ClInclude Include="external\next-api\glut\include\GL\freeglut_ext.h" />
+    <ClInclude Include="external\next-api\glut\include\GL\freeglut_std.h" />
+    <ClInclude Include="external\next-api\glut\include\GL\glut.h" />
+    <ClInclude Include="external\next-api\miniaudio\miniaudio.h" />
+    <ClInclude Include="external\next-api\stb_image\stb_image.h" />
+    <ClInclude Include="external\next-api\stdafx.h" />
+    <ClInclude Include="external\next-api\targetver.h" />
+    <ClInclude Include="src\core\logger\logger.h" />
     <ClInclude Include="src\engine.h" />
-    <ClInclude Include="src\application\application.h" />
+    <ClInclude Include="src\core\application\application.h" />
     <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\application\launcher.h" />
+    <ClInclude Include="src\graphics\renderer.h" />
+    <ClInclude Include="src\math\vector3.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\application\application.cpp" />
+    <ClCompile Include="external\next-api\App\app.cpp" />
+    <ClCompile Include="external\next-api\App\DirectSound.cpp" />
+    <ClCompile Include="external\next-api\App\main.cpp" />
+    <ClCompile Include="external\next-api\App\SimpleController.cpp" />
+    <ClCompile Include="external\next-api\App\SimpleSound.cpp" />
+    <ClCompile Include="external\next-api\App\SimpleSprite.cpp" />
+    <ClCompile Include="external\next-api\GameTest.cpp" />
+    <ClCompile Include="external\next-api\miniaudio\miniaudio.cpp" />
+    <ClCompile Include="external\next-api\stb_image\stb_image.cpp" />
+    <ClCompile Include="external\next-api\stdafx.cpp" />
+    <ClCompile Include="src\core\logger\logger.cpp" />
+    <ClCompile Include="src\core\application\application.cpp" />
+    <ClCompile Include="src\graphics\renderer.cpp" />
+    <ClCompile Include="src\math\vector3.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
