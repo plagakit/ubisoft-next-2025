@@ -1,47 +1,35 @@
+#include "pch.h"
 #include "application.h"
 
-#include "core/logger/logger.h"
-
-#include <App/app.h>
-#include <windows.h>
-
-// Fetch Next API's main function from App/
-extern int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow);
-
-Application* s_application;
-
-int LaunchGame(Application* app, ApplicationCmdLineArgs args)
+void Application::__Init__()
 {
-	Logger::Info("Launching NEXT API...");
-	Logger::Warn("this is my warning");
-	Logger::Error("AAAAAAAAAAAAAAAAAAAAAA");
-	s_application = app;
-
-	// Start Ubisoft Next API's main function
-	// we don't need to pass in args b/c their main doesn't use any
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-	return wWinMain(hInstance, NULL, GetCommandLineW(), SW_SHOWDEFAULT);
+	PreInit();
+	Init();
 }
 
-void Init()
+void Application::__Shutdown__()
 {
-	Logger::Info("Running Init...");
-	s_application->Init();
+	Shutdown();
 }
 
-void Update(const float deltaTime)
+void Application::__Update__(float dt)
 {
-	s_application->Update(deltaTime);
+	PreUpdate(dt);
+	Update(dt);
 }
 
-void Render()
+void Application::__Render__()
 {
-	s_application->Render();
+	Render();
 }
 
-void Shutdown()
+void Application::PreInit()
 {
-	Logger::Info("Running Shutdown...");
-	s_application->Shutdown();
-	delete s_application;
+	input.InitDefaultActions();
 }
+
+void Application::PreUpdate(float dt)
+{
+	input.Update();
+}
+

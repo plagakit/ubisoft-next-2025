@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "vector3.h"
 
 template <typename T>
@@ -9,6 +10,5 @@ std::string Vector3<T>::ToString() const
 		std::to_string(z) + ")";
 }
 
-// Explicity instantiate the templated types
 template struct Vector3<float>;
 template struct Vector3<int>;

@@ -20,37 +20,46 @@ class DemoGame : public Application
 
 	void Update(float deltaTime)
 	{
+		Vec2 mouse = input.GetMousePos();
+		float s = input.GetStrength("left");
+		bool a = input.IsPressed("left");
+		bool b = input.IsJustPressed("left");
+
+		if (b)
+			Logger::Info("%s, %f, %d, %d", mouse.ToString().c_str(), s, a, b);
 	}
 
 	void Render()
 	{
-		Renderer::Text(100, 100, "aaaaaaa");
-		Renderer::DrawLine(0, 0, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT);
-		
-		for (int y = 0; y < APP_VIRTUAL_HEIGHT; y++)
-		{
-			Renderer::DrawLine(0, y, APP_VIRTUAL_WIDTH, y, 1, 1, 1);
-		}
+		Renderer::DrawFilledRect(0.0f, 0.0f, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT);
+		Renderer::DrawLine(0, 0, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT, Color::BLUE);
 
 		static float a = 0.0f;
 		const float r = 1.0f;
-		float g = 1.0f;
-		float b = 1.0f;
-		a += 0.1f;
-		for (int i = 0; i < 100; i++)
+		if (input.IsPressed("mouse-left"))
+			a += 0.1f;
+		for (int i = 0; i < 20; i++)
 		{
-		
+
 			const float sx = 200 + sinf(a + i * 0.1f) * 60.0f;
 			const float sy = 200 + cosf(a + i * 0.1f) * 60.0f;
 			const float ex = 700 - sinf(a + i * 0.1f) * 60.0f;
 			const float ey = 700 - cosf(a + i * 0.1f) * 60.0f;
-			g = (float)i / 20.0f;
-			b = (float)i / 20.0f;
-			Renderer::DrawLine(sx, sy, ex, ey);//, r, g, b);
+			Renderer::DrawLine(sx, sy, ex, ey, Color::RED);
 		}
+
+		Font f1 = { Font::Type::MONOSPACE_8x13 };
+		Font f2 = { Font::Type::MONOSPACE_9x15 };
+
+		Renderer::DrawTextLine(100, 50, "Default Font", Color::BLACK);
+		Renderer::DrawTextLine(100, 100, "Monospace 8x13", Color::BLACK, f1);
+		Renderer::DrawTextLine(100, 100 + f2.GetFontHeight(), "Monospace 9x15", Color::BLACK, f2);
+
+		auto testStr1 = "Hello World!";
+		auto testStr2 = "Goodbye World!";
+		Renderer::DrawTextLine(200, 50, testStr1, Color::RED, f2);
+		Renderer::DrawTextLine(200 + f2.GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
 	}
-
-
 };
 
 REGISTER_GAME(DemoGame)

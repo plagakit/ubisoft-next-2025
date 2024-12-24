@@ -1,19 +1,32 @@
+#include "pch.h"
 #include "renderer.h"
 
 #include "core/logger/logger.h"
 #include <App/App.h>
 
-void Renderer::Text(float x, float y, const char* text)
+Font Renderer::defaultFont = { Font::Type::HELVETICA_18 };
+
+void Renderer::DrawTextLine(float x, float y, const char* text, Color col, Font font)
 {
-	App::Print(x, y, text);
+	App::Print(x, y, text, col.r, col.g, col.b, font.GetGLUTFont());
 }
 
-void Renderer::DrawLine(float x0, float y0, float x1, float y1)
+void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col)
 {
-	App::DrawLine(x0, y0, x1, y1);
+	App::DrawLine(x0, y0, x1, y1, col.r, col.g, col.b);
 }
 
-void Renderer::DrawLine(float x0, float y0, float x1, float y1, float r, float g, float b)
+void Renderer::DrawRect(float x0, float y0, float x1, float y1, Color col)
 {
-	App::DrawLine(x0, y0, x1, y1, r, g, b);
+	App::DrawLine(x0, y0, x1, y0, col.r, col.g, col.b);
+	App::DrawLine(x0, y1, x1, y0, col.r, col.g, col.b);
+	App::DrawLine(x0, y0, x0, y1, col.r, col.g, col.b);
+	App::DrawLine(x1, y0, x1, y1, col.r, col.g, col.b);
+}
+
+void Renderer::DrawFilledRect(float x0, float y0, float x1, float y1, Color col)
+{
+	// TODO: assert y0 < y1
+	for (float y = y0; y <= y1; y++)
+		App::DrawLine(x0, y, x1, y, col.r, col.g, col.b);
 }

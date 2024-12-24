@@ -1,13 +1,11 @@
 #pragma once
 
-#include <common.h>
+#include <string>
 
 template <typename T>
 struct Vector3
 {
-	T x;
-	T y;
-	T z;
+	T x, y, z;
 
 	std::string ToString() const;
 };
