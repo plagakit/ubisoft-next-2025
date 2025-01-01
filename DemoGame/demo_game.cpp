@@ -4,6 +4,11 @@
 
 class DemoGame : public Application 
 {
+private:
+	float x = 0.0f;
+	float y = 0.0f;
+
+public:
 	void Init()
 	{
 		Vec3 v1 = { 10, 12, 3 };
@@ -11,6 +16,20 @@ class DemoGame : public Application
 
 		auto s = v1.ToString();
 		Logger::Info("%s", s.c_str());
+
+		m_registry.RegisterComponentType<Transform>();
+		Entity e = m_registry.CreateEntity();
+		Transform t = { Vec3(1, 2, 3) };
+
+		Logger::Info("Transforms: %d, has: %d", m_registry.Size<Transform>(), m_registry.Has<Transform>(e));
+		
+		m_registry.Add<Transform>(e, t);
+		Logger::Info("Transforms: %d, has: %d", m_registry.Size<Transform>(), m_registry.Has<Transform>(e));
+		Logger::Info("transform value: %s", m_registry.Get<Transform>(e).position.ToString().c_str());
+
+		m_registry.Remove<Transform>(e);
+		Logger::Info("Transforms: %d, has: %d", m_registry.Size<Transform>(), m_registry.Has<Transform>(e));
+		//Logger::Info("transform value: %s", m_registry.Get<Transform>(e).position.ToString().c_str());
 	}
 
 	void Shutdown()
@@ -18,15 +37,13 @@ class DemoGame : public Application
 		
 	}
 
-	void Update(float deltaTime)
+	void Update(float dt)
 	{
-		Vec2 mouse = input.GetMousePos();
-		float s = input.GetStrength("left");
-		bool a = input.IsPressed("left");
-		bool b = input.IsJustPressed("left");
+		if (Input::IsJustPressed("mouse-right"))
+			ASSERT_WARN(false, "%d", 24123);
 
-		if (b)
-			Logger::Info("%s, %f, %d, %d", mouse.ToString().c_str(), s, a, b);
+		x += Input::GetAxis("left", "right");
+		y += Input::GetAxis("down", "up");
 	}
 
 	void Render()
@@ -36,15 +53,15 @@ class DemoGame : public Application
 
 		static float a = 0.0f;
 		const float r = 1.0f;
-		if (input.IsPressed("mouse-left"))
+		if (Input::IsPressed("mouse-left"))
 			a += 0.1f;
 		for (int i = 0; i < 20; i++)
 		{
 
-			const float sx = 200 + sinf(a + i * 0.1f) * 60.0f;
-			const float sy = 200 + cosf(a + i * 0.1f) * 60.0f;
-			const float ex = 700 - sinf(a + i * 0.1f) * 60.0f;
-			const float ey = 700 - cosf(a + i * 0.1f) * 60.0f;
+			const float sx = x + 200 + sinf(a + i * 0.1f) * 60.0f;
+			const float sy = y + 200 + cosf(a + i * 0.1f) * 60.0f;
+			const float ex = x + 700 - sinf(a + i * 0.1f) * 60.0f;
+			const float ey = y + 700 - cosf(a + i * 0.1f) * 60.0f;
 			Renderer::DrawLine(sx, sy, ex, ey, Color::RED);
 		}
 

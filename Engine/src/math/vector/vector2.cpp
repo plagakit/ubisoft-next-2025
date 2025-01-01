@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Vector2.h"
 
+#include "core/debug/assert.h"
+
 template <typename T>
 Vector2<T>::Vector2() :
 	x(static_cast<T>(0)),
@@ -45,7 +47,6 @@ Vector2<T> Vector2<T>::operator*(const Vector2& v) const
 template <typename T>
 Vector2<T> Vector2<T>::operator/(T scalar) const
 {
-	// TODO: assertion to prevent div by 0
 	return Vector2(x / scalar, y / scalar);
 }
 
@@ -90,7 +91,6 @@ Vector2<T>& Vector2<T>::operator*=(const Vector2& v)
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(T scalar)
 {
-	// TODO: assertion here
 	x /= scalar;
 	y /= scalar;
 	return *this;

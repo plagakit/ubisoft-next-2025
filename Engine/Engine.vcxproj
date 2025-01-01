@@ -98,7 +98,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENABLE_ASSERTIONS;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -158,7 +158,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENABLE_ASSERTIONS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -238,16 +238,21 @@
     <ClInclude Include="src\core\input\input.h" />
     <ClInclude Include="src\core\input\input_action.h" />
     <ClInclude Include="src\core\input\input_event.h" />
+    <ClInclude Include="src\core\debug\assert.h" />
     <ClInclude Include="src\core\uid\uid.h" />
+    <ClInclude Include="src\ecs\components\transform.h" />
+    <ClInclude Include="src\ecs\entity.h" />
+    <ClInclude Include="src\ecs\entity_manager\entity_view.h" />
+    <ClInclude Include="src\ecs\entity_manager\entity_manager.h" />
+    <ClInclude Include="src\ecs\entity_manager\sparse_set.h" />
     <ClInclude Include="src\graphics\color\color.h" />
     <ClInclude Include="src\graphics\font\font.h" />
-    <ClInclude Include="src\gui\gui_object.h" />
     <ClInclude Include="src\core\app_settings.h" />
-    <ClInclude Include="src\core\logger\logger.h" />
+    <ClInclude Include="src\core\debug\logger.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\core\application\application.h" />
-    <ClInclude Include="src\graphics\renderer.h" />
-    <ClInclude Include="src\core\launcher.h" />
+    <ClInclude Include="src\graphics\renderer\renderer.h" />
+    <ClInclude Include="src\core\application\launcher.h" />
     <ClInclude Include="src\math\math_utils.h" />
     <ClInclude Include="src\math\vector\vector3.h" />
     <ClInclude Include="src\math\vector\vector2.h" />
@@ -318,13 +323,13 @@
     <ClCompile Include="src\core\input\input_action.cpp" />
     <ClCompile Include="src\core\input\input_event.cpp" />
     <ClCompile Include="src\core\uid\uid.cpp" />
+    <ClCompile Include="src\ecs\entity_manager\entity_manager.cpp" />
     <ClCompile Include="src\graphics\color\color.cpp" />
     <ClCompile Include="src\graphics\font\font.cpp" />
-    <ClCompile Include="src\gui\gui_object.cpp" />
-    <ClCompile Include="src\core\logger\logger.cpp" />
+    <ClCompile Include="src\core\debug\logger.cpp" />
     <ClCompile Include="src\core\application\application.cpp" />
-    <ClCompile Include="src\graphics\renderer.cpp" />
-    <ClCompile Include="src\core\launcher.cpp" />
+    <ClCompile Include="src\graphics\renderer\renderer.cpp" />
+    <ClCompile Include="src\core\application\launcher.cpp" />
     <ClCompile Include="src\math\vector\vector3.cpp" />
     <ClCompile Include="src\math\vector\vector2.cpp" />
     <ClCompile Include="src\pch.cpp">

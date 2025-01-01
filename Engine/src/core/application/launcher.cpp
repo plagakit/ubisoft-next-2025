@@ -2,7 +2,7 @@
 #include "launcher.h"
 
 #include "core/application/application.h"
-#include "core/logger/logger.h"
+#include "core/debug/logger.h"
 
 #include <App/app.h>
 #include <windows.h>

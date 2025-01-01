@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/input/input.h"
+#include "ecs/entity_manager/entity_manager.h"
 
 struct ApplicationCmdLineArgs 
 {
@@ -17,12 +17,12 @@ public:
 	void __Render__();
 
 protected:
+	EntityManager m_registry;
+
 	virtual void Init() = 0;
 	virtual void Shutdown() = 0;
 	virtual void Update(float dt) = 0;
 	virtual void Render() = 0;
-
-	Input input;
 
 private:
 	void PreInit();

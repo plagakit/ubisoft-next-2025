@@ -8,19 +8,19 @@
 class Input
 {
 public:
-	void InitDefaultActions();
+	static void InitDefaultActions();
 
-	InputAction& CreateAction(std::string name);
-	InputAction* GetAction(std::string action);
+	static InputAction& CreateAction(std::string name);
+	static InputAction* GetAction(std::string action);
 
-	void Update();
-	bool IsPressed(std::string action) const;
-	bool IsJustPressed(std::string action) const;
-	float GetStrength(std::string action) const;
-	float GetAxis(std::string negAction, std::string posAction) const;
-	Vec2 GetMousePos() const;
+	static void Update();
+	static bool IsPressed(std::string action);
+	static bool IsJustPressed(std::string action);
+	static float GetStrength(std::string action);
+	static float GetAxis(std::string negAction, std::string posAction);
+	static Vec2 GetMousePos();
 
 
 private:
-	std::unordered_map<std::string, InputAction> m_actions;
+	static std::unordered_map<std::string, InputAction> m_actions;
 };

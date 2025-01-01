@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "renderer.h"
 
-#include "core/logger/logger.h"
+#include "core/debug/logger.h"
 #include <App/App.h>
 
 Font Renderer::defaultFont = { Font::Type::HELVETICA_18 };

@@ -2,7 +2,7 @@
 #include "font.h"
 
 #include <App/app.h>
-#include "core/logger/logger.h"
+#include "core/debug/logger.h"
 
 
 void* Font::GetGLUTFont() const

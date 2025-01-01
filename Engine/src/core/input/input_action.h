@@ -1,8 +1,5 @@
 #pragma once
 
-//#include <Winuser.h> // for virtual keycodes
-//#include <Xinput.h> // for XINPUT codes
-
 #include "core/input/input_event.h"
 
 #include <string>

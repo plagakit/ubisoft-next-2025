@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "application.h"
 
+#include "core/input/input.h"
+
 void Application::__Init__()
 {
 	PreInit();
@@ -25,11 +27,11 @@ void Application::__Render__()
 
 void Application::PreInit()
 {
-	input.InitDefaultActions();
+	Input::InitDefaultActions();
 }
 
 void Application::PreUpdate(float dt)
 {
-	input.Update();
+	Input::Update();
 }
 
