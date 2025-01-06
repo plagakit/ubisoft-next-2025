@@ -11,25 +11,63 @@ private:
 public:
 	void Init()
 	{
-		Vec3 v1 = { 10, 12, 3 };
-		Vec3 v2 = { -2, 5.01f, 1 };
+		m_registry.ReserveEntities(1500);
+		m_registry.RegisterComponentType<Transform>(1500);
+		m_registry.RegisterComponentType<TestComponent>(1500);
 
-		auto s = v1.ToString();
-		Logger::Info("%s", s.c_str());
+		Entity e1 = m_registry.CreateEntity();
+		Entity e2 = m_registry.CreateEntity();
 
-		m_registry.RegisterComponentType<Transform>();
-		Entity e = m_registry.CreateEntity();
-		Transform t = { Vec3(1, 2, 3) };
+		Transform c1 = { Vec3(1, 2, 3) };
+		TestComponent c2 = { 23 };
 
-		Logger::Info("Transforms: %d, has: %d", m_registry.Size<Transform>(), m_registry.Has<Transform>(e));
-		
-		m_registry.Add<Transform>(e, t);
-		Logger::Info("Transforms: %d, has: %d", m_registry.Size<Transform>(), m_registry.Has<Transform>(e));
-		Logger::Info("transform value: %s", m_registry.Get<Transform>(e).position.ToString().c_str());
+		ASSERT_ERROR(m_registry.Exists(e1), "%d does not exist", e1);
+		ASSERT_ERROR(m_registry.Exists(e2), "%d does not exist", e2);
+		ASSERT_ERROR(m_registry.Count() == 2, "Wrong count: %d", m_registry.Count());
 
-		m_registry.Remove<Transform>(e);
-		Logger::Info("Transforms: %d, has: %d", m_registry.Size<Transform>(), m_registry.Has<Transform>(e));
-		//Logger::Info("transform value: %s", m_registry.Get<Transform>(e).position.ToString().c_str());
+		for (int i = 0; i < 1000; i++)
+		{
+			Entity e = m_registry.CreateEntity();
+			TestComponent a = { e * 2 };
+			m_registry.Add<TestComponent>(e, a);
+		}
+
+		for (int i = 300; i < 700; i++) 
+			m_registry.QueueDelete(i);
+		m_registry.FlushDeleteQueue();
+
+		Logger::Info("%d", m_registry.Count());
+		ASSERT_ERROR(m_registry.Has<TestComponent>(299), "Entity 299 doesn't have TestComponent");
+		ASSERT_ERROR(!m_registry.Has<TestComponent>(300), "Entity 300 has TestComponent.");
+
+		for (int i = 0; i < 700 - 300; i++)
+		{
+			Entity id = m_registry.CreateEntity();
+			TestComponent a = { id * 100 };
+			m_registry.Add<TestComponent>(id, a);
+		}
+
+		//EntityView<> a = EntityView<>{ m_registry, 0 };
+		////EntityView<Transform> b{ m_registry };
+		////EntityView<Transform, A> c{ m_registry };
+
+		//using A = decltype(a)::value_type;
+		////using B = decltype(b)::value_type;
+		////using C = decltype(c)::value_type;
+
+		Logger::Info("Printing all entities:");
+		//for (auto a : m_registry.GetEntitiesWith<>())
+		//{
+		//	Logger::Info("%d", a);
+		//}
+
+		for (auto tuple : m_registry.GetEntitiesWith<TestComponent>())
+		{
+			Entity& id = std::get<0>(tuple);
+			auto& tc = std::get<1>(tuple);
+
+			Logger::Info("%d %d", id, tc.a);
+		}
 	}
 
 	void Shutdown()
@@ -39,11 +77,17 @@ public:
 
 	void Update(float dt)
 	{
-		if (Input::IsJustPressed("mouse-right"))
-			ASSERT_WARN(false, "%d", 24123);
+		//if (Input::IsJustPressed("mouse-right"))
+		//	ASSERT_WARN(false, "%d", 24123);
 
+		// TODO: optimize Input
 		x += Input::GetAxis("left", "right");
 		y += Input::GetAxis("down", "up");
+
+		for (int i = 0; i < 100; i++)
+		{
+			x += Input::GetAxis("left", "right");
+		}
 	}
 
 	void Render()

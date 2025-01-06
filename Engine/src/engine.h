@@ -19,3 +19,5 @@
 #include "ecs/entity_manager/entity_manager.h"
 
 #include "ecs/components/transform.h"
+
+#include "ecs/components/test_component.h"

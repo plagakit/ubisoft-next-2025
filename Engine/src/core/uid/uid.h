@@ -3,12 +3,11 @@
 #include <cstdint>
 
 using UID = uint32_t;
+constexpr UID INVALID_UID = 0;
 
 class UIDGenerator
 {
 public:
-	static constexpr UID INVALID_UID = -1;
-
 	UIDGenerator();
 	UID Next();
 

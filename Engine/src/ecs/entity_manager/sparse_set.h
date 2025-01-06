@@ -7,22 +7,25 @@
 #include <type_traits>
 
 class ISparseSet
-{};
+{
+public:
+	virtual void Remove(UID id) = 0;
+};
 
 /**
 * 
-* In the sparse array, the value E at index N represents the index
-* in the dense array of the data of Entity N.
+* In the sparse array, the value at index i represents the index
+* in the dense array of the data of UID i. Null entities (N) 
+* are kept @ index 0.
 * 
-* Sparse [#######]
-*          ^   |
-*          |   v
-* Dense  [#######] <-> Data [DDDDDDD]
-* 
-* The sparse set's type must be a plain old data type (for cache-friendly iteration),
-* otherwise a compile error will be thrown. Since ECS components should all be PODs,
-* this might be rare.
-* 
+*          s[3] = 1
+* Sparse [N######]
+*            ^
+*           /              i's data
+*          V                  v
+* Dense  [N######] <-> Data [NDDDDDD]
+*          ^                  ^
+*       d[1] = 3            idx 1
 * 
 * References:
 * https://skypjack.github.io/2020-08-02-ecs-baf-part-9/
@@ -40,42 +43,46 @@ public:
 	T& Get(UID id);
 	const T& Get(UID id) const;
 	void Insert(UID id, T obj);
-	void Remove(UID id);
-
-	const std::vector<size_t>& GetSparse() const { return m_sparse; }
-	const std::vector<size_t>& GetDense() const { return m_dense; }
+	void Remove(UID id) override;
 
 	size_t Size() const;
 	size_t Capacity() const;
 
 private:
-	std::vector<size_t> m_sparse;
-	std::vector<size_t> m_dense;
+	// Allow EntityView templates to directly iterate over dense & data arrays
+	template<typename... Ts>
+	friend class EntityView;
+
+	std::vector<UID> m_sparse;
+	std::vector<UID> m_dense;
 	std::vector<T> m_data;
 
-	size_t m_capacity;
-	size_t m_size;
+	size_t m_size;		// not including invalid UID
+	size_t m_capacity;	// including invalid UID
 
 };
 
 template<typename T>
 inline SparseSet<T>::SparseSet() :
-	m_capacity(0), m_size(0)
+	SparseSet(0)
 {}
 
 template<typename T>
 inline SparseSet<T>::SparseSet(size_t capacity) :
 	m_capacity(capacity), m_size(0)
 {
-	m_sparse.reserve(capacity);
-	m_dense.reserve(capacity);
-	m_data.reserve(capacity);
+	m_sparse.resize(capacity + 1, INVALID_UID); // account for invalid UID @ idx 0
+	m_dense.resize(capacity + 1, INVALID_UID);
+	m_data.resize(capacity + 1); // invalid component will be default constructed
 }
 
 template<typename T>
 inline bool SparseSet<T>::Has(UID id) const
 {
-	return id < m_capacity && m_sparse[id] < m_size && m_dense[m_sparse[id]] == id;
+	return id != INVALID_UID
+		&& id < m_capacity
+		&& m_sparse[id] != INVALID_UID
+		&& m_dense[m_sparse[id]] == id;
 }
 
 template<typename T>
@@ -95,22 +102,30 @@ inline const T& SparseSet<T>::Get(UID id) const
 template<typename T>
 inline void SparseSet<T>::Insert(UID id, T obj)
 {
-	ASSERT_ERROR(!Has(id), "SparseSet::Insert-ing %s w/ UID %d into when UID already present", id, typeid(T).name());
+	ASSERT_ERROR(id != INVALID_UID, "Trying to insert invalid UID into sparse set!");
 
 	if (!Has(id))
 	{
 		if (id >= m_capacity)
 		{
-			m_sparse.resize(id + 1);
-			m_dense.resize(id + 1);
-			m_data.resize(id + 1);
-			m_capacity = id + 1;
+			Logger::Warn("SparseSet %s hit UID limit, resizing to %d, consider reserving more space", typeid(T).name(), id + 1);
+
+			size_t newCap = static_cast<size_t>(id + 1);
+			m_sparse.resize(newCap);
+			m_dense.resize(newCap);
+			m_data.resize(newCap);
+			m_capacity = newCap;
 		}
 
-		m_sparse[id] = m_size;
-		m_dense[m_size] = id;
-		m_data[m_size] = obj;
+		// insert at last spot, + 1 to jump over invalid UID
+		m_sparse[id] = static_cast<UID>(m_size + 1);
+		m_dense[m_size + 1] = id;
+		m_data[m_size + 1] = obj;
 		m_size++;
+	}
+	else
+	{
+		ASSERT_ERROR(true, "SparseSet::Insert-ing %s w/ UID %d into when UID already present", typeid(T).name(), id);
 	}
 }
 
@@ -119,10 +134,16 @@ inline void SparseSet<T>::Remove(UID id)
 {
 	if (Has(id))
 	{
-		// Swap w/ the last element in the set
-		m_dense[m_sparse[id]] = m_dense[m_size - 1];
-		m_data[m_sparse[id]] = m_data[m_size - 1];
-		m_sparse[m_dense[m_size - 1]] = m_sparse[id];
+		// Replace id's spot with last element's spot to preserve contiguity
+		// m_sparse[id] --> removed's dense idx
+		// m_size --> last elem's dense idx (not size - 1 b/c elems are shifted over by 1 by invalid UID, so last elem is (size + 1) - 1)
+		// m_dense[m_size] --> last elem's sparse idx
+
+		m_dense[m_sparse[id]] = m_dense[m_size];
+		m_data[m_sparse[id]] = m_data[m_size];
+		m_sparse[m_dense[m_size]] = m_sparse[id];
+		m_sparse[id] = INVALID_UID;
+
 		m_size--;
 	}
 }

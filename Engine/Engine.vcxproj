@@ -240,6 +240,7 @@
     <ClInclude Include="src\core\input\input_event.h" />
     <ClInclude Include="src\core\debug\assert.h" />
     <ClInclude Include="src\core\uid\uid.h" />
+    <ClInclude Include="src\ecs\components\test_component.h" />
     <ClInclude Include="src\ecs\components\transform.h" />
     <ClInclude Include="src\ecs\entity.h" />
     <ClInclude Include="src\ecs\entity_manager\entity_view.h" />

@@ -7,27 +7,36 @@
 #include "core/debug/assert.h"
 
 #include <vector>
-#include <set>
+#include <deque>
 #include <unordered_map>
 #include <memory>
 #include <iterator>
 #include <typeindex>
 #include <typeinfo>
 
+template<typename... Ts>
+class EntityView;
 
 class EntityManager
 {
 public:
 	EntityManager();
 
+	// Entities
+
+	void ReserveEntities(size_t reserveCap);
+
 	Entity CreateEntity();
-	void QueueEntityDelete(Entity entity);
-	void FlushEntityDeleteQueue();
+	void QueueDelete(Entity entity);
+	void FlushDeleteQueue();
+
+	bool Exists(Entity id) const;
+	size_t Count() const;
 
 	// Components
 
 	template<typename T>
-	void RegisterComponentType();
+	void RegisterComponentType(size_t reserveCap = 0);
 
 	template<typename T>
 	bool IsComponentRegistered() const;
@@ -54,47 +63,48 @@ public:
 	template<typename T>
 	const T& Get(Entity id) const;
 
-
-	// ENTITY VIEWS
-
-	// Defined in entity_view.h
-	template<typename T, typename... Ts>
-	class EntityView;
+	// Views
 	
-	//template<typename T, typename... Ts>
-	//EntityView<T, Ts...> GetEntitiesWith() const;
+	EntityView<> GetEntities();
 
+	template<typename... Ts>
+	EntityView<Ts...> GetEntitiesWith();
 
 private:
+	// Allow all EntityView templates to access EntityManager
+	template<typename... Ts>
+	friend class EntityView;
 
+	// Entities are implicitly defined by their signatures
 
-	
+	UIDGenerator m_entityGenerator;
+	size_t m_count;
 	SparseSet<Signature> m_signatures;
 
-	ComponentID m_registeredComponentTypes;
+	ComponentID m_registeredTypeCount;
 	std::unordered_map<std::type_index, ComponentID> m_componentIDs;
 	std::unordered_map<std::type_index, std::unique_ptr<ISparseSet>> m_componentsMap;
 
-	std::set<Entity> m_deletionQueue;
-	std::set<Entity> m_freedEntities;
+	std::deque<Entity> m_deletionQueue;
+	std::deque<Entity> m_recycleQueue;
 
-	void DeleteEntity(Entity id) const;
+	void DeleteEntity(Entity id);
 
 	template<typename T> SparseSet<T>& GetSparseSet();
 	template<typename T> const SparseSet<T>& GetSparseSet() const;
 
 };
 
-#include "entity_view.h"
+// Components Impl
 
 template<typename T>
-inline void EntityManager::RegisterComponentType()
+inline void EntityManager::RegisterComponentType(size_t reserveCap)
 {
 	const std::type_index& type = typeid(T);
 	ASSERT_WARN(!IsComponentRegistered<T>(), "Re-registering component type %s!", type.name());
 	
-	m_componentIDs.emplace(type, m_registeredComponentTypes++);
-	m_componentsMap.emplace(type, std::make_unique<SparseSet<T>>());
+	m_componentIDs.emplace(type, m_registeredTypeCount++);
+	m_componentsMap.emplace(type, std::make_unique<SparseSet<T>>(reserveCap));
 }
 
 template<typename T>
@@ -126,7 +136,7 @@ inline bool EntityManager::Has(Entity id) const
 
 	const Signature& signature = m_signatures.Get(id);
 	ComponentID cid = GetComponentID<T>();
-	return signature & (1ULL << cid);
+	return signature & (static_cast<Signature>(1) << cid);
 }
 
 template<typename T>
@@ -171,6 +181,12 @@ inline const T& EntityManager::Get(Entity id) const
 	return GetSparseSet<T>().Get(id);
 }
 
+template<typename ...Ts>
+inline EntityView<Ts...> EntityManager::GetEntitiesWith()
+{
+	return EntityView<Ts...>(*this, 0);
+}
+
 template<typename T>
 inline SparseSet<T>& EntityManager::GetSparseSet()
 {
@@ -184,3 +200,18 @@ inline const SparseSet<T>& EntityManager::GetSparseSet() const
 	auto iptr = m_componentsMap.at(typeid(T)).get();
 	return *static_cast<SparseSet<T>* const>(iptr);
 }
+
+// Views
+
+#include "entity_view.h"
+
+//EntityView<> EntityManager::GetEntities()
+//{
+//	return EntityView<>(*this, 0);
+//}
+//
+//template<typename T, typename ...Ts>
+//inline EntityView<T, Ts...> EntityManager::GetEntitiesWith()
+//{
+//	return EntityView<T, Ts...>(*this, 0);
+//}
