@@ -11,9 +11,9 @@ private:
 public:
 	void Init()
 	{
-		m_registry.ReserveEntities(1500);
-		m_registry.RegisterComponentType<Transform>(1500);
-		m_registry.RegisterComponentType<TestComponent>(1500);
+		m_registry.ReserveEntities(150000);
+		m_registry.RegisterComponentType<Transform>(150000);
+		m_registry.RegisterComponentType<TestComponent>(150000);
 
 		Entity e1 = m_registry.CreateEntity();
 		Entity e2 = m_registry.CreateEntity();
@@ -25,7 +25,7 @@ public:
 		ASSERT_ERROR(m_registry.Exists(e2), "%d does not exist", e2);
 		ASSERT_ERROR(m_registry.Count() == 2, "Wrong count: %d", m_registry.Count());
 
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; i < 100000; i++)
 		{
 			Entity e = m_registry.CreateEntity();
 			TestComponent a = { e * 2 };
@@ -69,13 +69,18 @@ public:
 		//	ASSERT_WARN(false, "%d", 24123);
 
 		// TODO: optimize Input
-		x += Input::GetAxis("left", "right");
-		y += Input::GetAxis("down", "up");
+		//x += Input::GetAxis("left", "right");
+		//y += Input::GetAxis("down", "up");
 
-		for (int i = 0; i < 100; i++)
-		{
-			x += Input::GetAxis("left", "right");
-		}
+		//for (int i = 0; i < 100; i++)
+		//{
+		//	x += Input::GetAxis("left", "right");
+		//}
+
+		
+		for (auto [id, tc] : m_registry.AllWith<TestComponent>())
+			;// count++;
+		//Logger::Info("Count w/ TestComponent: %d", count);
 	}
 
 	void Render()
