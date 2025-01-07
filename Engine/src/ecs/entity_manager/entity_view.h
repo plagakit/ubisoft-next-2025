@@ -1,19 +1,26 @@
 #pragma once
 
-// INCLUDED IN entity_manager.h B/C OF CIRCULAR DEPENDENCIES
+// INCLUDED AT END OF entity_manager.h B/C OF CIRCULAR DEPENDENCIES w/ TEMPLATE CLASSES
 
 /*
-* In this file we define 3 specializations of EntityView<Ts...>. Each specialization
-* is different, requiring different implementations:
+* In my submission from last year, I wrote about how I wanted to make an iterator that would
+* cleanly iterate over sparse sets so that the end user can write something like:
 * 
-* 1. EntityView<> - iterates over signature sparse set
-* 2. EntityView<T> - iterates over component sparse set
-* 3. EntityView<T, Ts...> - iterates over component sparse set + signature sparse set for component-checking
+* for (auto& [id, comp1, comp2] : AllWith<Comp1, Comp2>()) { ... }
+* 
+* The above uses C++17's structured bindings, and the 2nd specialization uses 
+* constexpr if statements, so C++17 was needed for this.
+* 
+* In this file we define 2 specializations of EntityView<Ts...>.
+* Both require different implementations:
+* 1. EntityView<> - iterates over signature sparse set's dense array
+* 2. EntityView<T, Ts...> - iterates over component dense array (and possibly check signature)
 * 
 * References:
 * https://cplusplus.com/reference/iterator/ForwardIterator/
 * https://www.fluentcpp.com/2018/05/08/std-iterator-deprecated/
 * https://www.internalpointers.com/post/writing-custom-iterators-modern-cpp
+* https://devblogs.microsoft.com/oldnewthing/20200623-00/?p=103901
 */
 
 /**
@@ -27,23 +34,21 @@ public:
 	using iterator_category = std::forward_iterator_tag;
 	using difference_type = std::ptrdiff_t;
 	using value_type = Entity;
-	using pointer = Entity*;
-	using reference = Entity&;
 
 	EntityView(EntityManager& em, size_t denseIdx) :
 		m_em(em), m_denseIdx(denseIdx)
 	{}
 
-	reference operator*() const
+	value_type operator*() const
 	{
 		return m_em.m_signatures.m_dense[m_denseIdx];
 	}
 
-	EntityView& operator++() { m_denseIdx++; return *this; }
-	EntityView operator++(int) { EntityView tmp = *this; ++(*this); return tmp; }
-
-	friend bool operator==(const EntityView& a, const EntityView& b) { return a.m_denseIdx == b.m_denseIdx; }
-	friend bool operator!=(const EntityView& a, const EntityView& b) { return a.m_denseIdx != b.m_denseIdx; }
+	EntityView& operator++() 
+	{ 
+		m_denseIdx++; 
+		return *this; 
+	}
 
 	EntityView begin()
 	{
@@ -58,14 +63,17 @@ public:
 		return EntityView(m_em, lastEntity);
 	}
 
+	friend bool operator==(const EntityView& a, const EntityView& b) { return a.m_denseIdx == b.m_denseIdx; }
+	friend bool operator!=(const EntityView& a, const EntityView& b) { return a.m_denseIdx != b.m_denseIdx; }
+
 private:
 	EntityManager& m_em;
 	size_t m_denseIdx;
 };
 
 /**
-
-
+* 
+* 
 */
 template <typename T, typename... Ts>
 class EntityView<T, Ts...>
@@ -74,51 +82,89 @@ public:
 	// Iterator tags, needed to be an iterator
 	using iterator_category = std::forward_iterator_tag;
 	using difference_type = std::ptrdiff_t;
-	using value_type = std::tuple<Entity&, T&, Ts&...>;
-	using pointer = value_type*;
-	using reference = value_type&;
+	using value_type = std::tuple<Entity, T&, Ts&...>;
 
 	EntityView(EntityManager& em, size_t denseIdx) :
 		m_em(em), 
 		m_denseIdx(denseIdx), 
-		m_mainComponentSS(em.GetSparseSet<T>()),
-		m_entityArr(em.GetSparseSet<T>().m_dense),
-		m_componentArrs(em.GetSparseSet<T>().m_data, em.GetSparseSet<Ts>().m_data...)
+		m_mainSS(em.GetSparseSet<T>()),
+		m_extraSS(em.GetSparseSet<Ts>()...),
+		m_componentSet(em.GetSignature<T, Ts...>())
 	{}
 
 	value_type operator*() const
 	{
-		return std::tie(
-			m_entityArr[m_denseIdx],
-			m_mainComponentSS.m_data[m_denseIdx]
-		);
+		// Makes a tuple get chain (get<0>, get<1>, ...) corresponding to indices of m_extraSS
+		// Needs to be a helper because we need to make the get chain at compile time
+		return AccessHelper(std::make_index_sequence<sizeof...(Ts)>{});
 	}
 
-	EntityView& operator++() { m_denseIdx++; return *this; }
-	EntityView operator++(int) { EntityView tmp = *this; ++(*this); return tmp; }
-
-	friend bool operator==(const EntityView& a, const EntityView& b) { return a.m_denseIdx == b.m_denseIdx; }
-	friend bool operator!=(const EntityView& a, const EntityView& b) { return a.m_denseIdx != b.m_denseIdx; }
+	EntityView& operator++() 
+	{ 
+		m_denseIdx = FindNextIndex(m_denseIdx);
+		return *this; 
+	}
 
 	EntityView begin()
 	{
-		// idx 1 b/c idx 0 is null entity (invalid UID)
-		return EntityView(m_em, 1);
+		size_t start = FindNextIndex(0);
+		return EntityView(m_em, start);
 	}
 
 	EntityView end()
 	{
 		// + 1 for null entity
-		size_t lastEntity = m_mainComponentSS.Size() + 1;
+		size_t lastEntity = m_mainSS.Size() + 1;
 		return EntityView(m_em, lastEntity);
 	}
 
+	friend bool operator==(const EntityView& a, const EntityView& b) { return a.m_denseIdx == b.m_denseIdx; }
+	friend bool operator!=(const EntityView& a, const EntityView& b) { return a.m_denseIdx != b.m_denseIdx; }
+
 private:
 	EntityManager& m_em;
-	std::vector<UID>& m_entityArr;
-	std::tuple<std::vector<T>&, std::vector<Ts>&...> m_componentArrs;
 
-	SparseSet<T>& m_mainComponentSS;
+	// cache sparse sets so we dont have to do GetSparseSet<T> every time
+	SparseSet<T>& m_mainSS;
+	std::tuple<SparseSet<Ts>&...> m_extraSS;
+	Signature m_componentSet;
+
 	size_t m_denseIdx;
 
+	// Helper function that uses fold expressions to create the reference tuple
+	template<size_t... Is>
+	value_type AccessHelper(std::index_sequence<Is...>) const
+	{
+		// https://devblogs.microsoft.com/oldnewthing/20200623-00/?p=103901
+
+		Entity id = m_mainSS.m_dense[m_denseIdx];
+		return {
+			id,
+			m_mainSS.m_data[m_denseIdx],
+			std::get<Is>(m_extraSS).Get(id)...
+		};
+	}
+
+	size_t FindNextIndex(size_t idx) const
+	{
+		// If there's no extra types, we just increment next index of component data array
+		if constexpr (sizeof...(Ts) == 0)
+			return idx + 1;
+		// But if there are, we need to make sure next entity has all specified components
+		// This leads to a notable optimization: the first type specified in the EntityView
+		// template should be the one with the least entities, to minimize these checks
+		else
+		{
+			while (idx < m_mainSS.Size())
+			{
+				idx++;
+
+				Entity id = m_mainSS.m_dense[idx];
+				const Signature& signature = m_em.m_signatures.Get(id);
+				if ((m_componentSet & signature) == m_componentSet)
+					return idx;
+			}
+			return m_mainSS.Size() + 1;
+		}
+	}
 };

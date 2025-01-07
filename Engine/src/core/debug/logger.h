@@ -11,13 +11,15 @@ public:
 		LOG_ERROR
 	};
 
-	static void Debug(std::string fmt, ...);
-	static void Info(std::string fmt, ...);
-	static void Warn(std::string fmt, ...);
-	static void Error(std::string fmt, ...);
+	static void Init();
+
+	static void Debug(const char* fmt, ...);
+	static void Info(const char* fmt, ...);
+	static void Warn(const char* fmt, ...);
+	static void Error(const char* fmt, ...);
 
 private:
-	static void Log(Level level, std::string fmt, va_list args);
+	static void Log(Level level, const char* fmt, va_list args);
 };
 
 

@@ -8,6 +8,7 @@ using Entity = UID;
 constexpr Entity NULL_ENTITY = INVALID_UID;
 
 using ComponentID = unsigned char;
+
 using Signature = uint64_t;
 constexpr ComponentID MAX_COMPONENT_TYPES = sizeof(Signature) * 8;
 

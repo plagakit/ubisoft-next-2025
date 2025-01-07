@@ -36,7 +36,7 @@ public:
 			m_registry.QueueDelete(i);
 		m_registry.FlushDeleteQueue();
 
-		Logger::Info("%d", m_registry.Count());
+		Logger::Info("Count %d", m_registry.Count());
 		ASSERT_ERROR(m_registry.Has<TestComponent>(299), "Entity 299 doesn't have TestComponent");
 		ASSERT_ERROR(!m_registry.Has<TestComponent>(300), "Entity 300 has TestComponent.");
 
@@ -47,27 +47,15 @@ public:
 			m_registry.Add<TestComponent>(id, a);
 		}
 
-		//EntityView<> a = EntityView<>{ m_registry, 0 };
-		////EntityView<Transform> b{ m_registry };
-		////EntityView<Transform, A> c{ m_registry };
+		Logger::Info("Count: %d:", m_registry.Count());
 
-		//using A = decltype(a)::value_type;
-		////using B = decltype(b)::value_type;
-		////using C = decltype(c)::value_type;
-
-		Logger::Info("Printing all entities:");
-		//for (auto a : m_registry.GetEntitiesWith<>())
-		//{
-		//	Logger::Info("%d", a);
-		//}
-
-		for (auto tuple : m_registry.GetEntitiesWith<TestComponent>())
-		{
-			Entity& id = std::get<0>(tuple);
-			auto& tc = std::get<1>(tuple);
-
+		for (auto [id, tc, tf] : m_registry.AllWith<TestComponent, Transform>())
 			Logger::Info("%d %d", id, tc.a);
-		}
+
+		int count = 0;
+		for (auto [id, tc] : m_registry.AllWith<TestComponent>())
+			count++;
+		Logger::Info("Count w/ TestComponent: %d", count);
 	}
 
 	void Shutdown()

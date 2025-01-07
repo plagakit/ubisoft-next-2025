@@ -4,8 +4,7 @@
 EntityManager::EntityManager() :
 	m_count(0),
 	m_registeredTypeCount(0)
-{
-}
+{}
 
 void EntityManager::ReserveEntities(size_t reserveCap)
 {
@@ -56,7 +55,7 @@ size_t EntityManager::Count() const
 	return m_count;
 }
 
-EntityView<> EntityManager::GetEntities()
+EntityView<> EntityManager::All()
 {
 	return EntityView<>(*this, 0);
 }
@@ -65,14 +64,11 @@ void EntityManager::DeleteEntity(Entity id)
 {
 	Signature s = m_signatures.Get(id);
 
-	for (auto& pair : m_componentIDs)
+	for (auto& [type, cid] : m_componentIDs)
 	{
-		const auto& type = pair.first;
-		ComponentID cid = pair.second;
-
 		// Equivalent to Has() - if has component, remove it
 		if (s & (static_cast<Signature>(1) << cid))
-			m_componentsMap[pair.first]->Remove(id);
+			m_componentsMap[type]->Remove(id);
 	}
 
 	m_signatures.Remove(id);

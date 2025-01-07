@@ -31,6 +31,7 @@ public:
 	void FlushDeleteQueue();
 
 	bool Exists(Entity id) const;
+
 	size_t Count() const;
 
 	// Components
@@ -65,10 +66,10 @@ public:
 
 	// Views
 	
-	EntityView<> GetEntities();
+	EntityView<> All();
 
 	template<typename... Ts>
-	EntityView<Ts...> GetEntitiesWith();
+	EntityView<Ts...> AllWith();
 
 private:
 	// Allow all EntityView templates to access EntityManager
@@ -92,7 +93,7 @@ private:
 
 	template<typename T> SparseSet<T>& GetSparseSet();
 	template<typename T> const SparseSet<T>& GetSparseSet() const;
-
+	template<typename... Ts> Signature GetSignature() const;
 };
 
 // Components Impl
@@ -182,7 +183,7 @@ inline const T& EntityManager::Get(Entity id) const
 }
 
 template<typename ...Ts>
-inline EntityView<Ts...> EntityManager::GetEntitiesWith()
+inline EntityView<Ts...> EntityManager::AllWith()
 {
 	return EntityView<Ts...>(*this, 0);
 }
@@ -190,28 +191,24 @@ inline EntityView<Ts...> EntityManager::GetEntitiesWith()
 template<typename T>
 inline SparseSet<T>& EntityManager::GetSparseSet()
 {
-	auto iptr = m_componentsMap[typeid(T)].get();
+	ISparseSet* iptr = m_componentsMap[typeid(T)].get();
 	return *static_cast<SparseSet<T>*>(iptr);
 }
 
 template<typename T>
 inline const SparseSet<T>& EntityManager::GetSparseSet() const
 {
-	auto iptr = m_componentsMap.at(typeid(T)).get();
+	ISparseSet* iptr = m_componentsMap.at(typeid(T)).get();
 	return *static_cast<SparseSet<T>* const>(iptr);
+}
+
+template<typename ...Ts>
+inline Signature EntityManager::GetSignature() const
+{
+	// Fold expression that sets all bits corresponding to all Ts
+	return (... | (static_cast<Signature>(1) << GetComponentID<Ts>()));
 }
 
 // Views
 
 #include "entity_view.h"
-
-//EntityView<> EntityManager::GetEntities()
-//{
-//	return EntityView<>(*this, 0);
-//}
-//
-//template<typename T, typename ...Ts>
-//inline EntityView<T, Ts...> EntityManager::GetEntitiesWith()
-//{
-//	return EntityView<T, Ts...>(*this, 0);
-//}

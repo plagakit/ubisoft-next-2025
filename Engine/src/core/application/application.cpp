@@ -27,6 +27,7 @@ void Application::__Render__()
 
 void Application::PreInit()
 {
+	Logger::Init();
 	Input::InitDefaultActions();
 }
 

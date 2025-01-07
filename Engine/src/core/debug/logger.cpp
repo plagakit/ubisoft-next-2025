@@ -8,46 +8,43 @@
 #include <cstdarg>
 #include <windows.h>
 
-void Logger::Log(Level level, std::string fmt, va_list args)
+void Logger::Init()
 {
-	const WORD defaultConsoleTextColor = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-	WORD consoleTextColor = defaultConsoleTextColor;
-	std::string levelStr;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+}
 
-	switch (level)
-	{
-	case Level::LOG_DEBUG:
-		levelStr = " [DEBUG] ";
-		break;
-	case Level::LOG_INFO:
-		levelStr = " [INFO] ";
-		break;
-	case Level::LOG_WARN:
-		levelStr = " [WARN] ";
-		consoleTextColor = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY; // red + green = yellow!
-		break;
-	case Level::LOG_ERROR:
-		levelStr = " [ERROR] ";
-		consoleTextColor = FOREGROUND_RED | FOREGROUND_INTENSITY;
-		break;
-	}
+void Logger::Log(Level level, const char* fmt, va_list args)
+{
+	static const char* levelStrs[] = { " [DEBUG] ", " [INFO] ", " [WARN] ", " [ERROR] " };
+	static const WORD levelColors[] = {
+		FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
+		FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
+		FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
+		FOREGROUND_RED | FOREGROUND_INTENSITY
+	};
+	static WORD currentColor = levelColors[Level::LOG_INFO];
 
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, consoleTextColor);
+	if (currentColor != levelColors[level])
+	{
+		SetConsoleTextAttribute(hConsole, levelColors[level]);
+		currentColor = levelColors[level];
+	}
 
 	// Print time & level
 	auto now = std::chrono::system_clock::now();
 	std::time_t time_now = std::chrono::system_clock::to_time_t(now);
 	std::tm* local_time = std::localtime(&time_now);
-	std::cout << std::put_time(local_time, "%H:%M:%S") << levelStr;
 
-	vprintf(fmt.c_str(), args);
+	std::cout << std::put_time(local_time, "%H:%M:%S") << levelStrs[level];
+
+	vprintf(fmt, args);
 
 	std::cout << std::endl;
-	SetConsoleTextAttribute(hConsole, defaultConsoleTextColor);
 }
 
-void Logger::Debug(std::string fmt, ...)
+void Logger::Debug(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -55,7 +52,7 @@ void Logger::Debug(std::string fmt, ...)
 	va_end(args);
 }
 
-void Logger::Info(std::string fmt, ...)
+void Logger::Info(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -63,7 +60,7 @@ void Logger::Info(std::string fmt, ...)
 	va_end(args);
 }
 
-void Logger::Warn(std::string fmt, ...)
+void Logger::Warn(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -71,7 +68,7 @@ void Logger::Warn(std::string fmt, ...)
 	va_end(args);
 }
 
-void Logger::Error(std::string fmt, ...)
+void Logger::Error(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
