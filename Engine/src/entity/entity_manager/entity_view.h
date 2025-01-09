@@ -24,8 +24,8 @@
 */
 
 /**
-The empty EntityView specialization allows you to iterate over all 
-entities, returning every Entity UID in no particular order.
+* The empty EntityView specialization allows you to iterate over all 
+* entities, returning every Entity UID in no particular order.
 */
 template <>
 class EntityView<>
@@ -72,8 +72,10 @@ private:
 };
 
 /**
-* 
-* 
+* Iterates over all entities with the specified types, with T
+* being the main type - the main sparse set that is iterated
+* over. To minimize unnecessary checking, make sure that the
+* main type is usually smaller than the other types.
 */
 template <typename T, typename... Ts>
 class EntityView<T, Ts...>

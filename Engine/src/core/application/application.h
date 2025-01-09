@@ -1,6 +1,10 @@
 #pragma once
 
-#include "ecs/entity_manager/entity_manager.h"
+#include "core/resource/resource_manager.h"
+#include "graphics/renderer/renderer.h"
+#include "entity/entity_manager/entity_manager.h"
+
+#include <memory>
 
 struct ApplicationCmdLineArgs 
 {
@@ -17,6 +21,8 @@ public:
 	void __Render__();
 
 protected:
+	std::unique_ptr<ResourceManager> m_rm;
+	std::unique_ptr<Renderer> m_renderer;
 	EntityManager m_registry;
 
 	virtual void Init() = 0;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecs/entity.h"
+#include "core/uid/uid.h"
 #include "core/debug/assert.h"
 
 #include <vector>
@@ -108,7 +108,7 @@ inline void SparseSet<T>::Insert(UID id, T obj)
 	{
 		if (id >= m_capacity)
 		{
-			Logger::Warn("SparseSet %s hit UID limit, resizing to %d, consider reserving more space", typeid(T).name(), id + 1);
+			Logger::Warn("SparseSet<%s> hit UID limit, resizing to %d, consider reserving more space", typeid(T).name(), id + 1);
 
 			size_t newCap = static_cast<size_t>(id + 1);
 			m_sparse.resize(newCap);

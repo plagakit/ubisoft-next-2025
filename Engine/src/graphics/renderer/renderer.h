@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/resource/resource_manager.h"
 #include "graphics/color/color.h"
 #include "graphics/font/font.h"
 #include "math/vector/vector2.h"
@@ -7,17 +8,29 @@
 class Renderer {
 
 public:
-	static void DrawTextLine(float x, float y, const char* text, Color col = Color::WHITE, Font font = defaultFont);
+	Renderer(ResourceManager& resourceManager);
 
-	static void DrawLine(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
+	// 2D Drawing Functions
 
-	static void DrawRect(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
-	static void DrawFilledRect(float x0, float y0, float x1, float y1, Color c = Color::WHITE);
+	void DrawTextLine(float x, float y, const char* text, Color col = Color::WHITE);
+	void DrawTextLine(float x, float y, const char* text, Color col, RID fontHandle);
 
-	//static void DrawRectC(float x, float y, float width, float height, Color col = Color::WHITE);
-	//static void DrawFilledRectC(float x, float y, float width, float height, Color c = Color::WHITE);
+	void DrawLine(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
+
+	void DrawRect(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
+	void DrawFilledRect(float x0, float y0, float x1, float y1, Color c = Color::WHITE);
+
+	void DrawTexture(float x, float y, RID textureHandle);
+
+	//void DrawRectC(float x, float y, float width, float height, Color col = Color::WHITE);
+	//void DrawFilledRectC(float x, float y, float width, float height, Color c = Color::WHITE);
+
+	// 3D Drawing Function
 
 private:
-	static Font defaultFont;
+	ResourceManager& m_resourceManager;
+
+	RID m_defaultFontHandle;
+	void* m_defaultGlutFont;
 
 };

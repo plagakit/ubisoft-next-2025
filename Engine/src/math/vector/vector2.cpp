@@ -112,5 +112,12 @@ std::string Vector2<T>::ToString() const
 		std::to_string(y) + ")";
 }
 
+template<typename T>
+const Vector2<T> Vector2<T>::ZERO = { static_cast<T>(0), static_cast<T>(0) };
+
+template<typename T>
+const Vector2<T> Vector2<T>::ONE = { static_cast<T>(1), static_cast<T>(1) };
+
+
 template struct Vector2<float>;
 template struct Vector2<int>;

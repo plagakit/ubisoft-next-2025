@@ -1,12 +1,10 @@
 #pragma once
 
-#include <string>
+#include "core/resource/resource.h"
 
-#include "math/vector/vector2.h"
-
-
-struct Font
+class Font : public Resource
 {
+public:
 	enum Type
 	{
 		MONOSPACE_8x13,
@@ -18,10 +16,18 @@ struct Font
 		TIMES_ROMAN_24
 	};
 
-	Type type;
+	void Load(const char* path) override;
+	void Unload() override;
 
+	Type GetType() const;
 	void* GetGLUTFont() const;
 	int GetFontLength(std::string text) const;
 	int GetFontHeight() const;
+
+private:
+	Type m_type;
+	int m_charHeight;
+
+	Type PathToType(const char* path);
 
 };

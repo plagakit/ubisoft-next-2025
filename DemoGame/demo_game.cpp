@@ -5,57 +5,27 @@
 class DemoGame : public Application 
 {
 private:
-	float x = 0.0f;
-	float y = 0.0f;
+	float x, y;
+	float count = 0.0f;
+	RID f1, f2;
+	RID fishSprite;
+
+	MovementSystem m_sysMovement{ m_registry };
+	ParticleSystem m_sysParticle{ m_registry };
 
 public:
 	void Init()
 	{
-		m_registry.ReserveEntities(150000);
-		m_registry.RegisterComponentType<Transform>(150000);
-		m_registry.RegisterComponentType<TestComponent>(150000);
+		f1 = m_rm->Load<Font>("MONOSPACE_8x13");
+		f2 = m_rm->Load<Font>("MONOSPACE_9x15");
+		fishSprite = m_rm->Load<Texture>("./res/sprites/fish.png");
 
-		Entity e1 = m_registry.CreateEntity();
-		Entity e2 = m_registry.CreateEntity();
-
-		Transform c1 = { Vec3(1, 2, 3) };
-		TestComponent c2 = { 23 };
-
-		ASSERT_ERROR(m_registry.Exists(e1), "%d does not exist", e1);
-		ASSERT_ERROR(m_registry.Exists(e2), "%d does not exist", e2);
-		ASSERT_ERROR(m_registry.Count() == 2, "Wrong count: %d", m_registry.Count());
-
-		for (int i = 0; i < 100000; i++)
-		{
-			Entity e = m_registry.CreateEntity();
-			TestComponent a = { e * 2 };
-			m_registry.Add<TestComponent>(e, a);
-		}
-
-		for (int i = 300; i < 700; i++) 
-			m_registry.QueueDelete(i);
-		m_registry.FlushDeleteQueue();
-
-		Logger::Info("Count %d", m_registry.Count());
-		ASSERT_ERROR(m_registry.Has<TestComponent>(299), "Entity 299 doesn't have TestComponent");
-		ASSERT_ERROR(!m_registry.Has<TestComponent>(300), "Entity 300 has TestComponent.");
-
-		for (int i = 0; i < 700 - 300; i++)
-		{
-			Entity id = m_registry.CreateEntity();
-			TestComponent a = { id * 100 };
-			m_registry.Add<TestComponent>(id, a);
-		}
-
-		Logger::Info("Count: %d:", m_registry.Count());
-
-		for (auto [id, tc, tf] : m_registry.AllWith<TestComponent, Transform>())
-			Logger::Info("%d %d", id, tc.a);
-
-		int count = 0;
-		for (auto [id, tc] : m_registry.AllWith<TestComponent>())
-			count++;
-		Logger::Info("Count w/ TestComponent: %d", count);
+		int a = 1000000;
+		m_registry.ReserveEntities(a);
+		m_registry.RegisterComponentType<Transform2D>(a);
+		m_registry.RegisterComponentType<Transform3D>();
+		m_registry.RegisterComponentType<Sprite>(a);
+		m_registry.RegisterComponentType<Particle>(a);
 	}
 
 	void Shutdown()
@@ -65,28 +35,36 @@ public:
 
 	void Update(float dt)
 	{
-		//if (Input::IsJustPressed("mouse-right"))
-		//	ASSERT_WARN(false, "%d", 24123);
+		for (int i = 0; i < 100; i++)
+		{
+			Entity id = m_registry.CreateEntity();
 
-		// TODO: optimize Input
-		//x += Input::GetAxis("left", "right");
-		//y += Input::GetAxis("down", "up");
+			Transform2D tf;
+			tf.position = Vec2(APP_VIRTUAL_WIDTH / 2.0f, APP_VIRTUAL_HEIGHT * 0.25f);
+			Vec2 dir = Math::RandDirection(); dir.y = dir.y < 0 ? -dir.y : dir.y;; dir.y *= 1.2f;
+			tf.velocity = dir * 20.0f;
+			tf.acceleration.y = -0.5f;
 
-		//for (int i = 0; i < 100; i++)
-		//{
-		//	x += Input::GetAxis("left", "right");
-		//}
+			Sprite spr;
+			spr.textureHandle = fishSprite;
 
-		
-		for (auto [id, tc] : m_registry.AllWith<TestComponent>())
-			;// count++;
-		//Logger::Info("Count w/ TestComponent: %d", count);
+			Particle p; p.lifetime = FRAND_RANGE(1.8f, 2.2f);
+
+			m_registry.Add<Transform2D>(id, tf);
+			m_registry.Add<Sprite>(id, spr);
+			m_registry.Add<Particle>(id, p);
+		}
+
+		m_sysMovement.Update();
+		m_sysParticle.Update(dt);
+
+		m_registry.FlushDeleteQueue();
 	}
 
 	void Render()
 	{
-		Renderer::DrawFilledRect(0.0f, 0.0f, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT);
-		Renderer::DrawLine(0, 0, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT, Color::BLUE);
+		m_renderer->DrawFilledRect(0.0f, 0.0f, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT);
+		m_renderer->DrawLine(0, 0, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT, Color::BLUE);
 
 		static float a = 0.0f;
 		const float r = 1.0f;
@@ -99,20 +77,27 @@ public:
 			const float sy = y + 200 + cosf(a + i * 0.1f) * 60.0f;
 			const float ex = x + 700 - sinf(a + i * 0.1f) * 60.0f;
 			const float ey = y + 700 - cosf(a + i * 0.1f) * 60.0f;
-			Renderer::DrawLine(sx, sy, ex, ey, Color::RED);
+			m_renderer->DrawLine(sx, sy, ex, ey, Color::RED);
 		}
 
-		Font f1 = { Font::Type::MONOSPACE_8x13 };
-		Font f2 = { Font::Type::MONOSPACE_9x15 };
-
-		Renderer::DrawTextLine(100, 50, "Default Font", Color::BLACK);
-		Renderer::DrawTextLine(100, 100, "Monospace 8x13", Color::BLACK, f1);
-		Renderer::DrawTextLine(100, 100 + f2.GetFontHeight(), "Monospace 9x15", Color::BLACK, f2);
+		m_renderer->DrawTextLine(100, 50, "Default Font", Color::BLACK);
+		m_renderer->DrawTextLine(100, 100, "Monospace 8x13", Color::BLACK, f1);
+		m_renderer->DrawTextLine(100, 100 + m_rm->Get<Font>(f2).GetFontHeight(), "Monospace 9x15", Color::BLACK, f2);
 
 		auto testStr1 = "Hello World!";
 		auto testStr2 = "Goodbye World!";
-		Renderer::DrawTextLine(200, 50, testStr1, Color::RED, f2);
-		Renderer::DrawTextLine(200 + f2.GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
+		m_renderer->DrawTextLine(200, 50, testStr1, Color::RED, f2);
+		m_renderer->DrawTextLine(200 + m_rm->Get<Font>(f2).GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
+
+		int count = 0;
+		for (auto [id, tf, sp] : m_registry.AllWith<Transform2D, Sprite>())
+		{
+			count++;
+			m_renderer->DrawTexture(tf.position.x, tf.position.y, sp.textureHandle);
+		}
+
+		m_renderer->DrawTextLine(50, 50, std::to_string(count).c_str(), Color::BLUE);
+
 	}
 };
 

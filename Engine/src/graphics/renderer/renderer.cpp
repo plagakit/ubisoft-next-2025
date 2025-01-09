@@ -2,13 +2,29 @@
 #include "renderer.h"
 
 #include "core/debug/logger.h"
+#include "graphics/texture/texture.h"
 #include <App/App.h>
+#include <App/SimpleSprite.h>
 
-Font Renderer::defaultFont = { Font::Type::HELVETICA_18 };
 
-void Renderer::DrawTextLine(float x, float y, const char* text, Color col, Font font)
+
+
+Renderer::Renderer(ResourceManager& resourceManager) :
+	m_resourceManager(resourceManager)
 {
-	App::Print(x, y, text, col.r, col.g, col.b, font.GetGLUTFont());
+	m_defaultFontHandle = m_resourceManager.Load<Font>("HELVETICA_18");
+	m_defaultGlutFont = m_resourceManager.Get<Font>(m_defaultFontHandle).GetGLUTFont();
+}
+
+void Renderer::DrawTextLine(float x, float y, const char* text, Color col)
+{
+	App::Print(x, y, text, col.r, col.g, col.b, m_defaultGlutFont);
+}
+
+void Renderer::DrawTextLine(float x, float y, const char* text, Color col, RID fontHandle)
+{
+	void* glutFont = m_resourceManager.Get<Font>(fontHandle).GetGLUTFont();
+	App::Print(x, y, text, col.r, col.g, col.b, glutFont);
 }
 
 void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col)
@@ -29,4 +45,11 @@ void Renderer::DrawFilledRect(float x0, float y0, float x1, float y1, Color col)
 	// TODO: assert y0 < y1
 	for (float y = y0; y <= y1; y++)
 		App::DrawLine(x0, y, x1, y, col.r, col.g, col.b);
+}
+
+void Renderer::DrawTexture(float x, float y, RID textureHandle)
+{
+	CSimpleSprite& spr = m_resourceManager.Get<Texture>(textureHandle).Get();
+	spr.SetPosition(x, y);
+	spr.Draw();
 }

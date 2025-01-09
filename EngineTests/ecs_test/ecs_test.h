@@ -1,6 +1,7 @@
 #pragma once
 
-struct SparseSetTest
+class ECSTest
 {
+public:
 	static void RunTests();
 };

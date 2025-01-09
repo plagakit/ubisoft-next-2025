@@ -98,7 +98,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENABLE_ASSERTIONS;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_WINDOWS;_CRT_SECURE_NO_WARNINGS;ENABLE_ASSERTIONS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -129,7 +129,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_WINDOWS;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -160,7 +160,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENABLE_ASSERTIONS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_WINDOWS;_CRT_SECURE_NO_WARNINGS;ENABLE_ASSERTIONS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -195,7 +195,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENGINE_EXPORT;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)external\next-api\;</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -239,29 +239,41 @@
     <ClInclude Include="external\next-api\stb_image\stb_image.h" />
     <ClInclude Include="external\next-api\stdafx.h" />
     <ClInclude Include="external\next-api\targetver.h" />
+    <ClInclude Include="src\components\3d\mesh_instance.h" />
+    <ClInclude Include="src\components\particle\particle.h" />
+    <ClInclude Include="src\components\timer.h" />
+    <ClInclude Include="src\components\2d\transform_2d.h" />
     <ClInclude Include="src\core\input\input.h" />
     <ClInclude Include="src\core\input\input_action.h" />
     <ClInclude Include="src\core\input\input_event.h" />
     <ClInclude Include="src\core\debug\assert.h" />
+    <ClInclude Include="src\core\resource\resource.h" />
+    <ClInclude Include="src\core\resource\resource_manager.h" />
     <ClInclude Include="src\core\uid\uid.h" />
-    <ClInclude Include="src\ecs\components\test_component.h" />
-    <ClInclude Include="src\ecs\components\transform.h" />
-    <ClInclude Include="src\ecs\entity.h" />
-    <ClInclude Include="src\ecs\entity_manager\entity_view.h" />
-    <ClInclude Include="src\ecs\entity_manager\entity_manager.h" />
-    <ClInclude Include="src\ecs\entity_manager\sparse_set.h" />
+    <ClInclude Include="src\components\2d\sprite.h" />
+    <ClInclude Include="src\components\test_component.h" />
+    <ClInclude Include="src\components\3d\transform_3d.h" />
+    <ClInclude Include="src\entity\entity.h" />
+    <ClInclude Include="src\entity\entity_manager\entity_view.h" />
+    <ClInclude Include="src\entity\entity_manager\entity_manager.h" />
+    <ClInclude Include="src\entity\entity_manager\sparse_set.h" />
     <ClInclude Include="src\graphics\color\color.h" />
     <ClInclude Include="src\graphics\font\font.h" />
     <ClInclude Include="src\core\app_settings.h" />
     <ClInclude Include="src\core\debug\logger.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\core\application\application.h" />
+    <ClInclude Include="src\graphics\mesh\mesh.h" />
     <ClInclude Include="src\graphics\renderer\renderer.h" />
     <ClInclude Include="src\core\application\launcher.h" />
+    <ClInclude Include="src\graphics\texture\texture.h" />
     <ClInclude Include="src\math\math_utils.h" />
     <ClInclude Include="src\math\vector\vector3.h" />
     <ClInclude Include="src\math\vector\vector2.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\systems\movement\movement_system.h" />
+    <ClInclude Include="src\systems\particle\particle_system.h" />
+    <ClInclude Include="src\systems\system.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="external\next-api\App\app.cpp">
@@ -327,14 +339,18 @@
     <ClCompile Include="src\core\input\input.cpp" />
     <ClCompile Include="src\core\input\input_action.cpp" />
     <ClCompile Include="src\core\input\input_event.cpp" />
+    <ClCompile Include="src\core\resource\resource.cpp" />
+    <ClCompile Include="src\core\resource\resource_manager.cpp" />
     <ClCompile Include="src\core\uid\uid.cpp" />
-    <ClCompile Include="src\ecs\entity_manager\entity_manager.cpp" />
+    <ClCompile Include="src\entity\entity_manager\entity_manager.cpp" />
     <ClCompile Include="src\graphics\color\color.cpp" />
     <ClCompile Include="src\graphics\font\font.cpp" />
     <ClCompile Include="src\core\debug\logger.cpp" />
     <ClCompile Include="src\core\application\application.cpp" />
     <ClCompile Include="src\graphics\renderer\renderer.cpp" />
     <ClCompile Include="src\core\application\launcher.cpp" />
+    <ClCompile Include="src\graphics\texture\texture.cpp" />
+    <ClCompile Include="src\math\math_utils.cpp" />
     <ClCompile Include="src\math\vector\vector3.cpp" />
     <ClCompile Include="src\math\vector\vector2.cpp" />
     <ClCompile Include="src\pch.cpp">
@@ -343,6 +359,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\systems\movement\movement_system.cpp" />
+    <ClCompile Include="src\systems\particle\particle_system.cpp" />
+    <ClCompile Include="src\systems\system.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

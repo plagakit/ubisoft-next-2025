@@ -25,6 +25,9 @@ struct Vector2
 	Vector2& operator/=(T scalar);
 	Vector2& operator/=(const Vector2& v);
 
+	static const Vector2 ZERO;
+	static const Vector2 ONE;
+
 	std::string ToString() const;
 
 };

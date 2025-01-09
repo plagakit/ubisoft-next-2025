@@ -1,5 +1,6 @@
 #include "sparse_set_test.h"
 
+#include <engine.h>
 #include <random>
 
 void SparseSetTest::RunTests()
@@ -17,6 +18,12 @@ void SparseSetTest::RunTests()
 
 	ASSERT_ERROR(ss.Size() == 0, "Size is not zero.");
 	ASSERT_ERROR(ss.Capacity() == 0, "Capacity is not zero.");
+
+	size_t cap = amt + 1;
+	ss = SparseSet<int>(cap);
+
+	ASSERT_ERROR(ss.Size() == 0, "Size is not zero.");
+	ASSERT_ERROR(ss.Capacity() == cap, "Capacity is not zero.");
 
 	for (UID i = 1; i <= amt; i++)
 		ss.Insert(i, i * 2);
@@ -56,4 +63,6 @@ void SparseSetTest::RunTests()
 		ASSERT_ERROR(ss.Has(i), "UID %d has wrong Has after mass deletion", i);
 		ASSERT_ERROR(ss.Get(i) == i * 2, "UID %d returning %d after mass deletion", i, ss.Get(i) == i * 2);
 	}
+
+	Logger::Info("SparseSet tests passed!");
 }

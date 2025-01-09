@@ -1,8 +1,7 @@
 #pragma once
 
-#include "sparse_set.h"
-#include "core/uid/uid.h"
-#include "ecs/entity.h"
+#include "entity/entity.h"
+#include "entity/entity_manager/sparse_set.h"
 
 #include "core/debug/assert.h"
 
@@ -111,8 +110,8 @@ inline void EntityManager::RegisterComponentType(size_t reserveCap)
 template<typename T>
 inline bool EntityManager::IsComponentRegistered() const
 {
-	return m_componentsMap.find(typeid(T)) != m_componentsMap.end();
-	//&& m_componentIDs.find(typeid(T)) != m_componentIDs.end();
+	return m_componentsMap.find(typeid(T)) != m_componentsMap.end()
+		&& m_componentIDs.find(typeid(T)) != m_componentIDs.end();
 }
 
 template<typename T>
