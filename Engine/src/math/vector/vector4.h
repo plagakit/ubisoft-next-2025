@@ -9,8 +9,11 @@ struct Vector4
 	T x, y, z, w;
 
 	Vector4();
-	Vector4(Vector3<T> v);
 	Vector4(T x, T y, T z, T w);
+
+	// Copies, and sets w = 1
+	Vector4(Vector3<T> v);
+	
 
 	std::string ToString() const;
 };

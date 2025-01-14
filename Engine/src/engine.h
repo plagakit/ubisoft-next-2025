@@ -17,11 +17,14 @@
 #include "math/vector/vector3.h"
 #include "math/vector/vector4.h"
 #include "math/matrix/mat4.h"
+#include "math/quaternion/quat.h"
 
 #include "graphics/renderer/renderer.h"
 #include "graphics/color/color.h"
 #include "graphics/font/font.h"
 #include "graphics/texture/texture.h"
+#include "graphics/mesh/mesh.h"
+#include "graphics/camera/camera.h"
 
 #include "entity/entity.h"
 #include "entity/entity_manager/entity_manager.h"
@@ -37,3 +40,4 @@
 
 #include "systems/movement/movement_system.h"
 #include "systems/particle/particle_system.h"
+#include "systems/render/render_system.h"

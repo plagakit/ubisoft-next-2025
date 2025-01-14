@@ -34,12 +34,18 @@ void Application::PreInit()
 	Logger::Init();
 	Input::InitDefaultActions();
 
-	m_rm = std::make_unique<ResourceManager>();
-	m_renderer = std::make_unique<Renderer>(*m_rm.get());
+	m_rm = new ResourceManager();
+	m_renderer = new Renderer(*m_rm);
 }
 
 void Application::PreUpdate(float dt)
 {
 	Input::Update();
+}
+
+void Application::PostShutdown()
+{
+	delete m_rm;
+	delete m_renderer;
 }
 

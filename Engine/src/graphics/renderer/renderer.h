@@ -4,6 +4,16 @@
 #include "graphics/color/color.h"
 #include "graphics/font/font.h"
 #include "math/vector/vector2.h"
+#include "math/vector/vector3.h"
+#include "math/vector/vector4.h"
+#include "math/matrix/mat4.h"
+#include "components/2d/transform_2d.h"
+#include "components/3d/transform_3d.h"
+#include "components/3d/mesh_instance.h"
+#include "graphics/renderer/rasterizer/depth_buffer_rasterizer.h"
+
+#include <vector>
+
 
 class Renderer {
 
@@ -21,16 +31,55 @@ public:
 	void DrawFilledRect(float x0, float y0, float x1, float y1, Color c = Color::WHITE);
 
 	void DrawTexture(float x, float y, RID textureHandle);
+	void DrawTexture(const Transform2D& tf, RID textureHandle);
 
 	//void DrawRectC(float x, float y, float width, float height, Color col = Color::WHITE);
 	//void DrawFilledRectC(float x, float y, float width, float height, Color c = Color::WHITE);
 
-	// 3D Drawing Function
+	// 3D Drawing Functions
+
+	void ClearScreen();
+
+	void DrawMesh(const Mat4& model, const MeshInstance& meshInstance);
+
+	void FlushRasterQueue();
+
+	void SetViewMatrix(const Mat4& view);
+	void SetProjectionMatrix(const Mat4& projection);
+
+	// 3D Drawing Utils
+
+	static float Triangle2DArea(const Vec4& a, const Vec4& b, const Vec4& c);
+	static bool IsCounterClockwise(const Vec4& a, const Vec4& b, const Vec4& c);
+
+	static void ClipTriangleAgainstPlane(
+		const Vec3& planePos, const Vec3& planeNormal
+	);
 
 private:
 	ResourceManager& m_resourceManager;
 
 	RID m_defaultFontHandle;
 	void* m_defaultGlutFont;
+
+	Mat4 m_view;
+	Mat4 m_projection;
+
+	// I think it's funny how I'm simulating a GPU a little bit by naming it VRAM hehe
+	// DrawMesh calls will copy over their mesh data into the VRAM arrays for processing, 
+	// since we need local storage. We can avoid copying into arrs by iterating over 
+	// triangle data, but then we lose the benefit of reusing already computed vertices.
+	//
+	// Is it a benefit? I think that would need profiling, but this is a nice
+	// opportunity to learn how by implementing it myself and comparing to
+	// other projects where I didn't do it like this! :D
+
+	static constexpr size_t VRAM_ARR_SIZE = 300000;
+	std::vector<Vec4> m_vertexVRAM;
+	std::vector<Vec3> m_normalVRAM;
+	std::vector<unsigned int> m_indexVRAM;
+
+	DepthBufferRasterizer m_rasterizer;
+	int m_rasterizedTriangles;
 
 };

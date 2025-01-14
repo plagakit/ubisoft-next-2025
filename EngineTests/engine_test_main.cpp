@@ -2,6 +2,7 @@
 
 #include "sparse_set_test/sparse_set_test.h"
 #include "ecs_test/ecs_test.h"
+#include "matrix_test/matrix_test.h"
 
 class EngineTest : public Application
 {
@@ -10,6 +11,7 @@ public:
 	{	
 		SparseSetTest::RunTests();
 		ECSTest::RunTests();
+		MatrixTest::RunTests();
 	}
 
 	void Shutdown() {}

@@ -5,5 +5,5 @@
 class MovementSystem : public System
 {
 public:
-	void Update();
+	void Update(float dt);
 };

@@ -21,8 +21,8 @@ public:
 	void __Render__();
 
 protected:
-	std::unique_ptr<ResourceManager> m_rm;
-	std::unique_ptr<Renderer> m_renderer;
+	ResourceManager* m_rm;
+	Renderer* m_renderer;
 	EntityManager m_registry;
 
 	virtual void Init() = 0;
@@ -34,4 +34,5 @@ private:
 	void PreInit();
 	void PreUpdate(float dt);
 
+	void PostShutdown();
 };
