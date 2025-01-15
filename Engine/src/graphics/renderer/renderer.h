@@ -41,20 +41,29 @@ public:
 	void ClearScreen();
 
 	void DrawMesh(const Mat4& model, const MeshInstance& meshInstance);
+	void DrawBillboard(const Vec3& pos, float scale, RID textureHandle);
 
-	void FlushRasterQueue();
+	void Flush();
 
 	void SetViewMatrix(const Mat4& view);
 	void SetProjectionMatrix(const Mat4& projection);
+	void SetClearColor(const Color& color);
 
 	// 3D Drawing Utils
 
 	static float Triangle2DArea(const Vec4& a, const Vec4& b, const Vec4& c);
 	static bool IsCounterClockwise(const Vec4& a, const Vec4& b, const Vec4& c);
 
-	static void ClipTriangleAgainstPlane(
-		const Vec3& planePos, const Vec3& planeNormal
-	);
+	static float LinePlaneIntersection(
+		const Vec3& planePos, const Vec3& planeNormal,
+		const Vec3& lineStart, const Vec3& lineEnd, 
+		Vec4& intersection);
+
+	//int ClipTriangleAgainstPlane(
+	//	const Vec3& planePos, const Vec3& planeNormal,
+	//	unsigned int idxA, unsigned int idxB, unsigned int idxC,
+	//	Vec4& out1A, Vec4& out1B, Vec4& out1C,
+	//	Vec4& out2A, Vec4& out2B, Vec4& out2C) const;
 
 private:
 	ResourceManager& m_resourceManager;
@@ -80,6 +89,5 @@ private:
 	std::vector<unsigned int> m_indexVRAM;
 
 	DepthBufferRasterizer m_rasterizer;
-	int m_rasterizedTriangles;
 
 };

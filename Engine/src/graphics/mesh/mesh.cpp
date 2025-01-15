@@ -37,6 +37,13 @@ void Mesh::Load(const char* path)
 			// Parse vertex position
 			Vec3 v;
 			stream >> junk >> v.x >> v.y >> v.z;
+
+			// The OBJs I'm using are made in Blender - a right handed coordinate system
+			// My coordinate system is left-handed, so I need to reverse the z position
+			// I read a Microsoft article about this b/c DirectX is in LHS, and I would
+			// link it here but I lost the link
+			v.z = -v.z;
+
 			m_vertexBuffer.push_back(v);
 		}
 		else if (line[0] == 'v' && line[1] == 'n')

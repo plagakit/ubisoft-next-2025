@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "vector3.h"
 
+#include "math/vector/vector4.h"
 #include "math/math_utils.h"
 
 template <typename T>
@@ -13,6 +14,11 @@ Vector3<T>::Vector3() :
 template <typename T>
 Vector3<T>::Vector3(T x, T y, T z) :
 	x(x), y(y), z(z)
+{}
+
+template<typename T>
+Vector3<T>::Vector3(const Vector4<T>& v) :
+	x(v.x), y(v.y), z(v.z)
 {}
 
 template<typename T>

@@ -16,22 +16,40 @@ https://fgiesen.wordpress.com/2013/02/10/optimizing-the-basic-rasterizer/ (this 
 
 DepthBufferRasterizer::DepthBufferRasterizer()
 {
-	m_colorBuffer.resize(APP_VIRTUAL_WIDTH * APP_VIRTUAL_HEIGHT, Color::WHITE);
+	m_clearColor = Color::BLACK;
+	m_colorBuffer.resize(APP_VIRTUAL_WIDTH * APP_VIRTUAL_HEIGHT, m_clearColor);
 	m_depthBuffer.resize(APP_VIRTUAL_WIDTH * APP_VIRTUAL_HEIGHT, 1.0f);
 }
 
 void DepthBufferRasterizer::Clear()
 {
-	std::fill(m_colorBuffer.begin(), m_colorBuffer.end(), Color::BLACK);
+	std::fill(m_colorBuffer.begin(), m_colorBuffer.end(), m_clearColor);
 	std::fill(m_depthBuffer.begin(), m_depthBuffer.end(), 1.0f);
 }
 
-void DepthBufferRasterizer::RasterizeTriangle(const Vec4& a, const Vec4& b, const Vec4& c, const Color& color)
+void DepthBufferRasterizer::RasterizeTriangle(
+	const Vec4& a, const Vec4& b, const Vec4& c, 
+	const Vec3& an, const Vec3& bn, const Vec3& cn,
+	const Color& baseColor, ShadingMode mode)
 {
+	Color color = baseColor;
+	if (mode == ShadingMode::WIREFRAME)
+	{
+		DrawLineBresenham(a.x, a.y, b.x, b.y, color);
+		DrawLineBresenham(b.x, b.y, c.x, c.y, color);
+		DrawLineBresenham(c.x, c.y, a.x, a.y, color);
+		return;
+	}
+	else if (mode == ShadingMode::SHADED)
+	{
+		Vec3 faceNormal = (an + bn + cn).Normalized();
+		float shadingFactor = (1.0f + faceNormal.Dot(Vec3::FORWARD)) * 0.5f;
+		color.r = baseColor.r * shadingFactor;
+		color.g = baseColor.g * shadingFactor;
+		color.b = baseColor.b * shadingFactor;
+	}
+
 	float area = Renderer::Triangle2DArea(a, b, c);
-	
-	//float fac = (-glm::dot(tri.faceNormal, lightDirection) + 1) * 0.5f;
-	//Color darkedCol = DarkenColor(WHITE, fac);
 
 	// Biases for abiding by fill rules
 	//int bias0 = IsEdgeTopOrLeft(b, c) ? 0 : -1;
@@ -43,10 +61,9 @@ void DepthBufferRasterizer::RasterizeTriangle(const Vec4& a, const Vec4& b, cons
 	int maxX = std::min(APP_VIRTUAL_WIDTH, static_cast<int>(std::ceilf(std::max({ a.x, b.x, c.x }))));
 	int minY = std::max(0, static_cast<int>(std::floorf(std::min({ a.y, b.y, c.y }))));
 	int maxY = std::min(APP_VIRTUAL_HEIGHT, static_cast<int>(std::ceilf(std::max({ a.y, b.y, c.y }))));
-	//Logger::Info("Min: (%d, %d), Max: (%d, %d)", minX, minY, maxX, maxY);
 
 	// Incremental Pineda rasterization
-	Vec4 point = Vec4(static_cast<float>(minX), static_cast<float>(minY), 0.0f, 0.0f);
+	Vec4 point = Vec4(static_cast<float>(minX), static_cast<float>(minY), 0.0f, 1.0f);
 	float row12 = Renderer::Triangle2DArea(b, c, point);
 	float row20 = Renderer::Triangle2DArea(c, a, point);
 	float row01 = Renderer::Triangle2DArea(a, b, point);
@@ -69,8 +86,6 @@ void DepthBufferRasterizer::RasterizeTriangle(const Vec4& a, const Vec4& b, cons
 		{
 			int idx = y * APP_VIRTUAL_WIDTH + x;
 
-			Logger::Info("%f %f %f", edge01, edge12, edge20);
-
 			// Triangle area is positive when the third point is
 			// "to the right" of the line formed by first and second
 			// point. A point is inside the triangle if it is to the
@@ -87,7 +102,6 @@ void DepthBufferRasterizer::RasterizeTriangle(const Vec4& a, const Vec4& b, cons
 				{
 					m_depthBuffer[idx] = z;
 					m_colorBuffer[idx] = color;
-					Logger::Info("Setting pixel (%d, %d)", x, y);
 					
 					// If it wasn't just DrawLine then it'd be nice to include
 					// things that use w, like texture coords. But we need to 
@@ -132,24 +146,54 @@ void DepthBufferRasterizer::Flush()
 
 	int drawnLines = 0;
 	int idx = 0;
-	for (float y = 0; y < APP_VIRTUAL_HEIGHT; y++)
+
+	for (float y = 0; y < APP_VIRTUAL_HEIGHT; y += RASTER_DOWNSCALING)
 	{
 		float xStart = 0.0f;
 		Color col = m_colorBuffer[idx];
 		
 		idx++;
-		for (float x = 1.0f; x < APP_VIRTUAL_WIDTH; x += 2.0f)
+		for (float x = 1.0f; x < APP_VIRTUAL_WIDTH; x += RASTER_DOWNSCALING)
 		{
 			Color cur = m_colorBuffer[idx];
 			if (std::abs(cur.r - col.r) > EPSILON
 				|| std::abs(cur.g - col.g) > EPSILON
 				|| std::abs(cur.b - col.b) > EPSILON)
 			{
-				App::DrawLine(xStart, y, x, y, 1.0f, 0.0f, 0.0f);
+				App::DrawLine(xStart, y, x, y, col.r, col.g, col.b);
+				col = cur;
 				xStart = x;
 			}
-			idx++;
+			idx += RASTER_DOWNSCALING;
 		}
+		idx += APP_VIRTUAL_WIDTH * (RASTER_DOWNSCALING - 1);
+
+		App::DrawLine(xStart, y, APP_VIRTUAL_WIDTH, y, col.r, col.g, col.b);
 	}
-	Logger::Info("Drawn lines: %d", drawnLines);
+}
+
+void DepthBufferRasterizer::SetClearColor(const Color& color)
+{
+	m_clearColor = color;
+}
+
+void DepthBufferRasterizer::DrawLineBresenham(int x0, int y0, int x1, int y1, const Color& color)
+{
+	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
+	int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+	int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+	int err = dx + dy, e2;
+
+	while (true)
+	{
+		if (x0 >= 0 && x0 < APP_VIRTUAL_WIDTH && y0 >= 0 && y0 < APP_VIRTUAL_HEIGHT)
+			m_colorBuffer[y0 * APP_VIRTUAL_WIDTH + x0] = color;
+
+		if (x0 == x1 && y0 == y1)
+			return;
+		e2 = 2 * err;
+		if (e2 >= dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
+		if (e2 <= dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
+	}
 }

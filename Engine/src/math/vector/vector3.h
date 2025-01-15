@@ -2,6 +2,9 @@
 
 #include <string>
 
+template<typename T>
+struct Vector4;
+
 template <typename T>
 struct Vector3
 {
@@ -9,6 +12,7 @@ struct Vector3
 
 	Vector3();
 	Vector3(T x, T y, T z);
+	Vector3(const Vector4<T>& v);
 
 	Vector3 operator-() const;
 	Vector3 operator+(const Vector3& v) const;
