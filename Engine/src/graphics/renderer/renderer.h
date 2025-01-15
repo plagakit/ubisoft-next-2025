@@ -11,6 +11,7 @@
 #include "components/3d/transform_3d.h"
 #include "components/3d/mesh_instance.h"
 #include "graphics/renderer/rasterizer/depth_buffer_rasterizer.h"
+#include "graphics/renderer/rasterizer/painters_rasterizer.h"
 
 #include <vector>
 
@@ -38,12 +39,14 @@ public:
 
 	// 3D Drawing Functions
 
-	void ClearScreen();
+	void ClearMeshRasterizer();
+	void ClearTextureRasterizer();
 
 	void DrawMesh(const Mat4& model, const MeshInstance& meshInstance);
 	void DrawBillboard(const Vec3& pos, float scale, RID textureHandle);
 
-	void Flush();
+	void FlushMeshes();
+	void Flush3DTextures();
 
 	void SetViewMatrix(const Mat4& view);
 	void SetProjectionMatrix(const Mat4& projection);
@@ -89,5 +92,6 @@ private:
 	std::vector<unsigned int> m_indexVRAM;
 
 	DepthBufferRasterizer m_rasterizer;
+	PaintersRasterizer m_txRasterizer;
 
 };

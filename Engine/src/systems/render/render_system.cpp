@@ -22,7 +22,8 @@ void RenderSystem::Render2DEntities()
 void RenderSystem::Render3DEntities()
 {
 	for (auto [id, mi, tf] : m_registry.AllWith<MeshInstance, Transform3D>())
-	{
 		m_renderer.DrawMesh(tf.ToMatrix(), mi);
-	}
+
+	for (auto [id, sp, tf] : m_registry.AllWith<Sprite, Transform3D>())
+		m_renderer.DrawBillboard(tf.position, tf.scale.LengthSq(), sp.textureHandle);
 }

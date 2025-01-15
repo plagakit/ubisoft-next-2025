@@ -12,6 +12,7 @@ public:
 		const Vec4& a, const Vec4& b, const Vec4& c, 
 		const Vec3& an, const Vec3& bn, const Vec3& cn, 
 		const Color& color, ShadingMode mode) override;
+	void RasterizeTexture(const Vec4& pos, RID textureHandle) override;
 	void Flush() override;
 
 	void SetClearColor(const Color& color);

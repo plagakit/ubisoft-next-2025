@@ -35,9 +35,9 @@ void DepthBufferRasterizer::RasterizeTriangle(
 	Color color = baseColor;
 	if (mode == ShadingMode::WIREFRAME)
 	{
-		DrawLineBresenham(a.x, a.y, b.x, b.y, color);
-		DrawLineBresenham(b.x, b.y, c.x, c.y, color);
-		DrawLineBresenham(c.x, c.y, a.x, a.y, color);
+		DrawLineBresenham(static_cast<int>(a.x), static_cast<int>(a.y), static_cast<int>(b.x), static_cast<int>(b.y), color);
+		DrawLineBresenham(static_cast<int>(b.x), static_cast<int>(b.y), static_cast<int>(c.x), static_cast<int>(c.y), color);
+		DrawLineBresenham(static_cast<int>(c.x), static_cast<int>(c.y), static_cast<int>(a.x), static_cast<int>(a.y), color);
 		return;
 	}
 	else if (mode == ShadingMode::SHADED)
@@ -121,6 +121,11 @@ void DepthBufferRasterizer::RasterizeTriangle(
 		row12 += B12;
 		row20 += B20;
 	}
+}
+
+void DepthBufferRasterizer::RasterizeTexture(const Vec4& pos, RID textureHandle)
+{
+	ASSERT_ERROR(false, "Depth-buffer rasterizer can't draw a texture!");
 }
 
 void DepthBufferRasterizer::Flush()

@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include <type_traits>
+#include <algorithm>
 
 #include <string>
 #include <vector>

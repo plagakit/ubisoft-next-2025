@@ -25,10 +25,12 @@ protected:
 	Renderer* m_renderer;
 	EntityManager m_registry;
 
-	virtual void Init() = 0;
-	virtual void Shutdown() = 0;
-	virtual void Update(float dt) = 0;
-	virtual void Render() = 0;
+	virtual void Init() {};
+	virtual void Shutdown() {};
+	virtual void Update(float dt) {};
+	virtual void Render() {};
+
+	//virtual void LoadRootScene() = 0;
 
 private:
 	void PreInit();

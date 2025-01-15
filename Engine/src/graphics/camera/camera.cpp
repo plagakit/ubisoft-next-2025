@@ -31,10 +31,10 @@ const Mat4& Camera::GetProjection() const
 
 Mat4 Camera::GetView() const
 {
-	Mat4 m;
+	Mat4 m = Mat4::IDENTITY;
 	m.Translate(-m_transform.position);
-	//m.Rotate()
-	m.Scale(-m_transform.scale);
+	m.Rotate(m_transform.orientation.Inverse());
+	m.Scale({ 1.0f / m_transform.scale.x, 1.0f / m_transform.scale.y, 1.0f / m_transform.scale.z });
 	return m;
 }
 

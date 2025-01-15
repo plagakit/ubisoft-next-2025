@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+int asd = 0;
+int two(int a, int b) { asd++; return a + b; }
+
 class DemoGame : public Application 
 {
 private:
@@ -14,10 +17,17 @@ private:
 	
 
 public:
+
+	void TimerFireTest(Entity id)
+	{
+		Logger::Info("Timer w/ ID %d fired!", id);
+	}
+	
 	void Init()
 	{
 		m_renderer->SetViewMatrix(Mat4::IDENTITY);
 		m_renderer->SetProjectionMatrix(camera.GetProjection());
+		//m_renderer->SetClearColor(Color::BLACK);
 
 		f1 = m_rm->Load<Font>("MONOSPACE_8x13");
 		f2 = m_rm->Load<Font>("MONOSPACE_9x15");
@@ -32,6 +42,7 @@ public:
 		m_registry.RegisterComponentType<Sprite>(a);
 		m_registry.RegisterComponentType<Particle>(a);
 		m_registry.RegisterComponentType<MeshInstance>(a);
+		m_registry.RegisterComponentType<Timer>();
 
 		//const Mesh& suzanneMesh = m_rm->Get<Mesh>(suzanne);
 		//Logger::Info("%d %d %d",
@@ -39,23 +50,32 @@ public:
 		//	suzanneMesh.GetNormalBuffer().size(),
 		//	suzanneMesh.GetIndexBuffer().size());
 
-		Entity c = m_registry.CreateEntity();
-		Transform3D tf; tf.position = Vec3::FORWARD * 5; tf.angVelocity = Quat::FromAxisAngle(Vec3::UP, 0.02f);
-		m_registry.Add<Transform3D>(c, tf);
-		m_registry.Add<MeshInstance>(c, { cube });
+		//Entity c = m_registry.CreateEntity();
+		//Transform3D tf; tf.position = Vec3::FORWARD * 5; tf.angVelocity = Quat::FromAxisAngle(Vec3::UP, 0.02f);
+		//MeshInstance mi; mi.meshHandle = suzanne; mi.mode = MeshInstance::Mode::FILLED;
+		//m_registry.Add<Transform3D>(c, tf);
+		//m_registry.Add<MeshInstance>(c, mi);
 
 		for (int i = 0; i < 0; i++)
 		{
 			Entity id = m_registry.CreateEntity();
-			Transform3D tf; 
-			tf.position = Vec3::FORWARD * 100;
-			tf.position.x = (i % 10 - 5) * 10.0f;
-			tf.position.y = (i / 10 - 5) * 10.0f;
-			tf.angVelocity = Quat::FromAxisAngle(Vec3::UP, FRAND_RANGE(-0.02f, 0.02f));
-			tf.scale = Vec3(1.0f, 2.0f, 1.0f);
+
+			//Transform3D tf; 
+			//tf.position = Vec3::FORWARD * 10;
+			//tf.position.x = (i % 10 - 5) * 3.0f;
+			////tf.position.y = (i / 10 - 5) * 3.0f;
+			//tf.angVelocity = Quat::FromAxisAngle(Vec3::UP, FRAND_RANGE(-0.1f, 0.1f));
+			//tf.scale = Vec3::ONE * 2.0f;
+
+			Transform3D tf;
+			tf.position = Vec3::FORWARD * 10.0f + Vec3::DOWN * 2.0f;
+			tf.velocity = Vec3::UP * 100.0f;
+
+			//MeshInstance mi = { suzanne, Color::GREEN, ShadingMode::FILLED };
 
 			m_registry.Add<Transform3D>(id, tf);
-			m_registry.Add<MeshInstance>(id, { suzanne });
+			//m_registry.Add<MeshInstance>(id, mi);
+			m_registry.Add<Sprite>(id, { fishSprite });
 		}
 
 	}
@@ -70,6 +90,11 @@ public:
 		// Normally you don't define 
 		MovementSystem m_sysMovement{ m_registry };
 		ParticleSystem m_sysParticle{ m_registry };
+		TimerSystem m_sysTimer{ m_registry };
+
+		auto& camtf = camera.GetTransform();
+		camtf.position += Vec3::FORWARD * Input::GetAxis("down", "up") * dt;
+		m_renderer->SetViewMatrix(camera.GetView());
 
 		for (int i = 0; i < 0; i++)
 		{
@@ -92,8 +117,31 @@ public:
 			m_registry.Add<Particle>(id, p);
 		}
 
+		for (int i = 0; i < 10; i++)
+		{
+			Entity id = m_registry.CreateEntity();
+
+			Transform3D tf;
+			tf.position = Vec3::FORWARD * 10.0f + Vec3::DOWN * 2.0f;
+			tf.scale = { 2.0f, 2.0f, 2.0f };
+			Vec2 dir = Math::RandDirection(); dir *= 10.0f;
+			tf.velocity = Vec3(dir.x, 30.0f, dir.y);
+			tf.acceleration.y = -98.0f;
+			//tf.angVelocity = FRAND_RANGE(-PI, PI) * 2.0f;
+
+			Sprite spr;
+			spr.textureHandle = fishSprite;
+
+			Particle p; p.lifetime = FRAND_RANGE(5.0f, 6.0f);
+
+			m_registry.Add<Transform3D>(id, tf);
+			m_registry.Add<Sprite>(id, spr);
+			m_registry.Add<Particle>(id, p);
+		}
+
 		m_sysMovement.Update(dt);
 		m_sysParticle.Update(dt);
+		m_sysTimer.Update(dt);
 
 		m_registry.FlushDeleteQueue();
 	}
@@ -137,10 +185,10 @@ public:
 
 		//m_renderer->DrawTextLine(50, 50, std::to_string(count).c_str(), Color::BLUE);
 
-		m_renderer->ClearScreen();
+		m_renderer->ClearTextureRasterizer();
 		m_sysRender.Render3DEntities();
-		m_sysRender.Render2DEntities();
-		m_renderer->FlushRasterQueue();
+		//m_sysRender.Render2DEntities();
+		m_renderer->Flush3DTextures();
 	}
 };
 

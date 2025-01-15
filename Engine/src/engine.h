@@ -3,14 +3,13 @@
 #include "core/application/launcher.h"
 #include "core/application/application.h"
 #include "core/app_settings.h"
-
 #include "core/debug/logger.h"
 #include "core/debug/assert.h"
-
 #include "core/input/input.h"
-
 #include "core/resource/resource.h"
 #include "core/resource/resource_manager.h"
+#include "core/signal/callback.h"
+#include "core/signal/signal.h"
 
 #include "math/math_utils.h"
 #include "math/vector/vector2.h"
@@ -41,3 +40,4 @@
 #include "systems/movement/movement_system.h"
 #include "systems/particle/particle_system.h"
 #include "systems/render/render_system.h"
+#include "systems/timer/timer_system.h"

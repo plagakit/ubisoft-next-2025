@@ -12,7 +12,8 @@
 #include <App/SimpleSprite.h>
 
 Renderer::Renderer(ResourceManager& resourceManager) :
-	m_resourceManager(resourceManager)
+	m_resourceManager(resourceManager),
+	m_txRasterizer(*this, resourceManager)
 {
 	m_defaultFontHandle = m_resourceManager.Load<Font>("HELVETICA_18");
 	m_defaultGlutFont = m_resourceManager.Get<Font>(m_defaultFontHandle).GetGLUTFont();
@@ -70,9 +71,14 @@ void Renderer::DrawTexture(const Transform2D& tf, RID textureHandle)
 	css.Draw();
 }
 
-void Renderer::ClearScreen()
+void Renderer::ClearMeshRasterizer()
 {
 	m_rasterizer.Clear();
+}
+
+void Renderer::ClearTextureRasterizer()
+{
+	m_txRasterizer.Clear();
 }
 
 void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
@@ -161,9 +167,30 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 
 void Renderer::DrawBillboard(const Vec3& pos, float scale, RID textureHandle)
 {
+	// Model Space -> Clip Space
+	Mat4 model = Mat4(1.0f);
+	Mat4 MVP = m_projection * m_view * model;
+	Vec4 point = MVP * Vec4(pos);
+	
+	// Near-culling
+	if (point.z < 0)
+		return;
+
+	// Perspective division
+	point.x /= point.w;
+	point.y /= point.w;
+	point.z /= point.w;
+
+	// Clip Space -> Screen Space
+	point.x = (point.x + 1.0f) * 0.5f * APP_VIRTUAL_WIDTH;
+	point.y = (point.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
+	
+	// Rasterizer expects w = scale
+	point.w = scale;
+	m_txRasterizer.RasterizeTexture(point, textureHandle);
 }
 
-void Renderer::Flush()
+void Renderer::FlushMeshes()
 {
 	m_rasterizer.Flush();
 
@@ -172,6 +199,11 @@ void Renderer::Flush()
 #if defined(USE_DEBUG_RASTER_DOWNSCALING) && defined(_DEBUG)
 	DrawFilledRect(10, 10, 130, 50, Color::WHITE);
 #endif
+}
+
+void Renderer::Flush3DTextures()
+{
+	m_txRasterizer.Flush();
 }
 
 void Renderer::SetViewMatrix(const Mat4& view)

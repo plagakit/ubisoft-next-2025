@@ -3,6 +3,7 @@
 #include "math/vector/vector4.h"
 #include "graphics/color/color.h"
 #include "graphics/shading_mode.h"
+#include "graphics/texture/texture.h"
 
 // An interface for a rasterizer, any derived classes implement their
 // own rasterization methods, the customization almost makes this like
@@ -18,6 +19,9 @@ public:
 		const Vec4& a, const Vec4& b, const Vec4& c, 
 		const Vec3& an, const Vec3& bn, const Vec3& cn, 
 		const Color& color, ShadingMode mode) = 0;
+
+	// Rasterize a texture given its x, y in screen-space, z in clip space, and w as a scale
+	virtual void RasterizeTexture(const Vec4& pos, RID textureHandle) = 0;
 
 	// Flush all rasterize calls and blit to the screen
 	virtual void Flush() = 0;
