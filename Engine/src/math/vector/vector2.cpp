@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Vector2.h"
 
+#include "math/math_utils.h"
 #include "core/debug/assert.h"
 
 template <typename T>
@@ -102,6 +103,49 @@ Vector2<T>& Vector2<T>::operator/=(const Vector2& v)
 	x /= v.x;
 	y /= v.y;
 	return *this;
+}
+
+template<typename T>
+bool Vector2<T>::Equals(const Vector2& v) const
+{
+	return std::abs(x - v.x) < EPSILON
+		&& std::abs(y - v.y) < EPSILON;
+}
+
+template<typename T>
+T Vector2<T>::Dot(const Vector2& v) const
+{
+	return x * v.x + y * v.y;
+}
+
+template<typename T>
+T Vector2<T>::Length() const
+{
+	return static_cast<T>(sqrtf(static_cast<float>(x * x + y * y)));
+}
+
+template<typename T>
+T Vector2<T>::LengthSq() const
+{
+	return x * x + y * y;
+}
+
+template<typename T>
+T Vector2<T>::Distance(const Vector2& to) const
+{
+	return abs((to - *this).Length());
+}
+
+template<typename T>
+T Vector2<T>::DistanceSq(const Vector2& to) const
+{
+	return abs((to - *this).LengthSq());
+}
+
+template<typename T>
+Vector2<T> Vector2<T>::Normalized() const
+{
+	return (*this) / Length();
 }
 
 template <typename T>

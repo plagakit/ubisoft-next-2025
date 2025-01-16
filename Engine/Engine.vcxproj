@@ -239,6 +239,7 @@
     <ClInclude Include="external\next-api\stb_image\stb_image.h" />
     <ClInclude Include="external\next-api\stdafx.h" />
     <ClInclude Include="external\next-api\targetver.h" />
+    <ClInclude Include="src\components\2d\physics_2d.h" />
     <ClInclude Include="src\components\3d\mesh_instance.h" />
     <ClInclude Include="src\components\particle\particle.h" />
     <ClInclude Include="src\components\timer.h" />
@@ -281,8 +282,14 @@
     <ClInclude Include="src\math\vector\vector2.h" />
     <ClInclude Include="src\math\vector\vector4.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\physics\collider\circle_collider.h" />
+    <ClInclude Include="src\physics\collider\collider2d.h" />
+    <ClInclude Include="src\physics\collision_data.h" />
+    <ClInclude Include="src\physics\collision_result.h" />
+    <ClInclude Include="src\physics\collision_solver.h" />
+    <ClInclude Include="src\physics\dispatcher\collision_dispatcher_2d.h" />
     <ClInclude Include="src\scene\scene.h" />
-    <ClInclude Include="src\systems\movement\movement_system.h" />
+    <ClInclude Include="src\systems\physics\physics_system.h" />
     <ClInclude Include="src\systems\particle\particle_system.h" />
     <ClInclude Include="src\systems\render\render_system.h" />
     <ClInclude Include="src\systems\system.h" />
@@ -380,7 +387,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\systems\movement\movement_system.cpp" />
+    <ClCompile Include="src\physics\collider\circle_collider.cpp" />
+    <ClCompile Include="src\physics\collider\collider2d.cpp" />
+    <ClCompile Include="src\physics\collision_solver.cpp" />
+    <ClCompile Include="src\systems\physics\physics_system.cpp" />
     <ClCompile Include="src\systems\particle\particle_system.cpp" />
     <ClCompile Include="src\systems\render\render_system.cpp" />
     <ClCompile Include="src\systems\system.cpp" />

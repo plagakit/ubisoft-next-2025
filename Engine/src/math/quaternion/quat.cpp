@@ -30,7 +30,7 @@ Vec3 Quat::operator*(const Vec3& v) const
 
 	Vec3 axis = Vec3(x, y, z);
 	Vec3 t = axis.Cross(v) * 2.0f;
-	return Vec3();
+	return v + (t * w) + axis.Cross(t);
 }
 
 Quat Quat::operator*(const Quat& q) const

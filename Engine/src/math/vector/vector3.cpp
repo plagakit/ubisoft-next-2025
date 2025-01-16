@@ -158,7 +158,7 @@ bool Vector3<float>::Equals(const Vector3<float>& v) const
 
 
 template<typename T>
-float Vector3<T>::Dot(const Vector3<T>& v) const
+T Vector3<T>::Dot(const Vector3<T>& v) const
 {
 	return x * v.x + y * v.y + z * v.z;
 }
@@ -180,25 +180,25 @@ Vector3<T> Vector3<T>::ProjectOnto(const Vector3<T>& v) const
 }
 
 template<typename T>
-float Vector3<T>::Length() const
+T Vector3<T>::Length() const
 {
-	return sqrtf(x * x + y * y + z * z);
+	return static_cast<T>(sqrtf(static_cast<float>(x * x + y * y + z * z)));
 }
 
 template<typename T>
-float Vector3<T>::LengthSq() const
+T Vector3<T>::LengthSq() const
 {
 	return x * x + y * y + z * z;
 }
 
 template<typename T>
-float Vector3<T>::Distance(const Vector3<T>& to) const
+T Vector3<T>::Distance(const Vector3<T>& to) const
 {
 	return abs((to - *this).Length());
 }
 
 template<typename T>
-float Vector3<T>::DistanceSq(const Vector3<T>& to) const
+T Vector3<T>::DistanceSq(const Vector3<T>& to) const
 {
 	return abs((to - *this).LengthSq());
 }
@@ -224,8 +224,8 @@ std::string Vector3<T>::ToString() const
 
 DEFINE_VEC3(ZERO, 0, 0, 0);
 DEFINE_VEC3(ONE, 1, 1, 1);
-DEFINE_VEC3(LEFT, 1, 0, 0);
-DEFINE_VEC3(RIGHT, -1, 0, 0);
+DEFINE_VEC3(RIGHT, 1, 0, 0);
+DEFINE_VEC3(LEFT, -1, 0, 0);
 DEFINE_VEC3(UP, 0, 1, 0);
 DEFINE_VEC3(DOWN, 0, -1, 0);
 DEFINE_VEC3(FORWARD, 0, 0, 1);

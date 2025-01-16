@@ -31,14 +31,14 @@ struct Vector3
 
 	bool Equals(const Vector3& v) const;
 
-	float Dot(const Vector3& v) const;
+	T Dot(const Vector3& v) const;
 	Vector3 Cross(const Vector3& v) const;
 	Vector3 ProjectOnto(const Vector3& v) const;
 
-	float Length() const;
-	float LengthSq() const;
-	float Distance(const Vector3& to) const;
-	float DistanceSq(const Vector3& to) const;
+	T Length() const;
+	T LengthSq() const;
+	T Distance(const Vector3& to) const;
+	T DistanceSq(const Vector3& to) const;
 
 	Vector3 Normalized() const;
 

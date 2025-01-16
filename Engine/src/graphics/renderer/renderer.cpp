@@ -7,9 +7,12 @@
 #include "graphics/mesh/mesh.h"
 #include "math/vector/vector4.h"
 #include "graphics/shading_mode.h"
+#include "math/math_utils.h"
 
 #include <App/App.h>
 #include <App/SimpleSprite.h>
+#undef max
+#undef min
 
 Renderer::Renderer(ResourceManager& resourceManager) :
 	m_resourceManager(resourceManager),
@@ -53,6 +56,29 @@ void Renderer::DrawFilledRect(float x0, float y0, float x1, float y1, Color col)
 	// TODO: assert y0 < y1
 	for (float y = y0; y <= y1; y++)
 		App::DrawLine(x0, y, x1, y, col.r, col.g, col.b);
+}
+
+void Renderer::DrawCircle(Vec2 pos, float radius, Color col)
+{
+	int segments = std::max(5, static_cast<int>((radius + 5.0f) * 0.5f));
+	DrawCircle(pos, radius, col, segments);
+}
+
+void Renderer::DrawCircle(Vec2 pos, float radius, Color col, int segments)
+{
+	float angleStep = TWO_PI / segments;
+
+	for (int i = 0; i < segments + 1; i++)
+	{
+		int j = (i + 1) % segments;
+
+		float x1 = cosf(angleStep * i) * radius + pos.x;
+		float y1 = sinf(angleStep * i) * radius + pos.y;
+		float x2 = cosf(angleStep * j) * radius + pos.x;
+		float y2 = sinf(angleStep * j) * radius + pos.y;
+
+		DrawLine(x1, y1, x2, y2, col);
+	}
 }
 
 void Renderer::DrawTexture(float x, float y, RID textureHandle)

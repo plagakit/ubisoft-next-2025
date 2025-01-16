@@ -28,6 +28,20 @@ void Input::InitDefaultActions()
 	down.AddEvent(std::make_unique<InputEventVirtual>('S'));
 	down.AddEvent(std::make_unique<InputEventControllerTrigger>(0, InputEventControllerTrigger::THUMB_L_DOWN));
 
+	InputAction& q = CreateAction("Q");
+	q.AddEvent(std::make_unique<InputEventVirtual>('Q'));
+	InputAction& e = CreateAction("E");
+	e.AddEvent(std::make_unique<InputEventVirtual>('E'));
+
+	InputAction& I = CreateAction("I");
+	I.AddEvent(std::make_unique<InputEventVirtual>('I'));
+	InputAction& J = CreateAction("J");
+	J.AddEvent(std::make_unique<InputEventVirtual>('J'));
+	InputAction& K = CreateAction("K");
+	K.AddEvent(std::make_unique<InputEventVirtual>('K'));
+	InputAction& L = CreateAction("L");
+	L.AddEvent(std::make_unique<InputEventVirtual>('L'));
+
 	InputAction& mouseLeft = CreateAction("mouse-left");
 	mouseLeft.AddEvent(std::make_unique<InputEventVirtual>(VK_LBUTTON));
 	mouseLeft.AddEvent(std::make_unique<InputEventControllerButton>(0, XINPUT_GAMEPAD_LEFT_SHOULDER));

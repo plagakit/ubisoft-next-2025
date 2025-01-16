@@ -47,5 +47,5 @@ void Camera::RecalculateProjection()
 	m_projection[5] = 1.0f / (tanHalfFovy);
 	m_projection[10] = FAR / (FAR - NEAR);
 	m_projection[11] = 1.0f;
-	m_projection[14] = -(FAR * NEAR) / (FAR - NEAR);
+	m_projection[14] = -NEAR * FAR / (FAR - NEAR);
 }

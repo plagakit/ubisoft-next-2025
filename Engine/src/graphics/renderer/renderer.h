@@ -31,6 +31,9 @@ public:
 	void DrawRect(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
 	void DrawFilledRect(float x0, float y0, float x1, float y1, Color c = Color::WHITE);
 
+	void DrawCircle(Vec2 pos, float radius, Color col = Color::WHITE);
+	void DrawCircle(Vec2 pos, float radius, Color col, int segments);
+
 	void DrawTexture(float x, float y, RID textureHandle);
 	void DrawTexture(const Transform2D& tf, RID textureHandle);
 
