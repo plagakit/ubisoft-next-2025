@@ -12,7 +12,10 @@ struct Vector3
 
 	Vector3();
 	Vector3(T x, T y, T z);
+
+	// Converts by copying values, no homogenous division
 	Vector3(const Vector4<T>& v);
+	static Vector3 FromHomogenous(const Vector4<T>& v);
 
 	Vector3 operator-() const;
 	Vector3 operator+(const Vector3& v) const;
@@ -52,6 +55,7 @@ struct Vector3
 	static const Vector3 BACK;
 
 	std::string ToString() const;
+	//const char* ToCString() const;
 };
 
 using Vec3 = Vector3<float>;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "physics/collision_data.h"
-#include "physics/collision_result.h"
-#include "physics/collision_solver.h"
+#include "physics/collision/collision_data.h"
+#include "physics/collision/collision_result.h"
+#include "physics/collision/collision_solver.h"
 
 class CollisionDispatcher2DBase 
 {

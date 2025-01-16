@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "physics_system.h"
 
-#include "physics/collider/collider2d.h"
+#include "physics/collider/collider_2d.h"
 #include "core/debug/logger.h"
 
 PhysicsSystem::PhysicsSystem(EntityManager& registry, ResourceManager& resourceMgr, Renderer& renderer) :
@@ -48,6 +48,16 @@ void PhysicsSystem::ProcessAllCollisions(float dt)
 	}
 }
 
+RayCast2D PhysicsSystem::QueryAll(const Ray2D& ray)
+{
+	for (auto [id, ph, tf] : m_registry.AllWith<Physics2D, Transform2D>())
+	{
+
+	}
+
+	return { false };
+}
+
 void PhysicsSystem::RenderAllCollisionShapes()
 {
 	for (auto [id, ph, tf] : m_registry.AllWith<Physics2D, Transform2D>())
@@ -67,6 +77,24 @@ void PhysicsSystem::Process2DCollision(Entity id1, Entity id2, Transform2D& tf1,
 
 	if (result.hit)
 	{
+		ph1.lastHit = result;
+		ph2.lastHit = result;
 
+		if (ph1.isTrigger || ph2.isTrigger)	
+			s_Triggered.Emit(id1, id2);
+		else
+		{
+			s_Collided.Emit(id1, id2);
+
+			if (ph1.isImmovable)
+				tf2.position -= result.restitution * 2.0f;
+			else if (ph2.isImmovable)
+				tf1.position += result.restitution * 2.0f;
+			else
+			{
+				tf1.position += result.restitution;
+				tf2.position -= result.restitution;
+			}
+		}
 	}
 }

@@ -19,13 +19,13 @@ private:
 	Entity circle1, circle2;
 	RID circleCol;
 
-	PhysicsSystem* phys;
+	RID fishAudio;
 
 public:
 
-	void TimerFireTest(Entity id)
+	void CollisionSignalTest(Entity id1, Entity id2)
 	{
-		Logger::Info("Timer w/ ID %d fired!", id);
+		//Logger::Info("%d collided w/ %d!", id1, id2);
 	}
 	
 	void Init()
@@ -38,6 +38,8 @@ public:
 		fishSprite = m_rm->Load<Texture>("./res/sprites/fish.png");
 		suzanne = m_rm->Load<Mesh>("res/models/suzanne.obj");
 		cube = m_rm->Load<Mesh>("res/models/cube.obj");
+
+		fishAudio = m_rm->Load<Audio>("res/audio/fish.wav");
 
 		auto [crid, cc] = m_rm->LoadAndGet<CircleCollider>("");
 		circleCol = crid;
@@ -89,10 +91,36 @@ public:
 	{
 		t += dt;
 
+		if (Input::IsJustPressed("mouse-left"))
+		{
+			Audio& audio = m_rm->Get<Audio>(fishAudio);
+			audio.Play();
+
+			Vec2 mousePos = Input::GetMousePos();
+			//Logger::Info("Clicked! Mouse pos: %s", mousePos.ToString().c_str());
+
+			Ray3D ray = camera.ProjectRay(mousePos);
+			//Logger::Info("Ray: %s %s", ray.origin.ToString().c_str(), ray.direction.ToString().c_str());
+
+			Entity e = m_registry.CreateEntity();
+			Transform3D tf; tf.position = ray.origin; 
+			tf.velocity = ray.direction;
+			Sprite s; s.textureHandle = fishSprite;
+			MeshInstance m; m.meshHandle = cube;
+			Particle p; p.lifetime = 30.0f;
+
+			m_registry.Add<Transform3D>(e, tf);
+			m_registry.Add<MeshInstance>(e, m);
+			m_registry.Add<Particle>(e, p);
+			m_registry.Add<Sprite>(e, s);
+		}
+
 		// Normally you don't define 
 		PhysicsSystem s_physics{ m_registry, *m_rm, *m_renderer };
 		ParticleSystem m_sysParticle{ m_registry };
 		TimerSystem m_sysTimer{ m_registry };
+
+		s_physics.s_Collided.Connect<DemoGame, &DemoGame::CollisionSignalTest>(this);
 
 		auto& camtf = camera.GetTransform();
 		Vec3 move = Vec3::FORWARD * Input::GetAxis("down", "up")
@@ -161,6 +189,9 @@ public:
 	{
 		RenderSystem m_sysRender{ m_registry, *m_renderer };
 
+		m_renderer->ClearMeshRasterizer();
+		m_renderer->ClearTextureRasterizer();
+
 		//m_renderer->DrawFilledRect(0.0f, 0.0f, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT);
 		//m_renderer->DrawLine(0, 0, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT, Color::BLUE);
 
@@ -187,16 +218,30 @@ public:
 
 		//m_renderer->DrawTextLine(50, 50, std::to_string(count).c_str(), Color::BLUE);
 
-		m_renderer->ClearTextureRasterizer();
-		m_sysRender.Render3DEntities();
-		m_sysRender.Render2DEntities();
-		m_renderer->Flush3DTextures();
+		//m_sysRender.Render3DEntities();
 
-		m_renderer->DrawCircle({ 300, 300 }, 4, Color::RED);
+		for (int i = 0; i < 100; i++)
+		{
+			Vec3 pos = Vec3::DOWN * 5.0f;
+			m_renderer->Draw3DLine(pos + Vec3::FORWARD * i, pos + Vec3::FORWARD * (i + 1), Color::DARK_GRAY);
+		}
+		m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 1.0f, Color::RED);
+		m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 3.0f, Color::BLUE);
+		m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 10.0f, Color::GREEN);
+		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::RIGHT, Color::WHITE);
+		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::UP, Color::WHITE);
+		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::FORWARD, Color::WHITE);
+			
+
+		m_renderer->FlushMeshes();
+		m_renderer->Flush3DTextures();
+		m_sysRender.Render2DEntities();
+
+		/*m_renderer->DrawCircle({ 300, 300 }, 4, Color::RED);
 		m_renderer->DrawCircle({ 300, 300 }, 16, Color::RED);
 		m_renderer->DrawCircle({ 350, 300 }, 32, Color::RED);
 		m_renderer->DrawCircle({ 350, 300 }, 100, Color::RED);
-		m_renderer->DrawCircle({ 350, 300 }, 300, Color::RED);
+		m_renderer->DrawCircle({ 350, 300 }, 300, Color::RED);*/
 
 		m_renderer->DrawTextLine(100, 50, "Default Font", Color::WHITE);
 		m_renderer->DrawTextLine(100, 100, "Monospace 8x13", Color::WHITE, f1);
@@ -208,10 +253,10 @@ public:
 		m_renderer->DrawTextLine(220 + m_rm->Get<Font>(f2).GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
 
 		Collider2D& circle = m_rm->Get<CircleCollider>(circleCol);
-		circle.DebugDraw(*m_renderer, { 400, 300 });
+		//circle.DebugDraw(*m_renderer, { 400, 300 });
 
 		PhysicsSystem s_physics{ m_registry, *m_rm, *m_renderer };
-		s_physics.RenderAllCollisionShapes();
+		//s_physics.RenderAllCollisionShapes();
 	}
 };
 

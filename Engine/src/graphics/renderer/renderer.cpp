@@ -21,7 +21,6 @@ Renderer::Renderer(ResourceManager& resourceManager) :
 	m_defaultFontHandle = m_resourceManager.Load<Font>("HELVETICA_18");
 	m_defaultGlutFont = m_resourceManager.Get<Font>(m_defaultFontHandle).GetGLUTFont();
 
-	// 30000 x 32 bytes approx 1 mb each for vertex/norm
 	m_vertexVRAM.reserve(VRAM_ARR_SIZE);
 	m_normalVRAM.reserve(VRAM_ARR_SIZE);
 	m_indexVRAM.reserve(VRAM_ARR_SIZE);
@@ -29,33 +28,39 @@ Renderer::Renderer(ResourceManager& resourceManager) :
 
 void Renderer::DrawTextLine(float x, float y, const char* text, Color col)
 {
+#ifdef PLATFORM_WINDOWS
 	App::Print(x, y, text, col.r, col.g, col.b, m_defaultGlutFont);
+#endif
 }
 
 void Renderer::DrawTextLine(float x, float y, const char* text, Color col, RID fontHandle)
 {
+#ifdef PLATFORM_WINDOWS
 	void* glutFont = m_resourceManager.Get<Font>(fontHandle).GetGLUTFont();
 	App::Print(x, y, text, col.r, col.g, col.b, glutFont);
+#endif
 }
 
 void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col)
 {
+#ifdef PLATFORM_WINDOWS
 	App::DrawLine(x0, y0, x1, y1, col.r, col.g, col.b);
+#endif
 }
 
 void Renderer::DrawRect(float x0, float y0, float x1, float y1, Color col)
 {
-	App::DrawLine(x0, y0, x1, y0, col.r, col.g, col.b);
-	App::DrawLine(x0, y1, x1, y0, col.r, col.g, col.b);
-	App::DrawLine(x0, y0, x0, y1, col.r, col.g, col.b);
-	App::DrawLine(x1, y0, x1, y1, col.r, col.g, col.b);
+	DrawLine(x0, y0, x1, y0, col);
+	DrawLine(x0, y1, x1, y0, col);
+	DrawLine(x0, y0, x0, y1, col);
+	DrawLine(x1, y0, x1, y1, col);
 }
 
 void Renderer::DrawFilledRect(float x0, float y0, float x1, float y1, Color col)
 {
 	// TODO: assert y0 < y1
 	for (float y = y0; y <= y1; y++)
-		App::DrawLine(x0, y, x1, y, col.r, col.g, col.b);
+		DrawLine(x0, y, x1, y, col);
 }
 
 void Renderer::DrawCircle(Vec2 pos, float radius, Color col)
@@ -83,18 +88,22 @@ void Renderer::DrawCircle(Vec2 pos, float radius, Color col, int segments)
 
 void Renderer::DrawTexture(float x, float y, RID textureHandle)
 {
+#ifdef PLATFORM_WINDOWS
 	CSimpleSprite& css = m_resourceManager.Get<Texture>(textureHandle).Get();
 	css.SetPosition(x, y);
 	css.Draw();
+#endif
 }
 
 void Renderer::DrawTexture(const Transform2D& tf, RID textureHandle)
 {
+#ifdef PLATFORM_WINDOWS
 	CSimpleSprite& css = m_resourceManager.Get<Texture>(textureHandle).Get();
 	css.SetPosition(tf.position.x, tf.position.y);
 	css.SetAngle(tf.rotation);
 	css.SetScale(tf.scale);
 	css.Draw();
+#endif
 }
 
 void Renderer::ClearMeshRasterizer()
@@ -181,22 +190,104 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 		if (!IsCounterClockwise(a, b, c))
 			continue;
 
-		m_rasterizer.RasterizeTriangle(
-			a, b, c,
-			m_normalVRAM[m_indexVRAM[i + 1]],
-			m_normalVRAM[m_indexVRAM[i + 3]],
-			m_normalVRAM[m_indexVRAM[i + 5]],
-			meshInstance.color, meshInstance.mode
-		);
+#ifdef USE_PAINTERS_FOR_WIREFRAME
+		if (meshInstance.mode == ShadingMode::WIREFRAME)
+		{
+			m_txRasterizer.RasterizeTriangle(
+				a, b, c,
+				m_normalVRAM[m_indexVRAM[i + 1]],
+				m_normalVRAM[m_indexVRAM[i + 3]],
+				m_normalVRAM[m_indexVRAM[i + 5]],
+				meshInstance.color, meshInstance.mode
+			);
+		}
+		else
+		{
+#endif
+			m_rasterizer.RasterizeTriangle(
+				a, b, c,
+				m_normalVRAM[m_indexVRAM[i + 1]],
+				m_normalVRAM[m_indexVRAM[i + 3]],
+				m_normalVRAM[m_indexVRAM[i + 5]],
+				meshInstance.color, meshInstance.mode
+			);
+#ifdef USE_PAINTERS_FOR_WIREFRAME
+		}
+#endif
+
 	}
+}
+
+void Renderer::Draw3DLine(const Vec3& start, const Vec3& end, const Color& color)
+{
+	// World Space -> Clip Space
+	Mat4 VP = m_projection * m_view;
+	Vec4 a = VP * Vec4(start);
+	Vec4 b = VP * Vec4(end);
+
+	// Near Culling
+	if (a.z < 0 && b.z < 0)
+		return;
+
+	// Perspective division
+	a.x /= a.w; b.x /= b.w;
+	a.y /= a.w;	b.y /= b.w;
+	a.z /= a.w;	b.z /= b.w;
+
+	// Clip Space -> Screen Space
+	a.x = (a.x + 1.0f) * 0.5f * APP_VIRTUAL_WIDTH;
+	a.y = (a.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
+	b.x = (b.x + 1.0f) * 0.5f * APP_VIRTUAL_WIDTH;
+	b.y = (b.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
+
+#ifdef USE_PAINTERS_FOR_WIREFRAME
+	m_txRasterizer.RasterizeLine(a, b, color);
+#else
+	m_rasterizer.RasterizeLine(a, b, color);
+#endif
+}
+
+void Renderer::DrawSphere(const Vec3& pos, float radius, Color col)
+{
+	// TODO: this is the exact same process as DrawTexture
+	// find a way to combine the two into the same function
+	// or don't, if billboard rendering ever becomes different
+	// than this
+
+	// World Space -> Clip Space
+	Vec4 viewPoint = m_view * Vec4(pos);
+	Vec4 point = m_projection * viewPoint;
+
+	// Near-culling
+	if (point.z < 0)
+		return;
+
+	// Determine the radius by making a point
+	// on the edge of the sphere (in view space)
+	// and calculating what the radius becomes after projection;
+	Vec4 edgeViewPoint = viewPoint; edgeViewPoint.x += radius;
+	Vec4 edgePoint = m_projection * edgeViewPoint;
+
+	// Perspective division
+	point.x /= point.w;	edgePoint.x /= edgePoint.w;
+	point.y /= point.w;	edgePoint.y /= edgePoint.w;
+	point.z /= point.w;	edgePoint.z /= edgePoint.w;
+
+	// Clip Space -> Screen Space
+	point.x = (point.x + 1.0f) * 0.5f * APP_VIRTUAL_WIDTH;
+	point.y = (point.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
+	edgePoint.x = (edgePoint.x + 1.0f) * 0.5f * APP_VIRTUAL_WIDTH;
+	edgePoint.y = (edgePoint.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
+
+	//Logger::Info("Center: %s, Edge: %s", point.ToString().c_str(), edgePoint.ToString().c_str());
+	radius = edgePoint.x - point.x;
+	m_txRasterizer.RasterizeSphere(point, radius, col);
 }
 
 void Renderer::DrawBillboard(const Vec3& pos, float scale, RID textureHandle)
 {
-	// Model Space -> Clip Space
-	Mat4 model = Mat4(1.0f);
-	Mat4 MVP = m_projection * m_view * model;
-	Vec4 point = MVP * Vec4(pos);
+	// World Space -> Clip Space
+	Vec4 point = m_projection * m_view * Vec4(pos);
 	
 	// Near-culling
 	if (point.z < 0)

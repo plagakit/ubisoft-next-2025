@@ -16,7 +16,7 @@ public:
 	RID GetRID() const;
 	const std::string& GetPath() const;
 
-private:
+protected:
 	friend class ResourceManager;
 
 	RID m_rid;

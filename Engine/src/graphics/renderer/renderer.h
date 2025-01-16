@@ -46,6 +46,9 @@ public:
 	void ClearTextureRasterizer();
 
 	void DrawMesh(const Mat4& model, const MeshInstance& meshInstance);
+
+	void Draw3DLine(const Vec3& start, const Vec3& end, const Color& color);
+	void DrawSphere(const Vec3& pos, float radius, Color col = Color::WHITE);
 	void DrawBillboard(const Vec3& pos, float scale, RID textureHandle);
 
 	void FlushMeshes();
@@ -77,6 +80,7 @@ private:
 	RID m_defaultFontHandle;
 	void* m_defaultGlutFont;
 
+	// TODO: cache V * P instead of separate
 	Mat4 m_view;
 	Mat4 m_projection;
 
@@ -89,7 +93,7 @@ private:
 	// opportunity to learn how by implementing it myself and comparing to
 	// other projects where I didn't do it like this! :D
 
-	static constexpr size_t VRAM_ARR_SIZE = 300000;
+	static constexpr size_t VRAM_ARR_SIZE = 30000;
 	std::vector<Vec4> m_vertexVRAM;
 	std::vector<Vec3> m_normalVRAM;
 	std::vector<unsigned int> m_indexVRAM;

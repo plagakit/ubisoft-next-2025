@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collider2d.h"
+#include "collider_2d.h"
 #include "math/vector/vector2.h"
 
 struct CircleCollider : public Collider2D

@@ -20,8 +20,14 @@ public:
 		const Vec3& an, const Vec3& bn, const Vec3& cn, 
 		const Color& color, ShadingMode mode) = 0;
 
-	// Rasterize a texture given its x, y in screen-space, z in clip space, and w as a scale
+	// Rasterize a texture given its x, y in screen-space, z in clip space, and w as a texture scale
 	virtual void RasterizeTexture(const Vec4& pos, RID textureHandle) = 0;
+
+	// Rasterize a line given its x, y in screen-space, z in clip space
+	virtual void RasterizeLine(const Vec3& start, const Vec3& end, const Color& color) = 0;
+
+	// Rasterize a line given its x, y in screen-space, z in clip space
+	virtual void RasterizeSphere(const Vec3& pos, float radius, const Color& color) = 0;
 
 	// Flush all rasterize calls and blit to the screen
 	virtual void Flush() = 0;

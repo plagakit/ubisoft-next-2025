@@ -148,6 +148,14 @@ Vector2<T> Vector2<T>::Normalized() const
 	return (*this) / Length();
 }
 
+template<typename T>
+Vector2<T> Vector2<T>::Rotated(float angle) const
+{
+	T rx = static_cast<T>(cosf(angle * x) - sinf(angle * y));
+	T ry = static_cast<T>(sinf(angle * x) + cosf(angle * y));
+	return Vector2(rx, ry);
+}
+
 template <typename T>
 std::string Vector2<T>::ToString() const
 {
@@ -155,6 +163,27 @@ std::string Vector2<T>::ToString() const
 		std::to_string(x) + ", " +
 		std::to_string(y) + ")";
 }
+
+// See vector3.cpp's implementation of Vec3::ToCString for
+// more info on how these work and why I think these are (probably 99%) safe
+
+//template<>
+//const char* Vector2<int>::ToCString() const
+//{
+//	constexpr size_t BUFFER_SIZE = std::numeric_limits<int>::digits * 2 + 4;
+//	static thread_local char buffer[BUFFER_SIZE];
+//	snprintf(buffer, BUFFER_SIZE, "(%d, %d)", x, y);
+//	return buffer;
+//}
+//
+//template<>
+//const char* Vector2<float>::ToCString() const
+//{
+//	constexpr size_t BUFFER_SIZE = std::numeric_limits<float>::max_digits10 * 2 + 6;
+//	static thread_local char buffer[BUFFER_SIZE];
+//	snprintf(buffer, BUFFER_SIZE, "(%f, %f)", x, y);
+//	return buffer;
+//}
 
 template<typename T>
 const Vector2<T> Vector2<T>::ZERO = { static_cast<T>(0), static_cast<T>(0) };

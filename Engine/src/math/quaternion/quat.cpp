@@ -106,6 +106,12 @@ void Quat::ToAxisAngle(Vec3& axis, float& angle) const
 		axis /= s;
 }
 
+void Quat::ToLookAt(Vec3& eye, Vec3& up) const
+{
+	eye = (*this) * Vec3::FORWARD;
+	up = (*this) * Vec3::UP;
+}
+
 Quat Quat::LookAt(const Vec3& direction, const Vec3& up)
 {
 	Vec3 rotAxis = Vec3::FORWARD.Cross(direction);

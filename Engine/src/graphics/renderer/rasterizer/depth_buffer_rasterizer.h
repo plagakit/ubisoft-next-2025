@@ -13,6 +13,8 @@ public:
 		const Vec3& an, const Vec3& bn, const Vec3& cn, 
 		const Color& color, ShadingMode mode) override;
 	void RasterizeTexture(const Vec4& pos, RID textureHandle) override;
+	void RasterizeLine(const Vec3& start, const Vec3& end, const Color& color) override;
+	void RasterizeSphere(const Vec3& pos, float radius, const Color& color) override;
 	void Flush() override;
 
 	void SetClearColor(const Color& color);

@@ -34,10 +34,13 @@ struct Vector2
 	T DistanceSq(const Vector2& to) const;
 	Vector2 Normalized() const;
 
+	Vector2 Rotated(float angle) const;
+
 	static const Vector2 ZERO;
 	static const Vector2 ONE;
 
 	std::string ToString() const;
+	//const char* ToCString() const;
 
 };
 

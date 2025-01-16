@@ -2,14 +2,14 @@
 
 #include "core/resource/resource.h"
 #include "graphics/renderer/renderer.h"
-#include "physics/collision_result.h"
-#include "physics/collision_data.h"
-#include "physics/dispatcher/collision_dispatcher_2d.h"
+#include "physics/collision/collision_result.h"
+#include "physics/collision/collision_data.h"
+#include "physics/collision/collision_dispatcher.h"
 
 struct Collider2D : public Resource
 {
-	void Load(const char* path);
-	void Unload();
+	void Load(const char* path) override {};
+	void Unload() override {};
 	
 	virtual CollisionResult2D Collide(const Collider2D&, const CollisionData2D&) const = 0;
 	virtual CollisionResult2D Collide(const CollisionDispatcher2DBase&, const CollisionData2D&) const = 0;

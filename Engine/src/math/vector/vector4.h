@@ -16,6 +16,7 @@ struct Vector4
 	
 
 	std::string ToString() const;
+	//const char* ToCString() const;
 };
 
 using Vec4 = Vector4<float>;

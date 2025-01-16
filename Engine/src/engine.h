@@ -17,6 +17,8 @@
 #include "math/vector/vector4.h"
 #include "math/matrix/mat4.h"
 #include "math/quaternion/quat.h"
+#include "math/shape/ray_2d.h"
+#include "math/shape/ray_3d.h"
 
 #include "graphics/renderer/renderer.h"
 #include "graphics/color/color.h"
@@ -25,8 +27,10 @@
 #include "graphics/mesh/mesh.h"
 #include "graphics/camera/camera.h"
 
-#include "physics/collider/collider2d.h"
+#include "physics/collider/collider_2d.h"
 #include "physics/collider/circle_collider.h"
+
+#include "audio/audio.h"
 
 #include "entity/entity.h"
 #include "entity/entity_manager/entity_manager.h"

@@ -128,6 +128,22 @@ void DepthBufferRasterizer::RasterizeTexture(const Vec4& pos, RID textureHandle)
 	ASSERT_ERROR(false, "Depth-buffer rasterizer can't draw a texture!");
 }
 
+void DepthBufferRasterizer::RasterizeLine(const Vec3& start, const Vec3& end, const Color& color)
+{
+	DrawLineBresenham(
+		static_cast<int>(start.x),
+		static_cast<int>(start.y),
+		static_cast<int>(end.x),
+		static_cast<int>(end.y),
+		color);
+}
+
+void DepthBufferRasterizer::RasterizeSphere(const Vec3& pos, float radius, const Color& color)
+{
+	ASSERT_ERROR(false, "Depth-buffer rasterizer's sphere rasterization- isn't implemented yet!");
+	// TODO: add method to fill in sphere here, should be simple
+}
+
 void DepthBufferRasterizer::Flush()
 {
 	/*

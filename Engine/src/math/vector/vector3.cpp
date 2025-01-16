@@ -22,6 +22,16 @@ Vector3<T>::Vector3(const Vector4<T>& v) :
 {}
 
 template<typename T>
+Vector3<T> Vector3<T>::FromHomogenous(const Vector4<T>&v)
+{
+	return Vector3<T>(
+		v.x / v.w,
+		v.y / v.w,
+		v.z / v.w
+	);
+}
+
+template<typename T>
 Vector3<T> Vector3<T>::operator-() const
 {
 	return Vector3(-x, -y, -z);
@@ -217,6 +227,36 @@ std::string Vector3<T>::ToString() const
 		std::to_string(y) + ", " +
 		std::to_string(z) + ")";
 }
+
+// The below two specializations use a thread-safe static buffer that prints the vector
+// into it so that we can return a non-dangling pointer to the string. We need to specialize
+// for the different formatting done by snprintf. thread_local makes sure the buffer
+// is per thread, so the strings cannot be overwritten while still being read. BUFFER_SIZE
+// the number of bytes needed to accomodate the maximum values for each. *3 for each number,
+// +6 for the spaces, brackets, and commas.
+//
+// After testing, I found out that this does in fact work, but not with Logger. Logger
+// evalutes every argument before printing, it doesn't print in a stream like with cout.
+// If there's multiple vectors of the same type calling ToCString they will be overwritten.
+// Oh well...........
+
+//template<>
+//const char* Vector3<int>::ToCString() const
+//{
+//	constexpr size_t BUFFER_SIZE = std::numeric_limits<int>::digits * 3 + 6;
+//	static thread_local char buffer[BUFFER_SIZE];
+//	snprintf(buffer, BUFFER_SIZE, "(%d, %d, %d)", x, y, z);
+//	return buffer;
+//}
+//
+//template<>
+//const char* Vector3<float>::ToCString() const
+//{
+//	constexpr size_t BUFFER_SIZE = std::numeric_limits<float>::max_digits10 * 3 + 9; // + 9 for decimal in flt
+//	static thread_local char buffer[BUFFER_SIZE];
+//	snprintf(buffer, BUFFER_SIZE, "(%f, %f, %f)", x, y, z);
+//	return buffer;
+//}
 
 #define DEFINE_VEC3(name, x, y, z) \
 	template<typename T> \

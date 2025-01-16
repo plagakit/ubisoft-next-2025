@@ -239,8 +239,10 @@
     <ClInclude Include="external\next-api\stb_image\stb_image.h" />
     <ClInclude Include="external\next-api\stdafx.h" />
     <ClInclude Include="external\next-api\targetver.h" />
+    <ClInclude Include="src\audio\audio.h" />
     <ClInclude Include="src\components\2d\physics_2d.h" />
     <ClInclude Include="src\components\3d\mesh_instance.h" />
+    <ClInclude Include="src\components\3d\physics_3d.h" />
     <ClInclude Include="src\components\particle\particle.h" />
     <ClInclude Include="src\components\timer.h" />
     <ClInclude Include="src\components\2d\transform_2d.h" />
@@ -278,16 +280,18 @@
     <ClInclude Include="src\math\math_utils.h" />
     <ClInclude Include="src\math\matrix\mat4.h" />
     <ClInclude Include="src\math\quaternion\quat.h" />
+    <ClInclude Include="src\math\shape\ray_2d.h" />
+    <ClInclude Include="src\math\shape\ray_3d.h" />
     <ClInclude Include="src\math\vector\vector3.h" />
     <ClInclude Include="src\math\vector\vector2.h" />
     <ClInclude Include="src\math\vector\vector4.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\physics\collider\circle_collider.h" />
-    <ClInclude Include="src\physics\collider\collider2d.h" />
-    <ClInclude Include="src\physics\collision_data.h" />
-    <ClInclude Include="src\physics\collision_result.h" />
-    <ClInclude Include="src\physics\collision_solver.h" />
-    <ClInclude Include="src\physics\dispatcher\collision_dispatcher_2d.h" />
+    <ClInclude Include="src\physics\collider\collider_2d.h" />
+    <ClInclude Include="src\physics\collision\collision_data.h" />
+    <ClInclude Include="src\physics\collision\collision_result.h" />
+    <ClInclude Include="src\physics\collision\collision_solver.h" />
+    <ClInclude Include="src\physics\collision\collision_dispatcher.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\systems\physics\physics_system.h" />
     <ClInclude Include="src\systems\particle\particle_system.h" />
@@ -356,6 +360,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\audio\audio.cpp" />
     <ClCompile Include="src\components\3d\transform_3d.cpp" />
     <ClCompile Include="src\core\input\input.cpp" />
     <ClCompile Include="src\core\input\input_action.cpp" />
@@ -388,8 +393,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\physics\collider\circle_collider.cpp" />
-    <ClCompile Include="src\physics\collider\collider2d.cpp" />
-    <ClCompile Include="src\physics\collision_solver.cpp" />
+    <ClCompile Include="src\physics\collision\collision_solver.cpp" />
     <ClCompile Include="src\systems\physics\physics_system.cpp" />
     <ClCompile Include="src\systems\particle\particle_system.cpp" />
     <ClCompile Include="src\systems\render\render_system.cpp" />

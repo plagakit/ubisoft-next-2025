@@ -19,3 +19,11 @@
 #else
 	#define RASTER_DOWNSCALING 1
 #endif
+
+// Use the painter's algorithm along w/ App::DrawLine to rasterize
+// primitives made out of lines (wireframes) instead of using the
+// depth buffer rasterizer. Will speed up rendering for small amounts
+// of wireframes, but not for large ones, since the depth buffer 
+// rasterizer can efficiently handle big clumps of same-coloured
+// pixels but not sparse ones.
+#define USE_PAINTERS_FOR_WIREFRAME

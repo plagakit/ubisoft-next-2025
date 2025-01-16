@@ -16,7 +16,7 @@ public:
 	template<typename T, void (T::*F)(Args...)>
 	void Connect(T* instance)
 	{
-		auto callback = Callback<Args...>();
+		auto callback = Callback<void, Args...>();
 		callback.Bind<T, F>(instance);
 		m_connections.push_back(callback);
 	}
@@ -24,7 +24,7 @@ public:
 	template<typename T>
 	void Disconnect(T* instance)
 	{
-		auto match = [](Callback<Args...>& cb) { return cb.IsInstance<T>(instance); };
+		auto match = [](Callback<void, Args...>& cb) { return cb.IsInstance<T>(instance); };
 		auto removeItr = std::remove_if(m_connections.begin(), m_connections.end(), match);
 		m_connections.erase(removeItr, m_connections.end());
 	}
