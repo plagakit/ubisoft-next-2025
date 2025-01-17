@@ -2,6 +2,7 @@
 
 #include "core/resource/resource_manager.h"
 #include "graphics/renderer/renderer.h"
+#include "gui/tween/tween_manager.h"
 #include "entity/entity_manager/entity_manager.h"
 
 #include <memory>
@@ -21,8 +22,9 @@ public:
 	void __Render__();
 
 protected:
-	ResourceManager* m_rm;
+	ResourceManager* m_resourceMgr;
 	Renderer* m_renderer;
+	TweenManager* m_tweenMgr;
 	EntityManager m_registry;
 
 	virtual void Init() {};

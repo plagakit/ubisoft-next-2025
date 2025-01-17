@@ -132,8 +132,9 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 	m_normalVRAM.assign(normals.begin(), normals.end());
 
 	// Model Space -> World Space -> View Space -> Clip Space
-	Mat4 MVP = m_projection * m_view * model;
-	for (Vec4& p : m_vertexVRAM) p = MVP * p;
+	Mat4 MVP = m_VP * model;
+	for (Vec4& p : m_vertexVRAM) 
+		p = MVP * p;
 
 	if (meshInstance.mode == ShadingMode::SHADED)
 		for (Vec3& n : m_normalVRAM) 
@@ -221,9 +222,8 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 void Renderer::Draw3DLine(const Vec3& start, const Vec3& end, const Color& color)
 {
 	// World Space -> Clip Space
-	Mat4 VP = m_projection * m_view;
-	Vec4 a = VP * Vec4(start);
-	Vec4 b = VP * Vec4(end);
+	Vec4 a = m_VP * Vec4(start);
+	Vec4 b = m_VP * Vec4(end);
 
 	// Near Culling
 	if (a.z < 0 && b.z < 0)
@@ -287,7 +287,7 @@ void Renderer::DrawSphere(const Vec3& pos, float radius, Color col)
 void Renderer::DrawBillboard(const Vec3& pos, float scale, RID textureHandle)
 {
 	// World Space -> Clip Space
-	Vec4 point = m_projection * m_view * Vec4(pos);
+	Vec4 point = m_VP * Vec4(pos);
 	
 	// Near-culling
 	if (point.z < 0)
@@ -333,11 +333,15 @@ void Renderer::FlushPaintersRasterizer()
 void Renderer::SetViewMatrix(const Mat4& view)
 {
 	m_view = view;
+	m_VP = m_projection * view;
+	m_invVP = view * m_projection;
 }
 
 void Renderer::SetProjectionMatrix(const Mat4& projection)
 {
 	m_projection = projection;
+	m_VP = projection * m_view;
+	m_invVP = m_view * projection;
 }
 
 void Renderer::SetClearColor(const Color& color)

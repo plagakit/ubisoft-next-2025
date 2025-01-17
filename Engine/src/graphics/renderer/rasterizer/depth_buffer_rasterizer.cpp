@@ -4,6 +4,7 @@
 #include "graphics/renderer/renderer.h"
 #include "core/app_settings.h"
 #include "math/math_utils.h"
+#include <execution>
 
 #include <App/app.h>
 #undef max
@@ -21,10 +22,22 @@ DepthBufferRasterizer::DepthBufferRasterizer()
 	m_depthBuffer.resize(APP_VIRTUAL_WIDTH * APP_VIRTUAL_HEIGHT, 1.0f);
 }
 
+
 void DepthBufferRasterizer::Clear()
 {
-	std::fill(m_colorBuffer.begin(), m_colorBuffer.end(), m_clearColor);
-	std::fill(m_depthBuffer.begin(), m_depthBuffer.end(), 1.0f);
+	// I used std::fill before, then I thought oh why don't
+	// I just clear it as I go? This method kinda does
+	// nothing, clearing the color/depth buffer happens during
+	// the flush. 
+
+	// This takes 10 ms unparallelized.... oh my god....
+//#ifdef USE_TRIVIAL_PARALLELIZATION
+//	std::fill(std::execution::par_unseq, m_colorBuffer.begin(), m_colorBuffer.end(), m_clearColor);
+//	std::fill(std::execution::par_unseq, m_depthBuffer.begin(), m_depthBuffer.end(), 1.0f);
+//#else
+//	std::fill(m_colorBuffer.begin(), m_colorBuffer.end(), m_clearColor);
+//	std::fill(m_depthBuffer.begin(), m_depthBuffer.end(), 1.0f);
+//#endif
 }
 
 void DepthBufferRasterizer::RasterizeTriangle(
@@ -185,6 +198,12 @@ void DepthBufferRasterizer::Flush()
 				col = cur;
 				xStart = x;
 			}
+
+			// Now that we've processed the pixel, we can reset it
+			// This saved me 7 ms on debug.......
+			m_colorBuffer[idx] = m_clearColor;
+			m_depthBuffer[idx] = 1.0f;
+				
 			idx += RASTER_DOWNSCALING;
 		}
 		idx += APP_VIRTUAL_WIDTH * (RASTER_DOWNSCALING - 1);

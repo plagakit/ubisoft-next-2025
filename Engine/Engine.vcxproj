@@ -277,6 +277,13 @@
     <ClInclude Include="src\core\application\launcher.h" />
     <ClInclude Include="src\graphics\shading_mode.h" />
     <ClInclude Include="src\graphics\texture\texture.h" />
+    <ClInclude Include="src\gui\dim2.h" />
+    <ClInclude Include="src\gui\objects\frame\frame.h" />
+    <ClInclude Include="src\gui\gui_object.h" />
+    <ClInclude Include="src\gui\objects\root\gui_root.h" />
+    <ClInclude Include="src\gui\tween\easing.h" />
+    <ClInclude Include="src\gui\tween\tween.h" />
+    <ClInclude Include="src\gui\tween\tween_manager.h" />
     <ClInclude Include="src\math\math_utils.h" />
     <ClInclude Include="src\math\matrix\mat4.h" />
     <ClInclude Include="src\math\quaternion\quat.h" />
@@ -380,6 +387,11 @@
     <ClCompile Include="src\graphics\renderer\renderer.cpp" />
     <ClCompile Include="src\core\application\launcher.cpp" />
     <ClCompile Include="src\graphics\texture\texture.cpp" />
+    <ClCompile Include="src\gui\objects\frame\frame.cpp" />
+    <ClCompile Include="src\gui\gui_object.cpp" />
+    <ClCompile Include="src\gui\objects\root\gui_root.cpp" />
+    <ClCompile Include="src\gui\tween\easing.cpp" />
+    <ClCompile Include="src\gui\tween\tween_manager.cpp" />
     <ClCompile Include="src\math\math_utils.cpp" />
     <ClCompile Include="src\math\matrix\mat4.cpp" />
     <ClCompile Include="src\math\quaternion\quat.cpp" />

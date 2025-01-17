@@ -34,18 +34,20 @@ void Application::PreInit()
 	Logger::Init();
 	Input::InitDefaultActions();
 
-	m_rm = new ResourceManager();
-	m_renderer = new Renderer(*m_rm);
+	m_resourceMgr = new ResourceManager();
+	m_renderer = new Renderer(*m_resourceMgr);
+	m_tweenMgr = new TweenManager();
 }
 
 void Application::PreUpdate(float dt)
 {
 	Input::Update();
+	m_tweenMgr->Update(dt);
 }
 
 void Application::PostShutdown()
 {
-	delete m_rm;
+	delete m_resourceMgr;
 	delete m_renderer;
 }
 

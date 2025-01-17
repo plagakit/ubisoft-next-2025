@@ -57,7 +57,7 @@ void PaintersRasterizer::Flush()
 		// https://stackoverflow.com/questions/54222962/sorting-vectorvariant-does-not-work-correctly-via-operator
 		std::sort(
 #ifdef USE_TRIVIAL_PARALLELIZATION
-			std::execution::par,
+			std::execution::par_unseq,
 #endif
 			m_primitives.begin(), m_primitives.end(),
 			[](const Primitive& p1, const Primitive& p2)

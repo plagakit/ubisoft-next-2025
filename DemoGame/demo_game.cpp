@@ -21,6 +21,8 @@ private:
 
 	RID fishAudio;
 
+	GUIRoot guiRoot;
+
 public:
 
 	void CollisionSignalTest(Entity id1, Entity id2)
@@ -30,18 +32,34 @@ public:
 	
 	void Init()
 	{
+		auto frame = std::make_unique<Frame>();
+		frame->GetPosition() = Dim2(0.25f, 0.25f, 0.0f, 0.0f);
+		frame->GetPosition() = Dim2(0.5f, 0.5f, 0.0f, 0.0f);
+
+		Tween<Vec2> tween1 = m_tweenMgr->CreateTween<Vec2>(
+			{ 0.5f, 0.5f }, { 0.0f, 0.0f }, 
+			frame->GetPosition().relative, 
+			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+
+		Tween<Vec2> tween2 = m_tweenMgr->CreateTween<Vec2>(
+			{ 0.5f, 0.5f }, { 0.2f, 0.75f },
+			frame->GetSize().relative,
+			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+
+		guiRoot.AddChild(std::move(frame));
+
 		m_renderer->SetViewMatrix(Mat4::IDENTITY);
 		m_renderer->SetProjectionMatrix(camera.GetProjection());
 
-		f1 = m_rm->Load<Font>("MONOSPACE_8x13");
-		f2 = m_rm->Load<Font>("MONOSPACE_9x15");
-		fishSprite = m_rm->Load<Texture>("./res/sprites/fish.png");
-		suzanne = m_rm->Load<Mesh>("res/models/suzanne.obj");
-		cube = m_rm->Load<Mesh>("res/models/cube.obj");
+		f1 = m_resourceMgr->Load<Font>("MONOSPACE_8x13");
+		f2 = m_resourceMgr->Load<Font>("MONOSPACE_9x15");
+		fishSprite = m_resourceMgr->Load<Texture>("./res/sprites/fish.png");
+		suzanne = m_resourceMgr->Load<Mesh>("res/models/suzanne.obj");
+		cube = m_resourceMgr->Load<Mesh>("res/models/cube.obj");
 
-		fishAudio = m_rm->Load<Audio>("res/audio/fish.wav");
+		fishAudio = m_resourceMgr->Load<Audio>("res/audio/fish.wav");
 
-		auto [crid, cc] = m_rm->LoadAndGet<CircleCollider>("");
+		auto [crid, cc] = m_resourceMgr->LoadAndGet<CircleCollider>("");
 		circleCol = crid;
 		cc.radius = 40.0f;
 
@@ -55,7 +73,7 @@ public:
 		m_registry.RegisterComponentType<Timer>();
 		m_registry.RegisterComponentType<Physics2D>(100);
 
-		//const Mesh& suzanneMesh = m_rm->Get<Mesh>(suzanne);
+		//const Mesh& suzanneMesh = m_resourceMgr->Get<Mesh>(suzanne);
 		//Logger::Info("%d %d %d",
 		//	suzanneMesh.GetVertexBuffer().size(),
 		//	suzanneMesh.GetNormalBuffer().size(),
@@ -93,7 +111,7 @@ public:
 
 		if (Input::IsJustPressed("mouse-left"))
 		{
-			Audio& audio = m_rm->Get<Audio>(fishAudio);
+			Audio& audio = m_resourceMgr->Get<Audio>(fishAudio);
 			audio.Play();
 
 			Vec2 mousePos = Input::GetMousePos();
@@ -116,7 +134,7 @@ public:
 		}
 
 		// Normally you don't define 
-		PhysicsSystem s_physics{ m_registry, *m_rm, *m_renderer };
+		PhysicsSystem s_physics{ m_registry, *m_resourceMgr, *m_renderer };
 		ParticleSystem m_sysParticle{ m_registry };
 		TimerSystem m_sysTimer{ m_registry };
 
@@ -164,7 +182,7 @@ public:
 			tf.position = Vec3::FORWARD * 20.0f + Vec3::DOWN * 3.0f;
 			tf.scale = { 2.0f, 2.0f, 2.0f };
 			float tt = (t + FRAND_RANGE(-0.2f, 0.2f)) * 6.0f;
-			tf.velocity = Vec3(cosf(tt) * 15.0f, 30.0f, sinf(tt) * 15.0f);
+			tf.velocity = Vec3(cosf(tt), 2.0f, sinf(tt)) * FRAND_RANGE(20.0f, 30.0f);
 			tf.acceleration.y = -98.0f;
 
 			Sprite spr;
@@ -184,6 +202,8 @@ public:
 		m_sysTimer.Update(dt);
 
 		m_registry.FlushDeleteQueue();
+
+		guiRoot.UpdateGUI(dt);
 	}
 
 	void Render()
@@ -246,18 +266,20 @@ public:
 
 		m_renderer->DrawTextLine(100, 50, "Default Font", Color::WHITE);
 		m_renderer->DrawTextLine(100, 100, "Monospace 8x13", Color::WHITE, f1);
-		m_renderer->DrawTextLine(100, 100 + m_rm->Get<Font>(f2).GetFontHeight(), "Monospace 9x15", Color::WHITE, f2);
+		m_renderer->DrawTextLine(100, 100 + m_resourceMgr->Get<Font>(f2).GetFontHeight(), "Monospace 9x15", Color::WHITE, f2);
 
 		auto testStr1 = "Hello World!";
 		auto testStr2 = "Goodbye World!";
 		m_renderer->DrawTextLine(220, 50, testStr1, Color::RED, f2);
-		m_renderer->DrawTextLine(220 + m_rm->Get<Font>(f2).GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
+		m_renderer->DrawTextLine(220 + m_resourceMgr->Get<Font>(f2).GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
 
-		Collider2D& circle = m_rm->Get<CircleCollider>(circleCol);
+		Collider2D& circle = m_resourceMgr->Get<CircleCollider>(circleCol);
 		//circle.DebugDraw(*m_renderer, { 400, 300 });
 
-		PhysicsSystem s_physics{ m_registry, *m_rm, *m_renderer };
+		PhysicsSystem s_physics{ m_registry, *m_resourceMgr, *m_renderer };
 		s_physics.RenderAllCollisionShapes();
+
+		guiRoot.RenderGUI(*m_renderer);
 	}
 };
 

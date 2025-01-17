@@ -47,3 +47,11 @@
 #include "systems/particle/particle_system.h"
 #include "systems/render/render_system.h"
 #include "systems/timer/timer_system.h"
+
+#include "gui/dim2.h"
+#include "gui/gui_object.h"
+#include "gui/objects/root/gui_root.h"
+#include "gui/objects/frame/frame.h"
+
+#include "gui/tween/tween.h"
+#include "gui/tween/tween_manager.h"

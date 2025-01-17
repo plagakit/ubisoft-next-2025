@@ -80,9 +80,11 @@ private:
 	RID m_defaultFontHandle;
 	void* m_defaultGlutFont;
 
-	// TODO: cache V * P instead of separate
+	// Lots of cached matrices, but it's worth it....
 	Mat4 m_view;
 	Mat4 m_projection;
+	Mat4 m_VP;
+	Mat4 m_invVP;
 
 	// I think it's funny how I'm simulating a GPU a little bit by naming it VRAM hehe
 	// DrawMesh calls will copy over their mesh data into the VRAM arrays for processing, 
@@ -93,7 +95,8 @@ private:
 	// opportunity to learn how by implementing it myself and comparing to
 	// other projects where I didn't do it like this! :D
 
-	static constexpr size_t VRAM_ARR_SIZE = 30000;
+	// 10k * (16 + 12 + 4) bytes ~ 320 kB of memory for meshes
+	static constexpr size_t VRAM_ARR_SIZE = 10000;
 	std::vector<Vec4> m_vertexVRAM;
 	std::vector<Vec3> m_normalVRAM;
 	std::vector<unsigned int> m_indexVRAM;
