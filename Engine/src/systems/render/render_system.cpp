@@ -11,6 +11,25 @@ RenderSystem::RenderSystem(EntityManager& registry, Renderer& renderer) :
 	m_renderer(renderer)
 {}
 
+void RenderSystem::RegisterAllRequiredComponents(size_t reserve)
+{
+	Register2DComponents(reserve);
+	Register3DComponents(reserve);
+}
+
+void RenderSystem::Register2DComponents(size_t reserve)
+{
+	m_registry.RegisterComponentType<Transform2D>(reserve);
+	m_registry.RegisterComponentType<Sprite>(reserve);
+}
+
+void RenderSystem::Register3DComponents(size_t reserve)
+{
+	m_registry.RegisterComponentType<Transform3D>(reserve);
+	m_registry.RegisterComponentType<Sprite>(reserve);
+	m_registry.RegisterComponentType<MeshInstance>(reserve);
+}
+
 void RenderSystem::Render2DEntities()
 {
 	for (auto [id, sp, tf] : m_registry.AllWith<Sprite, Transform2D>())

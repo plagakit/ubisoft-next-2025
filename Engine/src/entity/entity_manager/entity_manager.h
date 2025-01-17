@@ -101,10 +101,19 @@ template<typename T>
 inline void EntityManager::RegisterComponentType(size_t reserveCap)
 {
 	const std::type_index& type = typeid(T);
-	ASSERT_WARN(!IsComponentRegistered<T>(), "Re-registering component type %s!", type.name());
-	
-	m_componentIDs.emplace(type, m_registeredTypeCount++);
-	m_componentsMap.emplace(type, std::make_unique<SparseSet<T>>(reserveCap));
+	//ASSERT_WARN(!IsComponentRegistered<T>(), "Re-registering component type %s!", type.name());
+	if (!IsComponentRegistered<T>())
+	{
+		m_componentIDs.emplace(type, m_registeredTypeCount++);
+		m_componentsMap.emplace(type, std::make_unique<SparseSet<T>>(reserveCap));
+	}
+	else
+	{
+		// Reserve more space if we request for more than current
+		auto& ss = GetSparseSet<T>();
+		if (ss.Capacity() < reserveCap)
+			ss.Reserve(reserveCap);
+	}
 }
 
 template<typename T>

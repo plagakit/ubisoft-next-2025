@@ -5,6 +5,7 @@
 #include "components/2d/transform_2d.h"
 #include "components/3d/transform_3d.h"
 #include "components/2d/physics_2d.h"
+#include "components/3d/physics_3d.h"
 #include "math/shape/ray_2d.h"
 #include "math/shape/ray_3d.h"
 #include "core/resource/resource_manager.h"
@@ -14,14 +15,20 @@ class PhysicsSystem : public System
 {
 public:
 	PhysicsSystem(EntityManager& registry, ResourceManager& resourceMgr, Renderer& renderer);
+	void RegisterAllRequiredComponents(size_t reserve) override;
+	void Register2DMovement(size_t reserve);
+	void Register3DMovement(size_t reserve);
+	void Register2DPhysics(size_t reserve);
+	void Register3DPhysics(size_t reserve);
 
 	Signal<Entity, Entity> s_Collided;
 	Signal<Entity, Entity> s_Triggered; // first entity is the trigger
 
-	void UpdateMovement(float dt);
+	void Update2DMovement(float dt);
+	void Update3DMovement(float dt);
 
-	void ProcessAllCollisions(float dt);
-	RayCast2D QueryAll(const Ray2D& ray);
+	void ProcessAll2DCollisions(float dt);
+	RayCast2D QueryAll2D(const Ray2D& ray);
 
 	void RenderAllCollisionShapes();
 

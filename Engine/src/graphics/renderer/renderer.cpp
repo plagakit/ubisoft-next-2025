@@ -16,7 +16,7 @@
 
 Renderer::Renderer(ResourceManager& resourceManager) :
 	m_resourceManager(resourceManager),
-	m_txRasterizer(*this, resourceManager)
+	m_paintersRaster(*this, resourceManager)
 {
 	m_defaultFontHandle = m_resourceManager.Load<Font>("HELVETICA_18");
 	m_defaultGlutFont = m_resourceManager.Get<Font>(m_defaultFontHandle).GetGLUTFont();
@@ -106,14 +106,14 @@ void Renderer::DrawTexture(const Transform2D& tf, RID textureHandle)
 #endif
 }
 
-void Renderer::ClearMeshRasterizer()
+void Renderer::ClearDepthRasterizer()
 {
-	m_rasterizer.Clear();
+	m_depthRaster.Clear();
 }
 
-void Renderer::ClearTextureRasterizer()
+void Renderer::ClearPaintersRasterizer()
 {
-	m_txRasterizer.Clear();
+	m_paintersRaster.Clear();
 }
 
 void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
@@ -193,7 +193,7 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 #ifdef USE_PAINTERS_FOR_WIREFRAME
 		if (meshInstance.mode == ShadingMode::WIREFRAME)
 		{
-			m_txRasterizer.RasterizeTriangle(
+			m_paintersRaster.RasterizeTriangle(
 				a, b, c,
 				m_normalVRAM[m_indexVRAM[i + 1]],
 				m_normalVRAM[m_indexVRAM[i + 3]],
@@ -204,7 +204,7 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 		else
 		{
 #endif
-			m_rasterizer.RasterizeTriangle(
+			m_depthRaster.RasterizeTriangle(
 				a, b, c,
 				m_normalVRAM[m_indexVRAM[i + 1]],
 				m_normalVRAM[m_indexVRAM[i + 3]],
@@ -241,9 +241,9 @@ void Renderer::Draw3DLine(const Vec3& start, const Vec3& end, const Color& color
 	b.y = (b.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
 
 #ifdef USE_PAINTERS_FOR_WIREFRAME
-	m_txRasterizer.RasterizeLine(a, b, color);
+	m_paintersRaster.RasterizeLine(a, b, color);
 #else
-	m_rasterizer.RasterizeLine(a, b, color);
+	m_depthRaster.RasterizeLine(a, b, color);
 #endif
 }
 
@@ -281,7 +281,7 @@ void Renderer::DrawSphere(const Vec3& pos, float radius, Color col)
 
 	//Logger::Info("Center: %s, Edge: %s", point.ToString().c_str(), edgePoint.ToString().c_str());
 	radius = edgePoint.x - point.x;
-	m_txRasterizer.RasterizeSphere(point, radius, col);
+	m_paintersRaster.RasterizeSphere(point, radius, col);
 }
 
 void Renderer::DrawBillboard(const Vec3& pos, float scale, RID textureHandle)
@@ -302,14 +302,21 @@ void Renderer::DrawBillboard(const Vec3& pos, float scale, RID textureHandle)
 	point.x = (point.x + 1.0f) * 0.5f * APP_VIRTUAL_WIDTH;
 	point.y = (point.y + 1.0f) * 0.5f * APP_VIRTUAL_HEIGHT;
 	
+	// TODO: can do this better
+	//CSimpleSprite& spr = m_resourceManager.Get<Texture>(textureHandle).Get();
+	//float approxX = point.x + spr.GetWidth();
+	//float approxY = point.y + spr.GetHeight();
+	//if (approxX < 0 || approxX > APP_VIRTUAL_WIDTH || approxY < 0 || approxY > APP_VIRTUAL_HEIGHT)
+	//	return;
+
 	// Rasterizer expects w = scale
 	point.w = scale;
-	m_txRasterizer.RasterizeTexture(point, textureHandle);
+	m_paintersRaster.RasterizeTexture(point, textureHandle);
 }
 
-void Renderer::FlushMeshes()
+void Renderer::FlushDepthRasterizer()
 {
-	m_rasterizer.Flush();
+	m_depthRaster.Flush();
 
 	// Downscaled raster lines make the debug info unreadable
 	// This fixes it
@@ -318,9 +325,9 @@ void Renderer::FlushMeshes()
 #endif
 }
 
-void Renderer::Flush3DTextures()
+void Renderer::FlushPaintersRasterizer()
 {
-	m_txRasterizer.Flush();
+	m_paintersRaster.Flush();
 }
 
 void Renderer::SetViewMatrix(const Mat4& view)
@@ -335,7 +342,7 @@ void Renderer::SetProjectionMatrix(const Mat4& projection)
 
 void Renderer::SetClearColor(const Color& color)
 {
-	m_rasterizer.SetClearColor(color);
+	m_depthRaster.SetClearColor(color);
 }
 
 float Renderer::Triangle2DArea(const Vec4& a, const Vec4& b, const Vec4& c)

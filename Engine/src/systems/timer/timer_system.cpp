@@ -3,6 +3,15 @@
 
 #include "components/timer.h"
 
+TimerSystem::TimerSystem(EntityManager& registry) :
+	System(registry)
+{}
+
+void TimerSystem::RegisterAllRequiredComponents(size_t reserve)
+{
+	m_registry.RegisterComponentType<Timer>(reserve);
+}
+
 void TimerSystem::Update(float dt)
 {
 	for (auto [id, tm] : m_registry.AllWith<Timer>())

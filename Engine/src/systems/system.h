@@ -8,6 +8,8 @@ public:
 	System() = delete;
 	System(EntityManager& registry);
 
+	virtual void RegisterAllRequiredComponents(size_t reserve) = 0;
+
 protected:
 	EntityManager& m_registry;
 

@@ -1,9 +1,14 @@
 #include "pch.h"
 #include "painters_rasterizer.h"
 
+#include "core/app_settings.h"
 #include "graphics/renderer/renderer.h"
 #include <App/app.h>
 #include <algorithm>
+
+#ifdef USE_TRIVIAL_PARALLELIZATION
+#include <execution>
+#endif
 
 PaintersRasterizer::PaintersRasterizer(Renderer& renderer, ResourceManager& resourceMgr) :
 	m_renderer(renderer),
@@ -50,7 +55,11 @@ void PaintersRasterizer::Flush()
 	if (m_doSort)
 	{
 		// https://stackoverflow.com/questions/54222962/sorting-vectorvariant-does-not-work-correctly-via-operator
-		std::sort(m_primitives.begin(), m_primitives.end(),
+		std::sort(
+#ifdef USE_TRIVIAL_PARALLELIZATION
+			std::execution::par,
+#endif
+			m_primitives.begin(), m_primitives.end(),
 			[](const Primitive& p1, const Primitive& p2)
 			{
 				return std::visit(

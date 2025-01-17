@@ -61,11 +61,11 @@ public:
 		//	suzanneMesh.GetNormalBuffer().size(),
 		//	suzanneMesh.GetIndexBuffer().size());
 
-		//Entity c = m_registry.CreateEntity();
-		//Transform3D tf; tf.position = Vec3::FORWARD * 5; tf.angVelocity = Quat::FromAxisAngle(Vec3::UP, 0.02f);
-		//MeshInstance mi; mi.meshHandle = suzanne; mi.mode = MeshInstance::Mode::FILLED;
-		//m_registry.Add<Transform3D>(c, tf);
-		//m_registry.Add<MeshInstance>(c, mi);
+		Entity c = m_registry.CreateEntity();
+		Transform3D tf; tf.position = Vec3::FORWARD * 5; tf.angVelocity = Quat::FromAxisAngle(Vec3::UP, 0.02f);
+		MeshInstance mi; mi.meshHandle = suzanne; mi.mode = ShadingMode::FILLED;
+		m_registry.Add<Transform3D>(c, tf);
+		m_registry.Add<MeshInstance>(c, mi);
 
 		// 2d collision test
 		circle1 = m_registry.CreateEntity();
@@ -177,8 +177,9 @@ public:
 			m_registry.Add<Particle>(id, p);
 		}
 
-		s_physics.UpdateMovement(dt);
-		s_physics.ProcessAllCollisions(dt);
+		s_physics.Update2DMovement(dt);
+		s_physics.Update3DMovement(dt);
+		s_physics.ProcessAll2DCollisions(dt);
 		m_sysParticle.Update(dt);
 		m_sysTimer.Update(dt);
 
@@ -189,8 +190,8 @@ public:
 	{
 		RenderSystem m_sysRender{ m_registry, *m_renderer };
 
-		m_renderer->ClearMeshRasterizer();
-		m_renderer->ClearTextureRasterizer();
+		m_renderer->ClearDepthRasterizer();
+		m_renderer->ClearPaintersRasterizer();
 
 		//m_renderer->DrawFilledRect(0.0f, 0.0f, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT);
 		//m_renderer->DrawLine(0, 0, APP_VIRTUAL_WIDTH, APP_VIRTUAL_HEIGHT, Color::BLUE);
@@ -218,7 +219,7 @@ public:
 
 		//m_renderer->DrawTextLine(50, 50, std::to_string(count).c_str(), Color::BLUE);
 
-		//m_sysRender.Render3DEntities();
+		m_sysRender.Render3DEntities();
 
 		for (int i = 0; i < 100; i++)
 		{
@@ -231,10 +232,10 @@ public:
 		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::RIGHT, Color::WHITE);
 		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::UP, Color::WHITE);
 		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::FORWARD, Color::WHITE);
-			
 
-		m_renderer->FlushMeshes();
-		m_renderer->Flush3DTextures();
+		m_renderer->FlushDepthRasterizer();
+		m_renderer->FlushPaintersRasterizer();
+
 		m_sysRender.Render2DEntities();
 
 		/*m_renderer->DrawCircle({ 300, 300 }, 4, Color::RED);
@@ -256,7 +257,7 @@ public:
 		//circle.DebugDraw(*m_renderer, { 400, 300 });
 
 		PhysicsSystem s_physics{ m_registry, *m_rm, *m_renderer };
-		//s_physics.RenderAllCollisionShapes();
+		s_physics.RenderAllCollisionShapes();
 	}
 };
 

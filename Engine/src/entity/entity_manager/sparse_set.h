@@ -38,6 +38,7 @@ class SparseSet : public ISparseSet
 public:
 	SparseSet();
 	SparseSet(size_t capacity);
+	void Reserve(size_t capacity);
 
 	bool Has(UID id) const;
 	T& Get(UID id);
@@ -71,6 +72,13 @@ template<typename T>
 inline SparseSet<T>::SparseSet(size_t capacity) :
 	m_capacity(capacity), m_size(0)
 {
+	Reserve(capacity);
+}
+
+template<typename T>
+inline void SparseSet<T>::Reserve(size_t capacity)
+{
+	m_capacity = capacity;
 	m_sparse.resize(capacity + 1, INVALID_UID); // account for invalid UID @ idx 0
 	m_dense.resize(capacity + 1, INVALID_UID);
 	m_data.resize(capacity + 1); // invalid component will be default constructed

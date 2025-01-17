@@ -42,8 +42,8 @@ public:
 
 	// 3D Drawing Functions
 
-	void ClearMeshRasterizer();
-	void ClearTextureRasterizer();
+	void ClearDepthRasterizer();
+	void ClearPaintersRasterizer();
 
 	void DrawMesh(const Mat4& model, const MeshInstance& meshInstance);
 
@@ -51,8 +51,8 @@ public:
 	void DrawSphere(const Vec3& pos, float radius, Color col = Color::WHITE);
 	void DrawBillboard(const Vec3& pos, float scale, RID textureHandle);
 
-	void FlushMeshes();
-	void Flush3DTextures();
+	void FlushDepthRasterizer();
+	void FlushPaintersRasterizer();
 
 	void SetViewMatrix(const Mat4& view);
 	void SetProjectionMatrix(const Mat4& projection);
@@ -98,7 +98,7 @@ private:
 	std::vector<Vec3> m_normalVRAM;
 	std::vector<unsigned int> m_indexVRAM;
 
-	DepthBufferRasterizer m_rasterizer;
-	PaintersRasterizer m_txRasterizer;
+	DepthBufferRasterizer m_depthRaster;
+	PaintersRasterizer m_paintersRaster;
 
 };

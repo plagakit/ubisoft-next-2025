@@ -25,5 +25,11 @@
 // depth buffer rasterizer. Will speed up rendering for small amounts
 // of wireframes, but not for large ones, since the depth buffer 
 // rasterizer can efficiently handle big clumps of same-coloured
-// pixels but not sparse ones.
+// pixels, but not sparse ones.
 #define USE_PAINTERS_FOR_WIREFRAME
+
+// Enables trivial parallelization i.e. C++17's <execution> library
+// and the parallel execution policy for some time-hungry algorithms
+// (no ECS though). In the future I would like to get multithreading
+// working with an actual thread and job system type thing.
+#define USE_TRIVIAL_PARALLELIZATION
