@@ -52,6 +52,8 @@
 #include "gui/gui_object.h"
 #include "gui/objects/root/gui_root.h"
 #include "gui/objects/frame/frame.h"
+#include "gui/objects/button/button.h"
+#include "gui/objects/label/label.h"
 
 #include "gui/tween/tween.h"
 #include "gui/tween/tween_manager.h"

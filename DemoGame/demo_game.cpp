@@ -22,7 +22,7 @@ private:
 	RID fishAudio;
 
 	GUIRoot guiRoot;
-	Frame* f;
+	Button* f;
 
 public:
 
@@ -34,30 +34,22 @@ public:
 	void TweenTo()
 	{
 		Tween<Vec2> tween1 = m_tweenMgr->CreateTween<Vec2>(
-			{ 0.0f, 0.0f }, { 1.0f, 0.0f },
+			{ 0.0f, 0.5f }, { 1.0f, 0.8f },
 			f->GetPosition().relative,
-			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+			10.0f, EasingMode::CUBIC, EasingType::OUT);
 
 		Tween<Vec2> tween2 = m_tweenMgr->CreateTween<Vec2>(
-			{ 0.5f, 0.5f }, { 0.2f, 0.75f },
+			{ 0.5f, 0.5f }, { 0.2f, 0.6f },
 			f->GetSize().relative,
 			5.0f, EasingMode::ELASTIC, EasingType::OUT);
 
-		Tween<Color> tween3 = m_tweenMgr->CreateTween<Color>(
-			Color::GREEN, Color::RED, f->GetColor(), 
-			10.0f, EasingMode::LINEAR, EasingType::OUT);
+		//Tween<Color> tween3 = m_tweenMgr->CreateTween<Color>(
+		//	Color::GREEN, Color::RED, f->GetColor(), 
+		//	10.0f, EasingMode::LINEAR, EasingType::OUT);
 	}
 	
 	void Init()
 	{
-		auto frame = std::make_unique<Frame>();
-		frame->GetPosition() = Dim2(0.25f, 0.25f, 0.0f, 50.0f);
-		frame->m_anchor = Vec2(1.0f, 0.0f);
-		f = frame.get();
-		guiRoot.AddChild(std::move(frame));
-
-		TweenTo();
-
 		m_renderer->SetViewMatrix(Mat4::IDENTITY);
 		m_renderer->SetProjectionMatrix(camera.GetProjection());
 
@@ -72,6 +64,26 @@ public:
 		auto [crid, cc] = m_resourceMgr->LoadAndGet<CircleCollider>("");
 		circleCol = crid;
 		cc.radius = 40.0f;
+
+		auto btn = std::make_unique<Button>(
+			Dim2(0.25f, 0.25f, 0.0f, 50.0f),
+			Dim2(1.0f, 1.0f, 0.0f, 0.0f),
+			Color::RED,
+			Color::DARK_GRAY,
+			Color::GREEN,
+			Color::WHITE
+		);
+		btn->GetAnchor() = Vec2(0.5f, 0.5f);
+		f = btn.get();
+
+		auto lbl = std::make_unique<Label>(
+			"Hello World!",
+			f2, Color::WHITE
+			);
+		btn->AddChild(std::move(lbl));
+		guiRoot.AddChild(std::move(btn));
+		TweenTo();
+
 
 		int a = 10000;
 		m_registry.ReserveEntities(a);

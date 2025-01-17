@@ -281,6 +281,7 @@
     <ClInclude Include="src\gui\objects\button\button.h" />
     <ClInclude Include="src\gui\objects\frame\frame.h" />
     <ClInclude Include="src\gui\gui_object.h" />
+    <ClInclude Include="src\gui\objects\label\label.h" />
     <ClInclude Include="src\gui\objects\root\gui_root.h" />
     <ClInclude Include="src\gui\tween\easing.h" />
     <ClInclude Include="src\gui\tween\tween.h" />
@@ -388,8 +389,10 @@
     <ClCompile Include="src\graphics\renderer\renderer.cpp" />
     <ClCompile Include="src\core\application\launcher.cpp" />
     <ClCompile Include="src\graphics\texture\texture.cpp" />
+    <ClCompile Include="src\gui\objects\button\button.cpp" />
     <ClCompile Include="src\gui\objects\frame\frame.cpp" />
     <ClCompile Include="src\gui\gui_object.cpp" />
+    <ClCompile Include="src\gui\objects\label\label.cpp" />
     <ClCompile Include="src\gui\objects\root\gui_root.cpp" />
     <ClCompile Include="src\gui\tween\easing.cpp" />
     <ClCompile Include="src\gui\tween\tween_manager.cpp" />

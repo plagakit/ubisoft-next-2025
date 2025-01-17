@@ -88,6 +88,11 @@ Dim2& GUIObject::GetSize()
 	return m_size;
 }
 
+Vec2& GUIObject::GetAnchor()
+{
+	return m_anchor;
+}
+
 // GETTERS/SETTERS
 
 Vec2 GUIObject::GetAbsolutePosition() const
