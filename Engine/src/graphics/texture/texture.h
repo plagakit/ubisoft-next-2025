@@ -13,15 +13,8 @@ class CSimpleSprite;
 class Texture : public Resource
 {
 public:
-	// Define constructor and destructor as default in texture.cpp to avoid 
-	// unique_ptr looking for ~CSimpleSprite() here, where it is forward- 
-	// declared and doesn't exist. It will instead look in texture.cpp where 
-	// it is included.
-	Texture();
-	~Texture();
-
-	void Load(const char* path) override;
-	void Unload() override;
+	Texture(const std::string& path);
+	~Texture() override;
 
 	CSimpleSprite& Get();
 	const CSimpleSprite& Get() const;

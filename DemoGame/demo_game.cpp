@@ -56,8 +56,8 @@ public:
 		m_renderer->SetViewMatrix(Mat4::IDENTITY);
 		m_renderer->SetProjectionMatrix(camera.GetProjection());
 
-		f1 = m_resourceMgr->Load<Font>("MONOSPACE_8x13");
-		f2 = m_resourceMgr->Load<Font>("MONOSPACE_9x15");
+		f1 = m_resourceMgr->Load<Font>(Font::Type::MONOSPACE_8x13);
+		f2 = m_resourceMgr->Load<Font>(Font::Type::MONOSPACE_8x13);
 		fishSprite = m_resourceMgr->Load<Texture>("./res/sprites/fish.png");
 		suzanne = m_resourceMgr->Load<Mesh>("res/models/suzanne.obj");
 		cube = m_resourceMgr->Load<Mesh>("res/models/cube.obj");

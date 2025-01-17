@@ -4,18 +4,18 @@
 #include <App/app.h>
 #include "core/debug/logger.h"
 
-
-void Font::Load(const char* path)
+Font::Font(Type type) :
+	Resource(std::to_string(type))
 {
-	m_type = PathToType(path);
+	m_type = type;
 
 	// TODO: all font height cases
-	if		(m_type == MONOSPACE_8x13)	m_charHeight = 14;
+	if (m_type == MONOSPACE_8x13)	m_charHeight = 14;
 	else if (m_type == MONOSPACE_9x15)	m_charHeight = 16;
 	else								m_charHeight = 16;
 }
 
-void Font::Unload()
+Font::~Font()
 {
 }
 
@@ -58,16 +58,16 @@ int Font::GetFontHeight() const
 	return m_charHeight;
 }
 
-Font::Type Font::PathToType(const char* path)
-{
-	std::string str{ path };
-	if		(str == "MONOSPACE_8x13")	return MONOSPACE_8x13;
-	else if (str == "MONOSPACE_9x15")	return MONOSPACE_9x15;
-	else if (str == "HELVETICA_10")		return HELVETICA_10;
-	else if (str == "HELVETICA_12")		return HELVETICA_12;
-	else if (str == "HELVETICA_18")		return HELVETICA_18;
-	else if (str == "TIMES_ROMAN_10")	return TIMES_ROMAN_10;
-	else if (str == "TIMES_ROMAN_24")	return TIMES_ROMAN_24;
-	Logger::Warn("'%s' is not a valid font name!", path);
-	return MONOSPACE_8x13;
-}
+//Font::Type Font::PathToType(const char* path)
+//{
+//	std::string str{ path };
+//	if		(str == "MONOSPACE_8x13")	return MONOSPACE_8x13;
+//	else if (str == "MONOSPACE_9x15")	return MONOSPACE_9x15;
+//	else if (str == "HELVETICA_10")		return HELVETICA_10;
+//	else if (str == "HELVETICA_12")		return HELVETICA_12;
+//	else if (str == "HELVETICA_18")		return HELVETICA_18;
+//	else if (str == "TIMES_ROMAN_10")	return TIMES_ROMAN_10;
+//	else if (str == "TIMES_ROMAN_24")	return TIMES_ROMAN_24;
+//	Logger::Warn("'%s' is not a valid font name!", path);
+//	return MONOSPACE_8x13;
+//}

@@ -7,20 +7,17 @@
 
 bool Audio::m_simpleSoundInitialized = false;
 
-Audio::Audio() :
-	m_looping(false)
-{}
-
-void Audio::Load(const char* path)
+Audio::Audio(const std::string& path, bool looping) :
+	Resource(path), m_looping(looping)
 {
-	//if (!m_simpleSoundInitialized)
-	//{
-	//	CSimpleSound::GetInstance().Initialize();
-	//	m_simpleSoundInitialized = true;
-	//}
+//if (!m_simpleSoundInitialized)
+//{
+//	CSimpleSound::GetInstance().Initialize();
+//	m_simpleSoundInitialized = true;
+//}
 }
 
-void Audio::Unload()
+Audio::~Audio()
 {
 #ifdef PLATFORM_WINDOWS
 	//CSimpleSound::GetInstance().StopSound(m_path.c_str());

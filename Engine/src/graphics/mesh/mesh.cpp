@@ -5,7 +5,8 @@
 #include <fstream>
 #include <sstream>
 
-void Mesh::Load(const char* path)
+Mesh::Mesh(const std::string& path, bool isRHS) :
+	Resource(path)
 {
 	// Load OBJ
 	std::ifstream file(path);
@@ -42,7 +43,8 @@ void Mesh::Load(const char* path)
 			// My coordinate system is left-handed, so I need to reverse the z position
 			// I read a Microsoft article about this b/c DirectX is in LHS, and I would
 			// link it here but I lost the link
-			v.z = -v.z;
+			if (isRHS)
+				v.z = -v.z;
 
 			m_vertexBuffer.push_back(v);
 		}
@@ -89,9 +91,8 @@ void Mesh::Load(const char* path)
 	//	std::cout << i << " ";
 }
 
-void Mesh::Unload()
+Mesh::~Mesh()
 {
-
 }
 
 const std::vector<Vec3>& Mesh::GetVertexBuffer() const

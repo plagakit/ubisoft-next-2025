@@ -3,6 +3,7 @@
 #include "core/resource/resource.h"
 #include "math/vector/vector4.h"
 #include "math/vector/vector3.h"
+#include "math/matrix/mat4.h"
 #include <vector>
 
 //struct Vertex
@@ -24,8 +25,8 @@
 class Mesh : public Resource
 {
 public:
-	void Load(const char* path) override;
-	void Unload() override;
+	Mesh(const std::string& path, bool isRHS = true);
+	~Mesh() override;
 
 	const std::vector<Vec3>& GetVertexBuffer() const;
 	const std::vector<Vec3>& GetNormalBuffer() const;

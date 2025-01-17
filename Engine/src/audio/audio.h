@@ -5,10 +5,8 @@
 class Audio : public Resource
 {
 public:
-	Audio();
-
-	void Load(const char* path) override;
-	void Unload() override;
+	Audio(const std::string& path, bool looping);
+	~Audio() override;
 
 	void Play();
 

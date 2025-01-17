@@ -5,19 +5,16 @@
 #include <App/SimpleSprite.h>
 #include <filesystem>
 
-Texture::Texture() = default;
-Texture::~Texture() = default;
 
-void Texture::Load(const char* path)
+Texture::Texture(const std::string& path) : 
+	Resource(path)
 {
 	ASSERT_WARN(std::filesystem::exists(path), "Could not find file @ %s!", path);
 	m_sprite = std::make_unique<CSimpleSprite>(path);
 }
 
-void Texture::Unload()
-{
-	// unique ptr destroys sprite when removed from map
-}
+// unique ptr destroys sprite when removed from map
+Texture::~Texture() = default;
 
 CSimpleSprite& Texture::Get()
 {

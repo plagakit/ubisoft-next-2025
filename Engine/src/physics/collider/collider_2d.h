@@ -8,8 +8,8 @@
 
 struct Collider2D : public Resource
 {
-	void Load(const char* path) override {};
-	void Unload() override {};
+	Collider2D() : Resource("collider") {};
+	~Collider2D() override = default;
 	
 	virtual CollisionResult2D Collide(const Collider2D&, const CollisionData2D&) const = 0;
 	virtual CollisionResult2D Collide(const CollisionDispatcher2DBase&, const CollisionData2D&) const = 0;

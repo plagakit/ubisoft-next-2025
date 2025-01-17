@@ -16,8 +16,8 @@ public:
 		TIMES_ROMAN_24
 	};
 
-	void Load(const char* path) override;
-	void Unload() override;
+	Font(Type type);
+	~Font() override;
 
 	Type GetType() const;
 	void* GetGLUTFont() const;
@@ -27,7 +27,5 @@ public:
 private:
 	Type m_type;
 	int m_charHeight;
-
-	Type PathToType(const char* path);
 
 };
