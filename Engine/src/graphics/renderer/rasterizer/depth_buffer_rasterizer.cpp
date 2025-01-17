@@ -57,9 +57,9 @@ void DepthBufferRasterizer::RasterizeTriangle(
 	{
 		Vec3 faceNormal = (an + bn + cn).Normalized();
 		float shadingFactor = (1.0f + faceNormal.Dot(Vec3::FORWARD)) * 0.5f;
-		color.r = baseColor.r * shadingFactor;
-		color.g = baseColor.g * shadingFactor;
-		color.b = baseColor.b * shadingFactor;
+		color.r() = baseColor.r() * shadingFactor;
+		color.g() = baseColor.g() * shadingFactor;
+		color.b() = baseColor.b() * shadingFactor;
 	}
 
 	float area = Renderer::Triangle2DArea(a, b, c);
@@ -190,11 +190,11 @@ void DepthBufferRasterizer::Flush()
 		for (float x = 1.0f; x < APP_VIRTUAL_WIDTH; x += RASTER_DOWNSCALING)
 		{
 			Color cur = m_colorBuffer[idx];
-			if (std::abs(cur.r - col.r) > EPSILON
-				|| std::abs(cur.g - col.g) > EPSILON
-				|| std::abs(cur.b - col.b) > EPSILON)
+			if (std::abs(cur.r() - col.r()) > EPSILON
+				|| std::abs(cur.g() - col.g()) > EPSILON
+				|| std::abs(cur.b() - col.b()) > EPSILON)
 			{
-				App::DrawLine(xStart, y, x, y, col.r, col.g, col.b);
+				App::DrawLine(xStart, y, x, y, col.r(), col.g(), col.b());
 				col = cur;
 				xStart = x;
 			}
@@ -208,7 +208,7 @@ void DepthBufferRasterizer::Flush()
 		}
 		idx += APP_VIRTUAL_WIDTH * (RASTER_DOWNSCALING - 1);
 
-		App::DrawLine(xStart, y, APP_VIRTUAL_WIDTH, y, col.r, col.g, col.b);
+		App::DrawLine(xStart, y, APP_VIRTUAL_WIDTH, y, col.r(), col.g(), col.b());
 	}
 }
 

@@ -29,7 +29,7 @@ Renderer::Renderer(ResourceManager& resourceManager) :
 void Renderer::DrawTextLine(float x, float y, const char* text, Color col)
 {
 #ifdef PLATFORM_WINDOWS
-	App::Print(x, y, text, col.r, col.g, col.b, m_defaultGlutFont);
+	App::Print(x, y, text, col.r(), col.g(), col.b(), m_defaultGlutFont);
 #endif
 }
 
@@ -37,14 +37,14 @@ void Renderer::DrawTextLine(float x, float y, const char* text, Color col, RID f
 {
 #ifdef PLATFORM_WINDOWS
 	void* glutFont = m_resourceManager.Get<Font>(fontHandle).GetGLUTFont();
-	App::Print(x, y, text, col.r, col.g, col.b, glutFont);
+	App::Print(x, y, text, col.r(), col.g(), col.b(), glutFont);
 #endif
 }
 
 void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col)
 {
 #ifdef PLATFORM_WINDOWS
-	App::DrawLine(x0, y0, x1, y1, col.r, col.g, col.b);
+	App::DrawLine(x0, y0, x1, y1, col.r(), col.g(), col.b());
 #endif
 }
 

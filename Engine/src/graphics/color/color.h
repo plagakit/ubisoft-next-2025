@@ -1,8 +1,19 @@
 #pragma once
 
-struct Color
+#include "math/vector/vector3.h"
+
+struct Color : public Vec3
 {
-	float r, g, b;
+	Color();
+	Color(float r, float g, float b);
+	Color(const Vec3& v);
+
+	float& r();
+	float& g();
+	float& b();
+	float r() const;
+	float g() const;
+	float b() const;
 
 	static const Color WHITE;
 	static const Color BLACK;

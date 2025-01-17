@@ -37,10 +37,15 @@ public:
 			{ 0.0f, 0.0f }, { 1.0f, 0.0f },
 			f->GetPosition().relative,
 			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+
 		Tween<Vec2> tween2 = m_tweenMgr->CreateTween<Vec2>(
 			{ 0.5f, 0.5f }, { 0.2f, 0.75f },
 			f->GetSize().relative,
 			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+
+		Tween<Color> tween3 = m_tweenMgr->CreateTween<Color>(
+			Color::GREEN, Color::RED, f->GetColor(), 
+			10.0f, EasingMode::LINEAR, EasingType::OUT);
 	}
 	
 	void Init()
