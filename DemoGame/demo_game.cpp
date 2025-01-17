@@ -50,6 +50,8 @@ public:
 	
 	void Init()
 	{
+		m_input->InitDefaultActions();
+
 		m_renderer->SetViewMatrix(Mat4::IDENTITY);
 		m_renderer->SetProjectionMatrix(camera.GetProjection());
 
@@ -65,7 +67,7 @@ public:
 		circleCol = crid;
 		cc.radius = 40.0f;
 
-		auto btn = std::make_unique<Button>(
+		auto btn = std::make_unique<Button>(*m_input,
 			Dim2(0.25f, 0.25f, 0.0f, 50.0f),
 			Dim2(1.0f, 1.0f, 0.0f, 0.0f),
 			Color::RED,
@@ -131,12 +133,14 @@ public:
 	{
 		t += dt;
 
-		if (Input::IsJustPressed("mouse-left"))
+		//Logger::Debug("Pressed: %d, Justp: %d, Str: %d", m_input->IsPressed("up"), m_input->IsJustPressed("up"), m_input->GetStrength("up"));
+
+		if (m_input->IsJustPressed("mouse-left"))
 		{
 			Audio& audio = m_resourceMgr->Get<Audio>(fishAudio);
 			audio.Play();
 
-			Vec2 mousePos = Input::GetMousePos();
+			Vec2 mousePos = m_input->GetMousePos();
 			//Logger::Info("Clicked! Mouse pos: %s", mousePos.ToString().c_str());
 
 			Ray3D ray = camera.ProjectRay(mousePos);
@@ -163,15 +167,15 @@ public:
 		s_physics.s_Collided.Connect<DemoGame, &DemoGame::CollisionSignalTest>(this);
 
 		auto& camtf = camera.GetTransform();
-		Vec3 move = Vec3::FORWARD * Input::GetAxis("down", "up")
-			+ Vec3::RIGHT * Input::GetAxis("left", "right")
-			+ Vec3::UP * Input::GetAxis("Q", "E");
+		Vec3 move = Vec3::FORWARD * m_input->GetAxis("down", "up")
+			+ Vec3::RIGHT * m_input->GetAxis("left", "right")
+			+ Vec3::UP * m_input->GetAxis("Q", "E");
 
 		move = camtf.orientation * move;
 		camtf.position += move * dt * 3.0f;
 
-		camtf.orientation = Quat::FromEulerAngles(0, Input::GetAxis("J", "L") * 2.0f * dt, 0) * camtf.orientation;
-		camtf.orientation *= Quat::FromEulerAngles(0, 0, Input::GetAxis("K", "I") * -2.0f * dt);
+		camtf.orientation = Quat::FromEulerAngles(0, m_input->GetAxis("J", "L") * 2.0f * dt, 0) * camtf.orientation;
+		camtf.orientation *= Quat::FromEulerAngles(0, 0, m_input->GetAxis("K", "I") * -2.0f * dt);
 
 		m_renderer->SetViewMatrix(camera.GetView());
 

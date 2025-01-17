@@ -4,11 +4,59 @@
 #include "core/debug/assert.h"
 #include <App/app.h>
 
-std::unordered_map<std::string, InputAction> Input::m_actions = {};
 
 void Input::InitDefaultActions()
 {
-	InputAction& left = CreateAction("left");
+	CreateAction("left");
+	AddEvent<InputEventVirtual>("left", VK_LEFT);
+	AddEvent<InputEventVirtual>("left", 'A');
+	AddEvent< InputEventControllerTrigger>("left", 0, InputEventControllerTrigger::THUMB_L_LEFT);
+
+	CreateAction("right");
+	AddEvent<InputEventVirtual>("right", VK_RIGHT);
+	AddEvent<InputEventVirtual>("right", 'D');
+	AddEvent<InputEventControllerTrigger>("right", 0, InputEventControllerTrigger::THUMB_L_RIGHT);
+
+	CreateAction("up");
+	AddEvent<InputEventVirtual>("up", VK_UP);
+	AddEvent<InputEventVirtual>("up", 'W');
+	AddEvent<InputEventControllerTrigger>("up", 0, InputEventControllerTrigger::THUMB_L_UP);
+
+	CreateAction("down");
+	AddEvent<InputEventVirtual>("down", VK_DOWN);
+	AddEvent<InputEventVirtual>("down", 'S');
+	AddEvent<InputEventControllerTrigger>("down", 0, InputEventControllerTrigger::THUMB_L_DOWN);
+
+	CreateAction("Q");
+	AddEvent<InputEventVirtual>("Q", 'Q');
+
+	CreateAction("E");
+	AddEvent<InputEventVirtual>("E", 'E');
+
+	CreateAction("I");
+	AddEvent<InputEventVirtual>("I", 'I');
+
+	CreateAction("J");
+	AddEvent<InputEventVirtual>("J", 'J');
+
+	CreateAction("K");
+	AddEvent<InputEventVirtual>("K", 'K');
+
+	CreateAction("L");
+	AddEvent<InputEventVirtual>("L", 'L');
+
+
+	CreateAction("mouse-left");
+	AddEvent<InputEventVirtual>("mouse-left", VK_LBUTTON);
+	AddEvent<InputEventControllerButton>("mouse-left", 0, XINPUT_GAMEPAD_LEFT_SHOULDER);
+
+	CreateAction("mouse-right");
+	AddEvent<InputEventVirtual>("mouse-right", VK_RBUTTON);
+	AddEvent<InputEventControllerButton>("mouse-right", 0, XINPUT_GAMEPAD_RIGHT_SHOULDER);
+
+	// Old system of adding inputs before i rehauled Input
+
+	/*InputAction& left = CreateAction("left");
 	left.AddEvent(std::make_unique<InputEventVirtual>(VK_LEFT));
 	left.AddEvent(std::make_unique<InputEventVirtual>('A'));
 	left.AddEvent(std::make_unique<InputEventControllerTrigger>(0, InputEventControllerTrigger::THUMB_L_LEFT));
@@ -48,64 +96,68 @@ void Input::InitDefaultActions()
 
 	InputAction& mouseRight = CreateAction("mouse-right");
 	mouseRight.AddEvent(std::make_unique<InputEventVirtual>(VK_RBUTTON));
-	mouseLeft.AddEvent(std::make_unique<InputEventControllerButton>(0, XINPUT_GAMEPAD_RIGHT_SHOULDER));
+	mouseLeft.AddEvent(std::make_unique<InputEventControllerButton>(0, XINPUT_GAMEPAD_RIGHT_SHOULDER));*/
 }
 
-InputAction& Input::CreateAction(std::string name)
+void Input::CreateAction(const std::string& name)
 {
-	auto result = m_actions.insert({ name, InputAction(name) });
-	return result.first->second;
+	m_actionMap.insert({ name, std::make_unique<InputAction>(name) });
 }
 
-InputAction* Input::GetAction(std::string action)
+//InputAction* Input::GetAction(std::string action)
+//{
+//	auto pair = m_actions.find(action);
+//	if (pair == m_actions.end())
+//		return nullptr;
+//	return &pair->second;
+//}
+
+void Input::Update(float dt)
 {
-	auto pair = m_actions.find(action);
-	if (pair == m_actions.end())
-		return nullptr;
-	return &pair->second;
+#ifdef PLATFORM_WINDOWS
+	App::GetMousePos(m_curMousePos.x, m_curMousePos.y);
+#endif
+
+	for (auto& event : m_events)
+		event->Update(dt);
+
+	for (auto& [name, action] : m_actionMap)
+		action->Update();
 }
 
-void Input::Update()
+bool Input::IsPressed(const std::string& action) const
 {
-	for (auto& pair : m_actions)
-		pair.second.Update();
+	auto it = m_actionMap.find(action);
+	ASSERT_ERROR(it != m_actionMap.end(), "Action %s not found! (Input::IsPressed)", action.c_str());
+	return it->second->Pressed();
 }
 
-bool Input::IsPressed(std::string action) 
+bool Input::IsJustPressed(const std::string& action) const
 {
-	auto pair = m_actions.find(action);
-	ASSERT_ERROR(pair != m_actions.end(), "Action %s not found!", action.c_str());
-	return m_actions.at(action).Pressed();
+	auto it = m_actionMap.find(action);
+	ASSERT_ERROR(it != m_actionMap.end(), "Action %s not found! (Input::IsJustPressed)", action.c_str());
+	return it->second->JustPressed();
 }
 
-bool Input::IsJustPressed(std::string action)
+float Input::GetStrength(const std::string& action) const 
 {
-	auto pair = m_actions.find(action);
-	ASSERT_ERROR(pair != m_actions.end(), "Action %s not found!", action.c_str());
-	return pair->second.JustPressed();
+	auto it = m_actionMap.find(action);
+	ASSERT_ERROR(it != m_actionMap.end(), "Action %s not found! (Input::GetStrength)", action.c_str());
+	return it->second->Strength();
 }
 
-float Input::GetStrength(std::string action) 
+float Input::GetAxis(const std::string& negAction, const std::string& posAction) const 
 {
-	auto pair = m_actions.find(action);
-	ASSERT_ERROR(pair != m_actions.end(), "Action %s not found!", action.c_str());
-	return pair->second.Strength();
+	auto neg = m_actionMap.find(negAction);
+	auto pos = m_actionMap.find(posAction);
+
+	ASSERT_ERROR(neg != m_actionMap.end(), "Negative action %s not found! (Input::GetAxis)", negAction.c_str());
+	ASSERT_ERROR(pos != m_actionMap.end(), "Positive action %s not found! (Input::GetAxis)", posAction.c_str());
+
+	return -(neg->second->Strength()) + pos->second->Strength();
 }
 
-float Input::GetAxis(std::string negAction, std::string posAction) 
+Vec2 Input::GetMousePos() const
 {
-	auto neg = m_actions.find(negAction);
-	auto pos = m_actions.find(posAction);
-
-	ASSERT_ERROR(neg != m_actions.end(), "Action %s not found!", negAction.c_str());
-	ASSERT_ERROR(pos != m_actions.end(), "Action %s not found!", posAction.c_str());
-
-	return -(neg->second.Strength()) + pos->second.Strength();
-}
-
-Vec2 Input::GetMousePos() 
-{
-	Vec2 p;
-	App::GetMousePos(p.x, p.y);
-	return p;
+	return m_curMousePos;
 }

@@ -1,32 +1,47 @@
 #include "pch.h"
 #include "input_action.h"
 
+#include "core/debug/assert.h"
 #include "math/math_utils.h"
 #include <App/app.h>
 
-InputAction::InputAction(std::string name) :
-	m_name(std::move(name)), m_pressed(false), m_justPressed(false)
+InputAction::InputAction(const std::string& name, float deadzone) :
+	m_name(name),
+	m_deadzone(deadzone),
+	m_pressed(false),
+	m_justPressed(false),
+	m_strength(0.0f)
 {}
 
-void InputAction::AddEvent(std::unique_ptr<InputEvent> event)
+void InputAction::AddEvent(InputEvent* event)
 {
-	m_events.push_back(std::move(event));
+	ASSERT_ERROR(event, "Trying to add a null InputEvent to InputAction '%s'!", m_name.c_str());
+	m_events.push_back(event);
 }
 
 void InputAction::Update()
 {
+	//m_pressed = false;
+	//for (const auto& event : m_events)
+	//{
+	//	if (event->IsDown())
+	//	{
+	//		m_pressed = true;
+	//		break;
+	//	}
+	//}
+	
 	bool wasPressed = m_pressed;
 
-	m_pressed = false;
+	m_strength = 0.0f;
 	for (const auto& event : m_events)
 	{
-		if (event->IsDown())
-		{
-			m_pressed = true;
-			break;
-		}
+		float strength = event->Strength();
+		if (strength > m_strength)
+			m_strength = strength;
 	}
-	
+
+	m_pressed = m_strength >= m_deadzone;
 	m_justPressed = !wasPressed && m_pressed;
 }
 
@@ -42,12 +57,5 @@ bool InputAction::JustPressed() const
 
 float InputAction::Strength() const
 {
-	float max = 0.0f;
-	for (const auto& event : m_events)
-	{
-		float strength = event->Strength();
-		if (strength > max)
-			max = strength;
-	}
-	return max;
+	return m_strength;
 }

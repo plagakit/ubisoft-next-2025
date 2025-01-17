@@ -3,16 +3,27 @@
 class InputEvent
 {
 public:
-	virtual bool IsDown() const = 0;
-	virtual float Strength() const = 0;
+	virtual void Update(float dt) = 0;
+	virtual bool Equals(const InputEvent& event);
+
+	bool IsDown() const;
+	float Strength() const;
+
+protected:
+	virtual bool EqualsImpl(const InputEvent& event) const = 0;
+
+	bool m_isDown;
+	float m_strength;
 };
 
 class InputEventVirtual : public InputEvent
 {
 public:
 	InputEventVirtual(unsigned char virtualKey);
-	bool IsDown() const override;
-	float Strength() const override;
+	void Update(float dt) override;
+
+protected:
+	bool EqualsImpl(const InputEvent& event) const override;
 
 private:
 	unsigned char m_virtualKey;
@@ -34,22 +45,25 @@ public:
 		TRIGGER_L
 	};
 
-	InputEventControllerTrigger(int deviceNum, Type type, float deadzone = 0.5f);
-	bool IsDown() const override;
-	float Strength() const override;
+	InputEventControllerTrigger(int deviceNum, Type type);
+	void Update(float dt) override;
+
+protected:
+	bool EqualsImpl(const InputEvent& event) const override;
 
 private:
 	int m_deviceNum;
 	Type m_type;
-	float m_deadzone;
 };
 
 class InputEventControllerButton : public InputEvent
 {
 public:
 	InputEventControllerButton(int deviceNum, int xinputButton);
-	bool IsDown() const override;
-	float Strength() const override;
+	void Update(float dt) override;
+
+protected:
+	bool EqualsImpl(const InputEvent& event) const override;
 
 private:
 	int m_deviceNum;

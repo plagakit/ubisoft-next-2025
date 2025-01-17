@@ -2,12 +2,13 @@
 #include "button.h"
 #include "core/input/input.h"
 
-Button::Button(Dim2 position, Dim2 size, Color default, Color disabled, Color highlighted, Color clicked) :
-	m_defaultColor(default),
+Button::Button(const Input& input, Dim2 position, Dim2 size, Color defaultCol, Color disabled, Color highlighted, Color clicked) :
+	m_input(input),
+    m_defaultColor(defaultCol),
     m_disabledColor(disabled),
     m_highlightedColor(highlighted),
     m_clickedColor(clicked),
-    m_currentColor(default),
+    m_currentColor(defaultCol),
     m_disabled(false),
     m_isBeingHovered(false)
 {
@@ -23,7 +24,7 @@ void Button::UpdateInternal(float dt)
         return;
     }
 
-    Vec2 mousePos = Input::GetMousePos();
+    Vec2 mousePos = m_input.GetMousePos();
     Vec2 pos = GetAbsolutePosition();
     Vec2 scl = GetAbsoluteSize();
     bool inside = mousePos.x >= pos.x && mousePos.y >= pos.y
@@ -39,7 +40,7 @@ void Button::UpdateInternal(float dt)
             s_Hovered.Emit(); 
         }
 
-        if (Input::IsJustPressed("mouse-left"))
+        if (m_input.IsJustPressed("mouse-left"))
         {
             s_Clicked.Emit();
             m_currentColor = m_clickedColor;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/input/input.h"
 #include "core/resource/resource_manager.h"
 #include "graphics/renderer/renderer.h"
 #include "gui/tween/tween_manager.h"
@@ -22,17 +23,17 @@ public:
 	void __Render__();
 
 protected:
+	Input* m_input;
 	ResourceManager* m_resourceMgr;
 	Renderer* m_renderer;
 	TweenManager* m_tweenMgr;
+
 	EntityManager m_registry;
 
 	virtual void Init() {};
 	virtual void Shutdown() {};
 	virtual void Update(float dt) {};
 	virtual void Render() {};
-
-	//virtual void LoadRootScene() = 0;
 
 private:
 	void PreInit();

@@ -1,33 +1,57 @@
 #include "pch.h"
 #include "input_event.h"
 
+#include <type_traits>
 #include <App/app.h>
+
+bool InputEvent::Equals(const InputEvent& event)
+{
+	// If they are not the same InputEvent type, then return
+	// false, but if they are, try the specific Equals implementation.
+	// This being virtual ensures we will call the derived EqualsImpl
+	return typeid(*this) == typeid(event) 
+		&& EqualsImpl(event);
+}
+
+bool InputEvent::IsDown() const
+{
+	return m_isDown;
+}
+
+float InputEvent::Strength() const
+{
+	return m_strength;
+}
+
+// VIRTUAL KEY
 
 InputEventVirtual::InputEventVirtual(unsigned char virtualKey) :
 	m_virtualKey(virtualKey)
 {}
 
-bool InputEventVirtual::IsDown() const
+void InputEventVirtual::Update(float dt)
 {
-	return App::IsKeyPressed(m_virtualKey);
+#ifdef PLATFORM_WINDOWS
+	m_isDown = App::IsKeyPressed(m_virtualKey);
+	m_strength = m_isDown ? 1.0f : 0.0f;
+#endif
 }
 
-float InputEventVirtual::Strength() const
+bool InputEventVirtual::EqualsImpl(const InputEvent& base) const
 {
-	return IsDown() ? 1.0f : 0.0f;
+	const auto& event = static_cast<const InputEventVirtual&>(base);
+	return m_virtualKey == event.m_virtualKey;
 }
 
-InputEventControllerTrigger::InputEventControllerTrigger(int deviceNum, Type type, float deadzone) :
-	m_deviceNum(deviceNum), m_type(type), m_deadzone(deadzone)
+// CONTROLLER TRIGGER
+
+InputEventControllerTrigger::InputEventControllerTrigger(int deviceNum, Type type) :
+	m_deviceNum(deviceNum), m_type(type)
 {}
 
-bool InputEventControllerTrigger::IsDown() const
+void InputEventControllerTrigger::Update(float dt)
 {
-	return Strength() >= m_deadzone;
-}
-
-float InputEventControllerTrigger::Strength() const
-{
+#ifdef PLATFORM_WINDOWS
 	const CController& c = App::GetController(m_deviceNum);
 	float lx = c.GetLeftThumbStickX();
 	float ly = c.GetLeftThumbStickY();
@@ -36,33 +60,51 @@ float InputEventControllerTrigger::Strength() const
 
 	switch (m_type)
 	{
-	case THUMB_L_LEFT:	return lx < 0.0f ? -lx : 0.0f;
-	case THUMB_L_RIGHT: return lx > 0.0f ? lx : 0.0f;
-	case THUMB_L_DOWN:	return ly < 0.0f ? -ly : 0.0f;
-	case THUMB_L_UP:	return ly > 0.0f ? ly : 0.0f;
+	case THUMB_L_LEFT:	m_strength = lx < 0.0f ? -lx : 0.0f; break;
+	case THUMB_L_RIGHT: m_strength = lx > 0.0f ? lx : 0.0f;	 break;
+	case THUMB_L_DOWN:	m_strength = ly < 0.0f ? -ly : 0.0f; break;
+	case THUMB_L_UP:	m_strength = ly > 0.0f ? ly : 0.0f;	 break;
 
-	case THUMB_R_LEFT:	return rx < 0.0f ? -rx : 0.0f;
-	case THUMB_R_RIGHT: return rx > 0.0f ? rx : 0.0f;
-	case THUMB_R_DOWN:	return ry < 0.0f ? -ry : 0.0f;
-	case THUMB_R_UP:	return ry > 0.0f ? ry : 0.0f;
+	case THUMB_R_LEFT:	m_strength = rx < 0.0f ? -rx : 0.0f; break;
+	case THUMB_R_RIGHT: m_strength = rx > 0.0f ? rx : 0.0f;	 break;
+	case THUMB_R_DOWN:	m_strength = ry < 0.0f ? -ry : 0.0f; break;
+	case THUMB_R_UP:	m_strength = ry > 0.0f ? ry : 0.0f;	 break;
 
-	case TRIGGER_L: return c.GetLeftTrigger();
-	case TRIGGER_R: return c.GetRightTrigger();
+	case TRIGGER_L: m_strength = c.GetLeftTrigger();  break;
+	case TRIGGER_R: m_strength = c.GetRightTrigger(); break;
 
-	default: return 0.0f;
+	default: m_strength = 0.0f;
 	}
+
+	m_isDown = m_strength >= 0.0f;
+#endif
 }
+
+bool InputEventControllerTrigger::EqualsImpl(const InputEvent& base) const
+{
+	const auto& event = static_cast<const InputEventControllerTrigger&>(base);
+	return m_deviceNum == event.m_deviceNum && m_type == event.m_type;
+}
+
+// CONTROLLER BUTTON
 
 InputEventControllerButton::InputEventControllerButton(int deviceNum, int xinputButton) :
 	m_deviceNum(deviceNum), m_xinputButton(xinputButton)
 {}
 
-bool InputEventControllerButton::IsDown() const
+void InputEventControllerButton::Update(float dt)
 {
-	return App::GetController(m_deviceNum).CheckButton(m_xinputButton);
+#ifdef PLATFORM_WINDOWS
+	m_isDown = App::GetController(m_deviceNum).CheckButton(m_xinputButton);
+	m_strength = m_isDown ? 1.0f : 0.0f;
+#endif
 }
 
-float InputEventControllerButton::Strength() const
+bool InputEventControllerButton::EqualsImpl(const InputEvent& base) const
 {
-	return IsDown() ? 1.0f : 0.0f;
+	const auto& event = static_cast<const InputEventControllerButton&>(base);
+	return m_deviceNum == event.m_deviceNum
+		&& m_xinputButton == event.m_xinputButton;
 }
+
+
