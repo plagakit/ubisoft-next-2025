@@ -22,6 +22,7 @@ private:
 	RID fishAudio;
 
 	GUIRoot guiRoot;
+	Frame* f;
 
 public:
 
@@ -29,24 +30,28 @@ public:
 	{
 		//Logger::Info("%d collided w/ %d!", id1, id2);
 	}
+
+	void TweenTo()
+	{
+		Tween<Vec2> tween1 = m_tweenMgr->CreateTween<Vec2>(
+			{ 0.0f, 0.0f }, { 1.0f, 0.0f },
+			f->GetPosition().relative,
+			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+		Tween<Vec2> tween2 = m_tweenMgr->CreateTween<Vec2>(
+			{ 0.5f, 0.5f }, { 0.2f, 0.75f },
+			f->GetSize().relative,
+			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+	}
 	
 	void Init()
 	{
 		auto frame = std::make_unique<Frame>();
-		frame->GetPosition() = Dim2(0.25f, 0.25f, 0.0f, 0.0f);
-		frame->GetPosition() = Dim2(0.5f, 0.5f, 0.0f, 0.0f);
-
-		Tween<Vec2> tween1 = m_tweenMgr->CreateTween<Vec2>(
-			{ 0.5f, 0.5f }, { 0.0f, 0.0f }, 
-			frame->GetPosition().relative, 
-			5.0f, EasingMode::ELASTIC, EasingType::OUT);
-
-		Tween<Vec2> tween2 = m_tweenMgr->CreateTween<Vec2>(
-			{ 0.5f, 0.5f }, { 0.2f, 0.75f },
-			frame->GetSize().relative,
-			5.0f, EasingMode::ELASTIC, EasingType::OUT);
-
+		frame->GetPosition() = Dim2(0.25f, 0.25f, 0.0f, 50.0f);
+		frame->m_anchor = Vec2(1.0f, 0.0f);
+		f = frame.get();
 		guiRoot.AddChild(std::move(frame));
+
+		TweenTo();
 
 		m_renderer->SetViewMatrix(Mat4::IDENTITY);
 		m_renderer->SetProjectionMatrix(camera.GetProjection());

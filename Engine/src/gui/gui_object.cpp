@@ -22,6 +22,7 @@ void GUIObject::Render(Renderer& renderer, Vec2 parentOrigin, Vec2 parentScale)
 {
 	m_origin = parentOrigin + parentScale * m_position.relative + m_position.offset;
 	m_scale = parentScale * m_size.relative + m_size.offset;
+	m_origin -= m_anchor * m_scale;
 
 	RenderInternal(renderer, m_origin, m_scale);
 	for (auto& child : m_children)
