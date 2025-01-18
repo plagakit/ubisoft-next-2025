@@ -11,6 +11,8 @@
 #include "core/signal/callback.h"
 #include "core/signal/signal.h"
 
+#include "scene/scene.h"
+
 #include "math/math_utils.h"
 #include "math/vector/vector2.h"
 #include "math/vector/vector3.h"
@@ -26,6 +28,7 @@
 #include "graphics/texture/texture.h"
 #include "graphics/mesh/mesh.h"
 #include "graphics/camera/camera.h"
+#include "graphics/camera/debug_camera.h"
 
 #include "physics/collider/collider_2d.h"
 #include "physics/collider/circle_collider.h"

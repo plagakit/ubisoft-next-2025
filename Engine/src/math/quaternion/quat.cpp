@@ -9,7 +9,7 @@ Quat::Quat() :
 	x(0.0f), y(0.0f), z(0.0f), w(1.0f)
 {}
 
-Quat::Quat(const Vec3 & v) :
+Quat::Quat(const Vec3& v) :
 	x(v.x), y(v.y), z(v.z), w(1.0f)
 {}
 
@@ -71,9 +71,9 @@ Quat Quat::Inverse() const
 Mat4 Quat::ToRotationMatrix() const
 {
 	return {
-		1 - 2*y*y - 2*z*z,	2*x*y - 2*w*z,		2*x*z + 2*w*y,				0,
-		2*x*y + 2*w*z,		1 - 2*x*x - 2*z*z,	2*y*z - 2*w*x,				0,
-		2*x*z - 2*w*y,		2*y*z + 2*w*x,		1 - 2*x*x - 2*y*y,			0,
+		1 - 2 * y * y - 2 * z * z,	2 * x * y - 2 * w * z,		2 * x * z + 2 * w * y,				0,
+		2 * x * y + 2 * w * z,		1 - 2 * x * x - 2 * z * z,	2 * y * z - 2 * w * x,				0,
+		2 * x * z - 2 * w * y,		2 * y * z + 2 * w * x,		1 - 2 * x * x - 2 * y * y,			0,
 		0,					0,					0,							1
 	};
 }
@@ -88,7 +88,7 @@ Vec3 Quat::ToEulerAngles() const
 	float cosy_cosp = 1 - 2 * (y * y + z * z);
 	float sinp = sqrtf(1 + 2 * (w * y - x * z));
 	float cosp = sqrtf(1 - 2 * (w * y - x * z));
-	
+
 	return Vec3(
 		atan2f(sinr_cosp, cosr_cosp),
 		atan2f(siny_cosp, cosy_cosp),
@@ -106,23 +106,33 @@ void Quat::ToAxisAngle(Vec3& axis, float& angle) const
 		axis /= s;
 }
 
-void Quat::ToLookAt(Vec3& eye, Vec3& up) const
+//void Quat::ToLookAt(Vec3& eye, Vec3& up) const
+//{
+//	eye = (*this) * Vec3::FORWARD;
+//	up = (*this) * Vec3::UP;
+//}
+
+Quat Quat::LookAt(const Vec3& src, const Vec3& dest)
 {
-	eye = (*this) * Vec3::FORWARD;
-	up = (*this) * Vec3::UP;
-}
+	Vec3 forward = (dest - src).Normalized();
+	Vec3 up = Vec3::UP;
 
-Quat Quat::LookAt(const Vec3& direction, const Vec3& up)
-{
-	Vec3 rotAxis = Vec3::FORWARD.Cross(direction);
-	if (rotAxis.LengthSq() < EPSILON)
-		rotAxis = up;
+	// If forward == up
+	if (std::abs(forward.Dot(Vec3::UP)) > 1.0f - EPSILON)
+		up = Vec3::FORWARD;
 
-	float dot = Vec3::FORWARD.Dot(direction);
-	float angle = -acosf(dot);
+	Vec3 right = up.Cross(forward).Normalized();
+	up = forward.Cross(right).Normalized();
 
-	rotAxis = rotAxis.Normalized();
-	return FromAxisAngle(rotAxis, angle);
+	Quat lookAtQuat;
+	lookAtQuat.w = sqrtf(1.0f + right.x + up.y + forward.z) * 0.5f;
+	float wRecip = 1.0f / (4.0f * lookAtQuat.w);
+	lookAtQuat.x = (up.z - forward.y) * wRecip;
+	lookAtQuat.y = (forward.x - right.z) * wRecip;
+	lookAtQuat.z = (right.y - up.x) * wRecip;
+
+	lookAtQuat.Normalize();
+	return lookAtQuat;
 }
 
 Quat Quat::FromEulerAngles(float y, float z, float x)

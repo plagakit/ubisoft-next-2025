@@ -27,6 +27,10 @@ void Input::InitDefaultActions()
 	AddEvent<InputEventVirtual>("down", 'S');
 	AddEvent<InputEventControllerTrigger>("down", 0, InputEventControllerTrigger::THUMB_L_DOWN);
 
+	CreateAction("space");
+	AddEvent<InputEventVirtual>("space", VK_SPACE);
+	AddEvent<InputEventControllerButton>("space", 0, XINPUT_GAMEPAD_A);
+
 	CreateAction("Q");
 	AddEvent<InputEventVirtual>("Q", 'Q');
 
@@ -44,7 +48,6 @@ void Input::InitDefaultActions()
 
 	CreateAction("L");
 	AddEvent<InputEventVirtual>("L", 'L');
-
 
 	CreateAction("mouse-left");
 	AddEvent<InputEventVirtual>("mouse-left", VK_LBUTTON);

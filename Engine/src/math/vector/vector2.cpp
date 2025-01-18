@@ -151,9 +151,11 @@ Vector2<T> Vector2<T>::Normalized() const
 template<typename T>
 Vector2<T> Vector2<T>::Rotated(float angle) const
 {
-	T rx = static_cast<T>(cosf(angle * x) - sinf(angle * y));
-	T ry = static_cast<T>(sinf(angle * x) + cosf(angle * y));
-	return Vector2(rx, ry);
+	T cos = static_cast<T>(cosf(angle));
+	T sin = static_cast<T>(sinf(angle));
+	T rx = x * cos - y * sin;
+	T ry = x * sin + y * cos;
+	return Vector2<T>(rx, ry);
 }
 
 template <typename T>

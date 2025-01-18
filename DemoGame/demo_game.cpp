@@ -8,6 +8,7 @@ int two(int a, int b) { asd++; return a + b; }
 class DemoGame : public Application 
 {
 private:
+	EntityManager m_registry;
 	float t = 0.0f;
 	float x, y;
 	float count = 0.0f;
@@ -166,16 +167,7 @@ public:
 
 		s_physics.s_Collided.Connect<DemoGame, &DemoGame::CollisionSignalTest>(this);
 
-		auto& camtf = camera.GetTransform();
-		Vec3 move = Vec3::FORWARD * m_input->GetAxis("down", "up")
-			+ Vec3::RIGHT * m_input->GetAxis("left", "right")
-			+ Vec3::UP * m_input->GetAxis("Q", "E");
 
-		move = camtf.orientation * move;
-		camtf.position += move * dt * 3.0f;
-
-		camtf.orientation = Quat::FromEulerAngles(0, m_input->GetAxis("J", "L") * 2.0f * dt, 0) * camtf.orientation;
-		camtf.orientation *= Quat::FromEulerAngles(0, 0, m_input->GetAxis("K", "I") * -2.0f * dt);
 
 		m_renderer->SetViewMatrix(camera.GetView());
 

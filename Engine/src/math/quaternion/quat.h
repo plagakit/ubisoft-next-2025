@@ -23,12 +23,12 @@ struct Quat
 	// Yaw-pitch-roll sequence of angles
 	Vec3 ToEulerAngles() const;
 	void ToAxisAngle(Vec3& axis, float& angle) const;
-	void ToLookAt(Vec3& eye, Vec3& up) const;
+	//void ToLookAt(Vec3& eye, Vec3& up) const;
 
 	// Yaw-pitch-roll sequence of angles
 	static Quat FromEulerAngles(float roll, float yaw, float pitch);
 	static Quat FromAxisAngle(const Vec3& axis, float angle);
-	static Quat LookAt(const Vec3& direction, const Vec3& up);
+	static Quat LookAt(const Vec3& src, const Vec3& dest);
 
 
 	void Normalize();

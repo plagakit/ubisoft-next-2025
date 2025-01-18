@@ -41,7 +41,7 @@ inline RID ResourceManager::Load(const char* path)
 	{
 		if (res->m_path == path)
 		{
-			Logger::Warn("Reloading resource %s!", path);
+//			Logger::Warn("Reloading resource %s!", path);
 			return rid;
 		}
 	}

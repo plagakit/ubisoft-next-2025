@@ -263,6 +263,7 @@
     <ClInclude Include="src\entity\entity_manager\entity_manager.h" />
     <ClInclude Include="src\entity\entity_manager\sparse_set.h" />
     <ClInclude Include="src\graphics\camera\camera.h" />
+    <ClInclude Include="src\graphics\camera\debug_camera.h" />
     <ClInclude Include="src\graphics\color\color.h" />
     <ClInclude Include="src\graphics\font\font.h" />
     <ClInclude Include="src\core\app_settings.h" />
@@ -379,6 +380,7 @@
     <ClCompile Include="src\core\uid\uid.cpp" />
     <ClCompile Include="src\entity\entity_manager\entity_manager.cpp" />
     <ClCompile Include="src\graphics\camera\camera.cpp" />
+    <ClCompile Include="src\graphics\camera\debug_camera.cpp" />
     <ClCompile Include="src\graphics\color\color.cpp" />
     <ClCompile Include="src\graphics\font\font.cpp" />
     <ClCompile Include="src\core\debug\logger.cpp" />
@@ -410,6 +412,7 @@
     </ClCompile>
     <ClCompile Include="src\physics\collider\circle_collider.cpp" />
     <ClCompile Include="src\physics\collision\collision_solver.cpp" />
+    <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\systems\physics\physics_system.cpp" />
     <ClCompile Include="src\systems\particle\particle_system.cpp" />
     <ClCompile Include="src\systems\render\render_system.cpp" />

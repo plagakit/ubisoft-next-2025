@@ -13,6 +13,7 @@
 #include <App/SimpleSprite.h>
 #undef max
 #undef min
+#undef ERROR
 
 Renderer::Renderer(ResourceManager& resourceManager) :
 	m_resourceManager(resourceManager),
@@ -24,6 +25,8 @@ Renderer::Renderer(ResourceManager& resourceManager) :
 	m_vertexVRAM.reserve(VRAM_ARR_SIZE);
 	m_normalVRAM.reserve(VRAM_ARR_SIZE);
 	m_indexVRAM.reserve(VRAM_ARR_SIZE);
+
+	SetNearPlane(Vec3(0.0f, 0.0f, -0.9f), Vec3::FORWARD);
 }
 
 void Renderer::DrawTextLine(float x, float y, const char* text, Color col)
@@ -46,6 +49,25 @@ void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col)
 #ifdef PLATFORM_WINDOWS
 	App::DrawLine(x0, y0, x1, y1, col.r(), col.g(), col.b());
 #endif
+}
+
+void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col, int thickness)
+{
+	Vec2 dir = (Vec2(x1, y1) - Vec2(x0, y0)).Normalized();
+	Vec2 perp = Vec2(dir.y, -dir.x);
+
+	constexpr float THICK_STEP = 1.0f;
+	for (int i = 0; i < thickness; i++)
+	{
+		Vec2 a = Vec2(x0, y0) + perp * (THICK_STEP * i);
+		Vec2 b = Vec2(x1, y1) + perp * (THICK_STEP * i);
+		DrawLine(a.x, a.y, b.x, b.y, col);
+	}
+}
+
+void Renderer::DrawLine(const Vec2& a, const Vec2& b, Color col, int thickness)
+{
+	DrawLine(a.x, a.y, b.x, b.y, col, thickness);
 }
 
 void Renderer::DrawRect(float x0, float y0, float x1, float y1, Color col)
@@ -148,22 +170,65 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 		Vec4& b = m_vertexVRAM[indices[i + 2]];
 		Vec4& c = m_vertexVRAM[indices[i + 4]];
 
-		// If all verts are in front of "near plane", add triangle indices
-		if (a.z >= 0.0f && b.z >= 0.0f && c.z >= 0.0f)
-		{
-			for (int j = 0; j < 6; j++)
-				m_indexVRAM.push_back(indices[i + j]);
+		Vec4 out[6];
+		ClipResult clip = ClipTriangleAgainstPlane(
+			m_nearPlanePos, m_nearPlaneNormal,
+			a, b, c, out[0], out[1], out[2], out[3], out[4], out[5]
+		);
 
-			// Convert normals into face normals
-			// this would serve better as some sort of vertex shader
-			if (meshInstance.mode == ShadingMode::SHADED)
-			{
-				Vec3 faceNormal = (Vec3(b) - Vec3(a)).Cross(Vec3(c) - Vec3(a)).Normalized();
-				m_normalVRAM[indices[i + 1]] = faceNormal;
-				m_normalVRAM[indices[i + 3]] = faceNormal;
-				m_normalVRAM[indices[i + 5]] = faceNormal;
-			}
+		// Note: this uses switch case fall through in its logic
+		switch (clip)
+		{
+		case DISCARD:
+			continue;
+
+		case GOOD: // Add original tri to index buffer (copy 6 indices)
+			m_indexVRAM.insert(m_indexVRAM.end(), indices.begin() + i, indices.begin() + i + 6);
+			break;
+
+		case TWO_NEW: // Add out tri 2 to index & vert buffer
+		{
+			unsigned int last2 = static_cast<unsigned int>(m_vertexVRAM.size());
+			m_vertexVRAM.insert(m_vertexVRAM.end(), out + 3, out + 6);
+			m_indexVRAM.insert(m_indexVRAM.end(), {
+				last2, indices[i + 1],	   // pos + normal 1
+				last2 + 1, indices[i + 3], // pos + normal 2
+				last2 + 2, indices[i + 5]  // pos + normal 3
+				});
+			[[fallthrough]];
 		}
+		case ONE_NEW: // Add out tri 1 to index & vert buffer
+		{
+			unsigned int last = static_cast<unsigned int>(m_vertexVRAM.size());
+			m_vertexVRAM.insert(m_vertexVRAM.end(), out, out + 3);
+			m_indexVRAM.insert(m_indexVRAM.end(), {
+				last, indices[i + 1],	// pos + normal 1
+				last + 1, indices[i + 3], // pos + normal 2
+				last + 2, indices[i + 5]  // pos + normal 3
+				});
+			break;
+		}
+		default:
+			ASSERT_ERROR(false, "Clip result is error?!?!?!");
+			break;
+		}
+
+		// Pseudo near culling, needs to be fixed
+		//if (a.z >= 0.0f && b.z >= 0.0f && c.z >= 0.0f)
+		//{
+		//	for (int j = 0; j < 6; j++)
+		//		m_indexVRAM.push_back(indices[i + j]);
+
+		//	// Convert normals into face normals
+		//	// this would serve better as some sort of vertex shader
+		//	if (meshInstance.mode == ShadingMode::SHADED)
+		//	{
+		//		Vec3 faceNormal = (Vec3(b) - Vec3(a)).Cross(Vec3(c) - Vec3(a)).Normalized();
+		//		m_normalVRAM[indices[i + 1]] = faceNormal;
+		//		m_normalVRAM[indices[i + 3]] = faceNormal;
+		//		m_normalVRAM[indices[i + 5]] = faceNormal;
+		//	}
+		//}
 
 	}
 	
@@ -226,7 +291,7 @@ void Renderer::Draw3DLine(const Vec3& start, const Vec3& end, const Color& color
 	Vec4 b = m_VP * Vec4(end);
 
 	// Near Culling
-	if (a.z < 0 && b.z < 0)
+	if (a.z < 0 || b.z < 0)
 		return;
 
 	// Perspective division
@@ -344,6 +409,12 @@ void Renderer::SetProjectionMatrix(const Mat4& projection)
 	m_invVP = m_view * projection;
 }
 
+void Renderer::SetNearPlane(const Vec3& pos, const Vec3& normal)
+{
+	m_nearPlanePos = pos;
+	m_nearPlaneNormal = normal;
+}
+
 void Renderer::SetClearColor(const Color& color)
 {
 	m_depthRaster.SetClearColor(color);
@@ -371,81 +442,77 @@ float Renderer::LinePlaneIntersection(const Vec3& planePos, const Vec3& planeNor
 	return t;
 }
 
-//int Renderer::ClipTriangleAgainstPlane(
-//	const Vec3& planePos, const Vec3& planeNormal, 
-//	unsigned int idxA, unsigned int idxB, unsigned int idxC,
-//	Vec4& out1A, Vec4& out1B, Vec4& out1C, 
-//	Vec4& out2A, Vec4& out2B, Vec4& out2C)
-//{
-//	Vec4& a = m_vertexVRAM[indices[i]];
-//	Vec4& b = m_vertexVRAM[indices[i + 2]];
-//	Vec4& c = m_vertexVRAM[indices[i + 4]];
-//
-//	const Vec4* inside[3];
-//	const Vec4* outside[3];
-//	int numInside = 0;
-//	int numOutside = 0;
-//
-//	for (auto& v : { a, b, c })
-//	{
-//		float dist = (
-//			planeNormal.x * v.x
-//			+ planeNormal.y * v.y
-//			+ planeNormal.z * v.z
-//			- planeNormal.Dot(planePos)
-//			);
-//
-//		if (dist >= 0)
-//			inside[numInside++] = &v;
-//		else
-//			outside[numOutside++] = &v;
-//	}
-//
-//	// All points outside of the plane - discard tri
-//	if (numInside == 0)
-//		return 0;
-//
-//	// All points are inside the plane - tri is all good
-//	if (numInside == 3)
-//	{
-//		out1A = a;
-//		out1B = b;
-//		out1C = c;
-//		return 1;
-//	}
-//
-//	// One point inside -> clip w/ plane to form a triangle
-//	if (numInside == 1 && numOutside == 2)
-//	{
-//		out1A = *inside[0];
-//		LinePlaneIntersection(planePos, planeNormal, *inside[0], *outside[0], out1B);
-//		LinePlaneIntersection(planePos, planeNormal, *inside[0], *outside[1], out1C);
-//
-//		if (!IsCounterClockwise(out1A, out1B, out1C))
-//			std::swap(out1A, out1C);
-//
-//		return 1;
-//	}
-//
-//	// Two points inside -> clip w/ plane to form a quad
-//	if (numInside == 2 && numOutside == 1)
-//	{
-//		out1A = *inside[0];
-//		out1B = *inside[1];
-//		LinePlaneIntersection(planePos, planeNormal, *inside[0], *outside[0], out1C);
-//
-//		out2A = out1C;
-//		out2B = *inside[1];
-//		LinePlaneIntersection(planePos, planeNormal, *inside[1], *outside[0], out2C);
-//
-//		if (!IsCounterClockwise(out1A, out1B, out1C))
-//			std::swap(out1A, out1C);
-//
-//		if (!IsCounterClockwise(out2A, out2B, out2C))
-//			std::swap(out2A, out2C);
-//
-//		return 2;
-//	}
-//
-//	return -1;
-//}
+Renderer::ClipResult Renderer::ClipTriangleAgainstPlane(
+	const Vec3& planePos, const Vec3& planeNormal, 
+	Vec4& a, Vec4& b, Vec4& c,
+	Vec4& out1A, Vec4& out1B, Vec4& out1C, 
+	Vec4& out2A, Vec4& out2B, Vec4& out2C)
+{	
+	const Vec4* inside[3];
+	const Vec4* outside[3];
+	int numInside = 0;
+	int numOutside = 0;
+
+	for (auto& v : { a, b, c })
+	{
+		float dist = (
+			planeNormal.x * v.x
+			+ planeNormal.y * v.y
+			+ planeNormal.z * v.z
+			- planeNormal.Dot(planePos)
+			);
+
+		if (dist >= 0)
+			inside[numInside++] = &v;
+		else
+			outside[numOutside++] = &v;
+	}
+
+	// All points outside of the plane - discard tri
+	if (numInside == 0)
+		return ClipResult::DISCARD;
+
+	// All points are inside the plane - tri is all good
+	if (numInside == 3)
+	{
+		out1A = a;
+		out1B = b;
+		out1C = c;
+		return ClipResult::GOOD;
+	}
+
+	// One point inside -> clip w/ plane to form a triangle
+	if (numInside == 1 && numOutside == 2)
+	{
+		out1A = *inside[0];
+		LinePlaneIntersection(planePos, planeNormal, *inside[0], *outside[0], out1B);
+		LinePlaneIntersection(planePos, planeNormal, *inside[0], *outside[1], out1C);
+
+		if (!IsCounterClockwise(out1A, out1B, out1C))
+			std::swap(out1A, out1C);
+
+		return ClipResult::ONE_NEW;
+	}
+
+	// Two points inside -> clip w/ plane to form a quad
+	if (numInside == 2 && numOutside == 1)
+	{
+		out1A = *inside[0];
+		out1B = *inside[1];
+		LinePlaneIntersection(planePos, planeNormal, *inside[0], *outside[0], out1C);
+
+		out2A = out1C;
+		out2B = *inside[1];
+		LinePlaneIntersection(planePos, planeNormal, *inside[1], *outside[0], out2C);
+
+		if (!IsCounterClockwise(out1A, out1B, out1C))
+			std::swap(out1A, out1C);
+
+		if (!IsCounterClockwise(out2A, out2B, out2C))
+			std::swap(out2A, out2C);
+
+		return ClipResult::TWO_NEW;
+	}
+
+	return ClipResult::ERROR;
+}

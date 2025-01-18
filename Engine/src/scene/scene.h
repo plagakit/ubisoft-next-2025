@@ -14,19 +14,18 @@ public:
 	Scene(const Scene&) = delete;
 	Scene& operator=(const Scene&) = delete;
 
-	Scene(ResourceManager& resourceMgr, Renderer& renderer);
+	Scene(Application& game);
 	virtual ~Scene() = 0;
-	
+	virtual void Update(float dt) = 0;
+	virtual void Render() = 0;
 	
 protected:
 	Application& m_game;
+	Input& m_input;
 	ResourceManager& m_resourceMgr;
 	Renderer& m_renderer;
 	TweenManager& m_tweenMgr;
 
 	std::unique_ptr<GUIRoot> m_GUI;
-
-private:
-
 
 };

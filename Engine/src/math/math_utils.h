@@ -3,6 +3,7 @@
 #include "math/vector/vector2.h"
 #include "math/vector/vector3.h"
 #include "math/vector/vector4.h"
+#include "math/quaternion/quat.h"
 #include "core/app_settings.h"
 
 //constexpr inline float PI = 3.141592653589793f;
@@ -17,7 +18,7 @@ namespace Math
 	template <typename T>
 	T Lerp(T min, T max, float t)
 	{
-		return min + t * (max - min);
+		return min + (max - min) * t;
 	}
 
 	template <typename T>
@@ -32,6 +33,16 @@ namespace Math
 		float t = InvLerp(min0, max0, val);
 		return Lerp(min1, max1, t);
 	}
+
+	template <typename T>
+	T Clamp(T min, T max, T val)
+	{
+		return val <= min ? min
+			: val >= max ? max
+			: val;
+	}
+
+	Quat Slerp(Quat start, Quat end, float t);
 
 	float RandAngle();
 	Vec2 RandDirection();

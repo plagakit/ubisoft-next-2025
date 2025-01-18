@@ -27,6 +27,8 @@ public:
 	void DrawTextLine(float x, float y, const char* text, Color col, RID fontHandle);
 
 	void DrawLine(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
+	void DrawLine(float x0, float y0, float x1, float y1, Color col, int thickness);
+	void DrawLine(const Vec2& a, const Vec2& b, Color col, int thickness);
 
 	void DrawRect(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
 	void DrawFilledRect(float x0, float y0, float x1, float y1, Color c = Color::WHITE);
@@ -56,6 +58,7 @@ public:
 
 	void SetViewMatrix(const Mat4& view);
 	void SetProjectionMatrix(const Mat4& projection);
+	void SetNearPlane(const Vec3& pos, const Vec3& normal);
 	void SetClearColor(const Color& color);
 
 	// 3D Drawing Utils
@@ -68,11 +71,20 @@ public:
 		const Vec3& lineStart, const Vec3& lineEnd, 
 		Vec4& intersection);
 
-	//int ClipTriangleAgainstPlane(
-	//	const Vec3& planePos, const Vec3& planeNormal,
-	//	unsigned int idxA, unsigned int idxB, unsigned int idxC,
-	//	Vec4& out1A, Vec4& out1B, Vec4& out1C,
-	//	Vec4& out2A, Vec4& out2B, Vec4& out2C) const;
+	enum ClipResult
+	{
+		DISCARD,
+		GOOD,
+		ONE_NEW,
+		TWO_NEW,
+		ERROR
+	};
+
+	static ClipResult ClipTriangleAgainstPlane(
+		const Vec3& planePos, const Vec3& planeNormal,
+		Vec4& a, Vec4& b, Vec4& c,
+		Vec4& out1A, Vec4& out1B, Vec4& out1C,
+		Vec4& out2A, Vec4& out2B, Vec4& out2C);
 
 private:
 	ResourceManager& m_resourceManager;
@@ -85,6 +97,9 @@ private:
 	Mat4 m_projection;
 	Mat4 m_VP;
 	Mat4 m_invVP;
+
+	Vec3 m_nearPlanePos;
+	Vec3 m_nearPlaneNormal;
 
 	// I think it's funny how I'm simulating a GPU a little bit by naming it VRAM hehe
 	// DrawMesh calls will copy over their mesh data into the VRAM arrays for processing, 

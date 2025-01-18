@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gui/tween/easing.h"
+#include "math/math_utils.h"
 
 class ITween
 {
@@ -30,6 +31,8 @@ private:
 	EasingMode m_mode;
 	EasingType m_type;
 	EasingFunction m_easing;
+
+	T Interpolate();
 };
 
 template<typename T>
@@ -53,7 +56,7 @@ void inline Tween<T>::Update(float dt)
 		return;
 
 	m_t += dt * m_tStep;
-	m_value = m_start + (m_end - m_start) * m_easing(m_t);
+	m_value = Interpolate();//m_start + (m_end - m_start) * m_easing(m_t);
 
 	if (m_t >= 1.0f)
 	{
@@ -66,4 +69,18 @@ template<typename T>
 inline bool Tween<T>::IsDone() const
 {
 	return m_done;
+}
+
+// Explicitly specialize Quaternion to use Slerp
+
+template<typename T>
+inline T Tween<T>::Interpolate()
+{
+	return Math::Lerp(m_start, m_end, m_easing(m_t));
+}
+
+template<>
+inline Quat Tween<Quat>::Interpolate()
+{
+	return Math::Slerp(m_start, m_end, m_easing(m_t));
 }

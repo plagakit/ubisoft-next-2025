@@ -27,7 +27,7 @@ public:
 
 	Ray3D ProjectRay(const Vec2& screenPos) const;
 
-private:
+protected:
 	Transform3D m_transform;
 	float m_FOV;
 	Mat4 m_projection;

@@ -22,5 +22,9 @@ struct Color : public Vec3
 	static const Color RED;
 	static const Color GREEN;
 	static const Color BLUE;
+
+	static const Color CYAN;
+	static const Color MAGENTA;
+	static const Color YELLOW;
 };
 
