@@ -18,11 +18,14 @@ public:
 	void Flush() override;
 
 	void SetClearColor(const Color& color);
+	void SetLightDirection(const Vec3& direction);
 
 private:
 	Color m_clearColor;
 	std::vector<Color> m_colorBuffer;
 	std::vector<float> m_depthBuffer;
+
+	Vec3 m_shadedLightDir;
 
 	// Draws a line directly into the color buffer using Bresenham's algorithm
 	void DrawLineBresenham(int x0, int y0, int x1, int y1, const Color& color);

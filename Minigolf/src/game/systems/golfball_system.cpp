@@ -1,17 +1,23 @@
 #include "golfball_system.h"
 
 #include "game/components/golfball.h"
+#include "game/components/fake_3d.h"
+#include "game/components/obstacle.h"
 
 GolfballSystem::GolfballSystem(EntityManager& registry, Renderer& renderer, ResourceManager& resourceMgr, Input& input) :
 	System(registry),
 	m_renderer(renderer),
 	m_resourceMgr(resourceMgr),
-	m_input(input),
-	m_isDragging(false)
+	m_input(input)
 {
+	auto [colRID, col] = m_resourceMgr.LoadAndGet<CircleCollider>("golfball_collider");
+	col.radius = 0.5f;
+	m_ballCollider = colRID;
+
 	m_ballPNG = m_resourceMgr.Load<Texture>("res/sprites/golfball.png");
 	m_hitHardWAV = m_resourceMgr.Load<Audio>("res/audio/hit_ball_hard.wav");
 	m_hitSoftWAV = m_resourceMgr.Load<Audio>("res/audio/hit_ball_soft.wav");
+	m_ballCollideWAV = m_resourceMgr.Load<Audio>("res/audio/ball_collide.wav");
 }
 
 GolfballSystem::~GolfballSystem()
@@ -24,21 +30,18 @@ void GolfballSystem::RegisterAllRequiredComponents(size_t n)
 	m_registry.RegisterComponentType<Golfball>(n);
 }
 
-Entity GolfballSystem::CreatePlayer()
+Entity GolfballSystem::CreateGolfball()
 {
 	Entity ball = m_registry.CreateEntity();
 
-
-	Transform2D tf; 
-
-	Sprite s = { m_ballPNG };
-
-	Golfball g;
-
-	m_registry.Add<Transform2D>(ball, tf);
+	m_registry.Add<Transform2D>(ball, {});
 	m_registry.Add<Transform3D>(ball, {});
-	m_registry.Add<Sprite>(ball, s);
-	m_registry.Add<Golfball>(ball, g);
+	m_registry.Add<Fake3D>(ball, { 0.5f });
+
+	m_registry.Add<Physics2D>(ball, { m_ballCollider });
+
+	m_registry.Add<Sprite>(ball, { m_ballPNG });
+	m_registry.Add<Golfball>(ball, {});
 	return ball;
 }
 
@@ -46,12 +49,27 @@ void GolfballSystem::Update(float dt)
 {
 	UpdateDrag();
 
-	for (auto [id, g, tf] : m_registry.AllWith<Golfball, Transform3D>())
+	for (auto [id, g, tf] : m_registry.AllWith<Golfball, Transform2D>())
 	{
+		// Hit
 		if (m_justReleased)
 		{
-			Vec2 release = m_releaseDir * m_strength;
-			tf.velocity = Vec3(release.x, 0.0f, release.y);
+			float str = Math::Lerp(STR_MIN, STR_MAX, m_strength);
+			tf.velocity += -m_releaseDir * str;
+			float newSpeed = tf.velocity.Length();
+		}
+
+		// Friction
+		float speed = tf.velocity.Length();
+		Vec2 dir = tf.velocity / speed;
+		if (speed > EPSILON)
+		{
+			tf.velocity -= tf.velocity * FRICTION * dt;
+		}
+		
+		if (speed > MAX_SPEED)
+		{
+			tf.velocity = Math::Lerp(tf.velocity, dir * MAX_SPEED, 0.5f);
 		}
 	}
 }
@@ -71,11 +89,22 @@ void GolfballSystem::Render()
 		Vec2 point1 = dir.Rotated(-35.0f * DEG2RAD) * 20.0f;
 		Vec2 point2 = dir.Rotated(35.0f * DEG2RAD) * 20.0f;
 
-		m_renderer.DrawLine(m_dragStart, m_dragEnd, col, 5);
-		m_renderer.DrawLine(m_dragStart, m_dragStart + point1, col, 5);
-		m_renderer.DrawLine(m_dragStart, m_dragStart + point2, col, 5);
+		m_renderer.Draw2DLine(m_dragStart, m_dragEnd, col, 5);
+		m_renderer.Draw2DLine(m_dragStart, m_dragStart + point1, col, 5);
+		m_renderer.Draw2DLine(m_dragStart, m_dragStart + point2, col, 5);
 	}
 
+}
+
+void GolfballSystem::OnCollision(Entity e1, Entity e2, CollisionResult2D result)
+{
+	if (m_registry.Has<Golfball>(e1)
+		&& m_registry.Has<Obstacle>(e2))
+	{
+		const Obstacle& o = m_registry.Get<Obstacle>(e2);
+		if (o.type == Obstacle::Type::WALL)
+			ReflectBallOffWall(e1, result);
+	}
 }
 
 void GolfballSystem::UpdateDrag()
@@ -88,7 +117,6 @@ void GolfballSystem::UpdateDrag()
 		{
 			m_isDragging = true;
 			m_dragStart = m_input.GetMousePos();
-			Logger::Info("Start: %s", m_dragStart.ToString().c_str());
 		}
 	}
 	// If holding drag
@@ -97,7 +125,7 @@ void GolfballSystem::UpdateDrag()
 		m_dragEnd = m_input.GetMousePos();
 
 		float lineLen = (m_dragEnd - m_dragStart).Length();
-		m_strength = Math::InvLerp(MIN_STRENGTH_VEC_LEN, MAX_STRENGTH_VEC_LEN, lineLen);
+		m_strength = Math::InvLerp(STR_MIN_LINE_LEN, STR_MAX_LINE_LEN, lineLen);
 		m_strength = Math::Clamp(0.0f, 1.0f, m_strength);
 	}
 	// Released
@@ -109,4 +137,14 @@ void GolfballSystem::UpdateDrag()
 		if (m_strength > 0.5f)	m_resourceMgr.Get<Audio>(m_hitHardWAV).Play();
 		else					m_resourceMgr.Get<Audio>(m_hitSoftWAV).Play();
 	}
+}
+
+void GolfballSystem::ReflectBallOffWall(Entity ball, CollisionResult2D col)
+{
+	Transform2D& tf = m_registry.Get<Transform2D>(ball);
+	Vec2 refAxis = tf.velocity.ProjectOnto(col.contactNormal);
+	tf.velocity -= refAxis * 2.0f;
+	tf.velocity *= WALL_BOUNCE;
+
+	m_resourceMgr.Get<Audio>(m_ballCollideWAV).Play();
 }

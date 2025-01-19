@@ -10,6 +10,9 @@ into it is deleted (causing a dangling pointer) it might make a
 copy of the object on the heap. I would rather pay the risk of
 dangling pointers, since I think the object should always be
 alive anyway.
+
+Resources:
+https://www.codeproject.com/Articles/7150/Member-Function-Pointers-and-the-Fastest-Possible
 */
 template <typename Ret, typename... Args>
 class Callback

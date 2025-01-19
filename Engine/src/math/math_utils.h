@@ -42,6 +42,8 @@ namespace Math
 			: val;
 	}
 
+	int Sign(float t);
+
 	Quat Slerp(Quat start, Quat end, float t);
 
 	float RandAngle();

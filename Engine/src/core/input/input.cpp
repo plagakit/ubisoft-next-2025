@@ -2,7 +2,9 @@
 #include "input.h"
 
 #include "core/debug/assert.h"
+#ifdef PLATFORM_WINDOWS
 #include <App/app.h>
+#endif
 
 
 void Input::InitDefaultActions()

@@ -21,26 +21,33 @@ class Renderer {
 public:
 	Renderer(ResourceManager& resourceManager);
 
+	// Basic, platform-dependant, straight-to-screen drawing functions
+
+	void DrawScreenLine(float x0, float y0, float x1, float y1, Color col);
+	void DrawScreenLine(float x0, float y0, float x1, float y1, Color col, int thickness);
+	void DrawScreenTextLine(float x, float y, const char* text, Color col, RID fontHandle);
+	void DrawScreenTexture(float x, float y, float angle, float scale, RID textureHandle, Color modulate);
+
 	// 2D Drawing Functions
 
-	void DrawTextLine(float x, float y, const char* text, Color col = Color::WHITE);
-	void DrawTextLine(float x, float y, const char* text, Color col, RID fontHandle);
+	void Draw2DLine(const Vec2& a, const Vec2& b, Color col = Color::WHITE);
+	void Draw2DLine(const Vec2& a, const Vec2& b, Color col, int thickness);
 
-	void DrawLine(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
-	void DrawLine(float x0, float y0, float x1, float y1, Color col, int thickness);
-	void DrawLine(const Vec2& a, const Vec2& b, Color col, int thickness);
+	void DrawTextLine(const Vec2& pos, const std::string& text, Color col = Color::WHITE);
+	void DrawTextLine(const Vec2& pos, const std::string& text, Color col, RID fontHandle);
+	
+	void DrawRect(const Vec2& min, const Vec2& max, Color col = Color::WHITE);
+	void DrawRect(const Vec2& pos, float width, float height, Color col = Color::WHITE);
+	void DrawFilledRect(const Vec2& min, const Vec2& max, Color c = Color::WHITE);
+	void DrawFilledRect(const Vec2& pos, float width, float height, Color col = Color::WHITE);
 
-	void DrawRect(float x0, float y0, float x1, float y1, Color col = Color::WHITE);
-	void DrawFilledRect(float x0, float y0, float x1, float y1, Color c = Color::WHITE);
+	void DrawCircle(const Vec2& pos, float radius, Color col = Color::WHITE);
+	void DrawCircle(const Vec2& pos, float radius, Color col, int segments);
 
-	void DrawCircle(Vec2 pos, float radius, Color col = Color::WHITE);
-	void DrawCircle(Vec2 pos, float radius, Color col, int segments);
+	void DrawTexture(const Transform2D& tf, RID textureHandle, Color modulate = Color::WHITE);
 
-	void DrawTexture(float x, float y, RID textureHandle);
-	void DrawTexture(const Transform2D& tf, RID textureHandle);
-
-	//void DrawRectC(float x, float y, float width, float height, Color col = Color::WHITE);
-	//void DrawFilledRectC(float x, float y, float width, float height, Color c = Color::WHITE);
+	// TODO: change this to Mat3
+	void Set2DView(const Transform2D& view);
 
 	// 3D Drawing Functions
 
@@ -51,7 +58,7 @@ public:
 
 	void Draw3DLine(const Vec3& start, const Vec3& end, const Color& color);
 	void DrawSphere(const Vec3& pos, float radius, Color col = Color::WHITE);
-	void DrawBillboard(const Vec3& pos, float scale, RID textureHandle);
+	void Draw3DTexture(const Vec3& pos, float scale, RID textureHandle);
 
 	void FlushDepthRasterizer();
 	void FlushPaintersRasterizer();
@@ -91,6 +98,8 @@ private:
 
 	RID m_defaultFontHandle;
 	void* m_defaultGlutFont;
+
+	Transform2D m_2Dview;
 
 	// Lots of cached matrices, but it's worth it....
 	Mat4 m_view;

@@ -22,5 +22,5 @@ void Label::UpdateInternal(float dt)
 
 void Label::RenderInternal(Renderer& renderer, Vec2 origin, Vec2 scale)
 {
-	renderer.DrawTextLine(origin.x, origin.y, m_text.c_str(), m_textColor, m_fontHandle);
+	renderer.DrawTextLine(origin, m_text, m_textColor, m_fontHandle);
 }

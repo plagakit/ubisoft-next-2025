@@ -21,12 +21,14 @@ public:
 	void Register2DPhysics(size_t reserve);
 	void Register3DPhysics(size_t reserve);
 
-	Signal<Entity, Entity> s_Collided;
-	Signal<Entity, Entity> s_Triggered; // first entity is the trigger
+	Signal<Entity, Entity, CollisionResult2D> s_Collided;
+	Signal<Entity, Entity, CollisionResult2D> s_Triggered;
 
 	void Update2DMovement(float dt);
 	void Update3DMovement(float dt);
 
+	void Process2DCollision(Entity id1, Entity id2);
+	void Process2DCollisions(const std::vector<Entity>& group1, const std::vector<Entity> group2);
 	void ProcessAll2DCollisions(float dt);
 	RayCast2D QueryAll2D(const Ray2D& ray);
 

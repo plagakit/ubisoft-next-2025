@@ -7,6 +7,9 @@
 
 void Mesh::Load(const char* path)
 {
+	if (std::string("CUSTOM") == path)
+		return;
+
 	// Load OBJ
 	std::ifstream file(path);
 	if (!file.is_open())

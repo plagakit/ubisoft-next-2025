@@ -6,9 +6,11 @@
 #include "math/math_utils.h"
 #include <execution>
 
+#ifdef PLATFORM_WINDOWS
 #include <App/app.h>
 #undef max
 #undef min
+#endif
 
 /*
 Resources:
@@ -20,6 +22,7 @@ DepthBufferRasterizer::DepthBufferRasterizer()
 	m_clearColor = Color::BLACK;
 	m_colorBuffer.resize(APP_VIRTUAL_WIDTH * APP_VIRTUAL_HEIGHT, m_clearColor);
 	m_depthBuffer.resize(APP_VIRTUAL_WIDTH * APP_VIRTUAL_HEIGHT, 1.0f);
+	m_shadedLightDir = Vec3(0.5f, 0.5f, 1.0f).Normalized();
 }
 
 
@@ -56,7 +59,7 @@ void DepthBufferRasterizer::RasterizeTriangle(
 	else if (mode == ShadingMode::SHADED)
 	{
 		Vec3 faceNormal = (an + bn + cn).Normalized();
-		float shadingFactor = (1.0f + faceNormal.Dot(Vec3::FORWARD)) * 0.5f;
+		float shadingFactor = (1.0f + faceNormal.Dot(m_shadedLightDir)) * 0.5f;
 		color.r() = baseColor.r() * shadingFactor;
 		color.g() = baseColor.g() * shadingFactor;
 		color.b() = baseColor.b() * shadingFactor;
@@ -215,6 +218,11 @@ void DepthBufferRasterizer::Flush()
 void DepthBufferRasterizer::SetClearColor(const Color& color)
 {
 	m_clearColor = color;
+}
+
+void DepthBufferRasterizer::SetLightDirection(const Vec3& direction)
+{
+	m_shadedLightDir = direction;
 }
 
 void DepthBufferRasterizer::DrawLineBresenham(int x0, int y0, int x1, int y1, const Color& color)

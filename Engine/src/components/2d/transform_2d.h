@@ -12,4 +12,8 @@ struct Transform2D
 	float angVelocity	= 0.0f;
 
 	Vec2 acceleration	= Vec2::ZERO;
+
+	// TODO: implement Mat3 to get rid of this
+	Vec2 Transform(const Vec2& v) const;
+
 };

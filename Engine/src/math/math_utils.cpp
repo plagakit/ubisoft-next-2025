@@ -3,6 +3,11 @@
 
 #include "core/app_settings.h"
 
+int Math::Sign(float t)
+{
+	return t < 0.0f ? -1 : t > 0.0f;
+}
+
 Quat Math::Slerp(Quat start, Quat end, float t)
 {
 	// https://www.lix.polytechnique.fr/Labo/Frank.Nielsen/WEBvisualcomputing/programs/slerp.cpp

@@ -33,6 +33,7 @@ struct Vector2
 	T Distance(const Vector2& to) const;
 	T DistanceSq(const Vector2& to) const;
 	Vector2 Normalized() const;
+	Vector2 ProjectOnto(const Vector2& v) const;
 
 	Vector2 Rotated(float radians) const;
 

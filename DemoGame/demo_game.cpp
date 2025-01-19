@@ -17,8 +17,8 @@ private:
 	RID fishSprite;
 	Camera camera;
 	
-	Entity circle1, circle2;
-	RID circleCol;
+	Entity circle1, circle2, box;
+	RID circleCol, boxCol;
 
 	RID fishAudio;
 
@@ -64,9 +64,14 @@ public:
 
 		fishAudio = m_resourceMgr->Load<Audio>("res/audio/fish.wav");
 
-		auto [crid, cc] = m_resourceMgr->LoadAndGet<CircleCollider>("");
+		auto [crid, cc] = m_resourceMgr->LoadAndGet<CircleCollider>("circ");
 		circleCol = crid;
 		cc.radius = 40.0f;
+
+		auto [brid, bc] = m_resourceMgr->LoadAndGet<AABB2DCollider>("box");
+		boxCol = brid;
+		bc.width = 40.0f;
+		bc.height = 100.0f;
 
 		auto btn = std::make_unique<Button>(*m_input,
 			Dim2(0.25f, 0.25f, 0.0f, 50.0f),
@@ -112,16 +117,24 @@ public:
 
 		// 2d collision test
 		circle1 = m_registry.CreateEntity();
-		Transform2D tff; tff.position = { 500, 480 }; tff.velocity = Vec2::ONE * 30.0f;
+		Transform2D tff; tff.position = { 500, 480 }; tff.velocity = Vec2::ONE * 300.0f;
 		m_registry.Add<Transform2D>(circle1, tff);
 		m_registry.Add<Sprite>(circle1, { fishSprite });
 		m_registry.Add<Physics2D>(circle1, { circleCol });
 
 		circle2 = m_registry.CreateEntity();
-		Transform2D tff2; tff2.position = { 700, 700 }; tff2.velocity = -Vec2::ONE * 30.0f;
+		Transform2D tff2; tff2.position = { 500, 500 }; tff2.velocity = -Vec2::ONE * 300.0f;
 		m_registry.Add<Transform2D>(circle2, tff2);
 		m_registry.Add<Sprite>(circle2, { fishSprite });
 		m_registry.Add<Physics2D>(circle2, { circleCol });
+
+		box = m_registry.CreateEntity();
+		Transform2D tff3; tff3.position = { 300, 300 };
+		m_registry.Add<Transform2D>(box, tff3);
+		//m_registry.Add<Sprite>(box, )
+		Logger::Info("circ: %d box: %d", circleCol, boxCol);
+		Physics2D bph = { boxCol }; bph.isImmovable = true;
+		m_registry.Add<Physics2D>(box, bph);
 
 	}
 
@@ -167,6 +180,10 @@ public:
 
 		s_physics.s_Collided.Connect<DemoGame, &DemoGame::CollisionSignalTest>(this);
 
+		auto& ctf = m_registry.Get<Transform2D>(circle2);
+		ctf.velocity.x = m_input->GetAxis("J", "L");
+		ctf.velocity.y = m_input->GetAxis("K", "I");
+		ctf.velocity *= 200.0f;
 
 
 		m_renderer->SetViewMatrix(camera.GetView());
@@ -282,14 +299,14 @@ public:
 		m_renderer->DrawCircle({ 350, 300 }, 100, Color::RED);
 		m_renderer->DrawCircle({ 350, 300 }, 300, Color::RED);*/
 
-		m_renderer->DrawTextLine(100, 50, "Default Font", Color::WHITE);
-		m_renderer->DrawTextLine(100, 100, "Monospace 8x13", Color::WHITE, f1);
-		m_renderer->DrawTextLine(100, 100 + m_resourceMgr->Get<Font>(f2).GetFontHeight(), "Monospace 9x15", Color::WHITE, f2);
+		m_renderer->DrawTextLine({ 100.0f, 50.0f }, "Default Font", Color::WHITE);
+		m_renderer->DrawTextLine({ 100.0f, 100.0f }, "Monospace 8x13", Color::WHITE, f1);
+		m_renderer->DrawTextLine({ 100.0f, 100.0f + m_resourceMgr->Get<Font>(f2).GetFontHeight() }, "Monospace 9x15", Color::WHITE, f2);
 
 		auto testStr1 = "Hello World!";
 		auto testStr2 = "Goodbye World!";
-		m_renderer->DrawTextLine(220, 50, testStr1, Color::RED, f2);
-		m_renderer->DrawTextLine(220 + m_resourceMgr->Get<Font>(f2).GetFontLength(testStr1), 50, testStr2, Color::BLUE, f2);
+		m_renderer->DrawTextLine({ 220.0f, 50.0f }, testStr1, Color::RED, f2);
+		m_renderer->DrawTextLine({ 220.0f + m_resourceMgr->Get<Font>(f2).GetFontLength(testStr1), 50.0f }, testStr2, Color::BLUE, f2);
 
 		Collider2D& circle = m_resourceMgr->Get<CircleCollider>(circleCol);
 		//circle.DebugDraw(*m_renderer, { 400, 300 });

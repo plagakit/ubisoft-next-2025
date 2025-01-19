@@ -2,7 +2,9 @@
 #include "input_event.h"
 
 #include <type_traits>
+#ifdef PLATFORM_WINDOWS
 #include <App/app.h>
+#endif
 
 bool InputEvent::Equals(const InputEvent& event)
 {

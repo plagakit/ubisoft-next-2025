@@ -145,7 +145,16 @@ T Vector2<T>::DistanceSq(const Vector2& to) const
 template<typename T>
 Vector2<T> Vector2<T>::Normalized() const
 {
-	return (*this) / Length();
+	T len = Length();
+	if (len > static_cast<T>(0))
+		return (*this) / Length();
+	return Vector2<T>::ZERO;
+}
+
+template<typename T>
+Vector2<T> Vector2<T>::ProjectOnto(const Vector2<T>& v) const
+{
+	return v * (Dot(v) / v.LengthSq());
 }
 
 template<typename T>

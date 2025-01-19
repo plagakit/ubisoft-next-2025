@@ -16,6 +16,8 @@ struct Collider2D : public Resource
 	virtual void DebugDraw(Renderer& renderer, Vec2 position) = 0;
 };
 
+// See collision_dispatcher.h for more info on this
+
 #define DEFINE_COLLIDER2D_VISITOR() \
 	CollisionResult2D Collide(const Collider2D&, const CollisionData2D&) const override; \
 	CollisionResult2D Collide(const CollisionDispatcher2DBase&, const CollisionData2D&) const override;
@@ -23,7 +25,7 @@ struct Collider2D : public Resource
 #define IMPL_COLLIDER2D_VISITOR(type) \
 	CollisionResult2D type::Collide(const Collider2D& other, const CollisionData2D& data) const \
 	{ \
-		auto dispatch = CollisionDispatcher2D<CircleCollider>(*this); \
+		auto dispatch = CollisionDispatcher2D<type>(*this); \
 		return other.Collide(dispatch, data); \
 	} \
 	\

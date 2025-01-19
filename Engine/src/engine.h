@@ -32,6 +32,7 @@
 
 #include "physics/collider/collider_2d.h"
 #include "physics/collider/circle_collider.h"
+#include "physics/collider/aabb_2d_collider.h"
 
 #include "audio/audio.h"
 

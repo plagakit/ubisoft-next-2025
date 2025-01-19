@@ -56,7 +56,7 @@ public:
 		currentScene->Render();
 
 		if (m_paused)
-			m_renderer->DrawTexture(APP_VIRTUAL_WIDTH / 2, APP_VIRTUAL_HEIGHT / 2, m_pauseTxt);
+			m_renderer->DrawScreenTexture(APP_VIRTUAL_WIDTH / 2, APP_VIRTUAL_HEIGHT / 2, 0.0f, 1.0f, m_pauseTxt, Color::WHITE);
 	}
 };
 

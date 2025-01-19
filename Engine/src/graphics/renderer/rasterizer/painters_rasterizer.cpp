@@ -3,11 +3,12 @@
 
 #include "core/app_settings.h"
 #include "graphics/renderer/renderer.h"
-#include <App/app.h>
 #include <algorithm>
-
 #ifdef USE_TRIVIAL_PARALLELIZATION
 #include <execution>
+#endif
+#ifdef PLATFORM_WINDOWS
+#include <App/app.h>
 #endif
 
 PaintersRasterizer::PaintersRasterizer(Renderer& renderer, ResourceManager& resourceMgr) :
@@ -95,9 +96,9 @@ float PaintersRasterizer::TrianglePrimitive::GetDepth() const
 
 void PaintersRasterizer::TrianglePrimitive::Render(Renderer& renderer)
 {
-	renderer.DrawLine(a.x, a.y, b.x, b.y, color);
-	renderer.DrawLine(b.x, b.y, c.x, c.y, color);
-	renderer.DrawLine(c.x, c.y, a.x, a.y, color);
+	renderer.DrawScreenLine(a.x, a.y, b.x, b.y, color);
+	renderer.DrawScreenLine(b.x, b.y, c.x, c.y, color);
+	renderer.DrawScreenLine(c.x, c.y, a.x, a.y, color);
 }
 
 float PaintersRasterizer::TexturePrimitive::GetDepth() const
@@ -107,10 +108,8 @@ float PaintersRasterizer::TexturePrimitive::GetDepth() const
 
 void PaintersRasterizer::TexturePrimitive::Render(Renderer& renderer)
 {
-	Transform2D tf;
-	tf.position = { pos.x, pos.y };
-	tf.scale = (1.0f - pos.z) * scale;
-	renderer.DrawTexture(tf, textureHandle);
+	float scaledScale = (1.0f - pos.z) * scale;
+	renderer.DrawScreenTexture(pos.x, pos.y, 0.0f, scaledScale, textureHandle, Color::WHITE);
 }
 
 float PaintersRasterizer::LinePrimitive::GetDepth() const
@@ -120,7 +119,7 @@ float PaintersRasterizer::LinePrimitive::GetDepth() const
 
 void PaintersRasterizer::LinePrimitive::Render(Renderer& renderer)
 {
-	renderer.DrawLine(start.x, start.y, end.x, end.y, color);
+	renderer.DrawScreenLine(start.x, start.y, end.x, end.y, color);
 }
 
 float PaintersRasterizer::SpherePrimitive::GetDepth() const

@@ -1,0 +1,66 @@
+. Legend:
+. . - line comment
+. number - wall, w/ num = index of wall. clump walls together to reduce collision time
+.
+. ex. wall
+.  000000      0           000000
+.  000000   =           =  0    0  collision wise but not rendering wise
+.  000000           0      000000
+. the loader only looks for the most top left and most top right matching numbers
+. 
+. S - start
+. blank space - blank space
+. H - hole
+. * - water
+. I - enter
+. E - exit
+. I/E are connectors to other parts, must be 3-wide and on bottom/top respectively
+. - - end of part delimiter (not a tile)
+.
+. first line is part name
+. followed by the part itself
+. repeat to make all the parts of the course
+. max 32 width
+.
+start
+0EEE2
+0   2
+0 S 2
+0   2
+01111
+-------------------------
+standard_hole
+00000
+1   2
+1 H 2
+1   2
+1   2
+1III2
+-------------------------
+small_hole
+000
+1H2
+1I2
+-------------------------
+zigzag
+00000000000EEE00
+1              2
+1              2
+1     6666666662
+1              2
+1              2
+1              2
+155555555      2
+1              2
+1              2
+133III4444444444
+-------------------------
+.juke
+.   355555555555556
+.   3             6
+.   3    44444    6
+.   3    4   4    6
+.2222    44444    67777EEE8
+.0        ***             8
+.0        ***             8
+.0III1111111111111111111111

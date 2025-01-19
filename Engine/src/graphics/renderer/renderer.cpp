@@ -9,11 +9,13 @@
 #include "graphics/shading_mode.h"
 #include "math/math_utils.h"
 
+#ifdef PLATFORM_WINDOWS
 #include <App/App.h>
 #include <App/SimpleSprite.h>
 #undef max
 #undef min
 #undef ERROR
+#endif
 
 Renderer::Renderer(ResourceManager& resourceManager) :
 	m_resourceManager(resourceManager),
@@ -29,30 +31,18 @@ Renderer::Renderer(ResourceManager& resourceManager) :
 	SetNearPlane(Vec3(0.0f, 0.0f, -0.9f), Vec3::FORWARD);
 }
 
-void Renderer::DrawTextLine(float x, float y, const char* text, Color col)
-{
-#ifdef PLATFORM_WINDOWS
-	App::Print(x, y, text, col.r(), col.g(), col.b(), m_defaultGlutFont);
-#endif
-}
+// BASIC PLATFORM-DEPENDANT DRAWING
 
-void Renderer::DrawTextLine(float x, float y, const char* text, Color col, RID fontHandle)
-{
-#ifdef PLATFORM_WINDOWS
-	void* glutFont = m_resourceManager.Get<Font>(fontHandle).GetGLUTFont();
-	App::Print(x, y, text, col.r(), col.g(), col.b(), glutFont);
-#endif
-}
-
-void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col)
+void Renderer::DrawScreenLine(float x0, float y0, float x1, float y1, Color col)
 {
 #ifdef PLATFORM_WINDOWS
 	App::DrawLine(x0, y0, x1, y1, col.r(), col.g(), col.b());
 #endif
 }
 
-void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col, int thickness)
+void Renderer::DrawScreenLine(float x0, float y0, float x1, float y1, Color col, int thickness)
 {
+#ifdef PLATFORM_WINDOWS
 	Vec2 dir = (Vec2(x1, y1) - Vec2(x0, y0)).Normalized();
 	Vec2 perp = Vec2(dir.y, -dir.x);
 
@@ -61,38 +51,103 @@ void Renderer::DrawLine(float x0, float y0, float x1, float y1, Color col, int t
 	{
 		Vec2 a = Vec2(x0, y0) + perp * (THICK_STEP * i);
 		Vec2 b = Vec2(x1, y1) + perp * (THICK_STEP * i);
-		DrawLine(a.x, a.y, b.x, b.y, col);
+		DrawScreenLine(a.x, a.y, b.x, b.y, col);
 	}
+#endif
 }
 
-void Renderer::DrawLine(const Vec2& a, const Vec2& b, Color col, int thickness)
+void Renderer::DrawScreenTextLine(float x, float y, const char* text, Color col, RID fontHandle)
 {
-	DrawLine(a.x, a.y, b.x, b.y, col, thickness);
+#ifdef PLATFORM_WINDOWS
+	void* glutFont = m_resourceManager.Get<Font>(fontHandle).GetGLUTFont();
+	App::Print(x, y, text, col.r(), col.g(), col.b(), glutFont);
+#endif
 }
 
-void Renderer::DrawRect(float x0, float y0, float x1, float y1, Color col)
+void Renderer::DrawScreenTexture(float x, float y, float angle, float scale, RID textureHandle, Color modulate)
 {
-	DrawLine(x0, y0, x1, y0, col);
-	DrawLine(x0, y1, x1, y0, col);
-	DrawLine(x0, y0, x0, y1, col);
-	DrawLine(x1, y0, x1, y1, col);
+#ifdef PLATFORM_WINDOWS
+	CSimpleSprite& css = m_resourceManager.Get<Texture>(textureHandle).Get();
+	css.SetPosition(x, y);
+	css.SetAngle(angle);
+	css.SetScale(scale);
+	css.SetColor(modulate.r(), modulate.g(), modulate.b());
+	css.Draw();
+#endif
 }
 
-void Renderer::DrawFilledRect(float x0, float y0, float x1, float y1, Color col)
+// 2D DRAWING FUNCTIONS
+
+void Renderer::Draw2DLine(const Vec2& a, const Vec2& b, Color col)
 {
-	// TODO: assert y0 < y1
-	for (float y = y0; y <= y1; y++)
-		DrawLine(x0, y, x1, y, col);
+	Vec2 na = m_2Dview.Transform(a);
+	Vec2 nb = m_2Dview.Transform(b);
+	DrawScreenLine(na.x, na.y, nb.x, nb.y, col);
 }
 
-void Renderer::DrawCircle(Vec2 pos, float radius, Color col)
+void Renderer::Draw2DLine(const Vec2& a, const Vec2& b, Color col, int thickness)
 {
-	int segments = std::max(5, static_cast<int>((radius + 5.0f) * 0.5f));
+	Vec2 na = m_2Dview.Transform(a);
+	Vec2 nb = m_2Dview.Transform(b);
+	DrawScreenLine(na.x, na.y, nb.x, nb.y, col, thickness);
+}
+
+void Renderer::DrawTextLine(const Vec2& pos, const std::string& text, Color col)
+{
+	Vec2 newPos = m_2Dview.Transform(pos);
+	DrawScreenTextLine(newPos.x, newPos.y, text.c_str(), col, m_defaultFontHandle);
+}
+
+void Renderer::DrawTextLine(const Vec2& pos, const std::string& text, Color col, RID fontHandle)
+{
+	Vec2 newPos = m_2Dview.Transform(pos);
+	DrawScreenTextLine(newPos.x, newPos.y, text.c_str(), col, fontHandle);
+}
+
+void Renderer::DrawRect(const Vec2& oldA, const Vec2& oldB, Color col)
+{
+	Vec2 a = m_2Dview.Transform(oldA);
+	Vec2 b = m_2Dview.Transform(oldB);
+	DrawScreenLine(a.x, a.y, b.x, a.y, col); // top
+	DrawScreenLine(a.x, b.y, b.x, b.y, col); // bottom
+	DrawScreenLine(a.x, a.y, a.x, b.y, col); // left
+	DrawScreenLine(b.x, a.y, b.x, b.y, col); // right
+}
+
+void Renderer::DrawRect(const Vec2& pos, float width, float height, Color col)
+{
+	Vec2 half = Vec2(width, height) * 0.5f;
+	DrawRect(pos - half, pos + half, col);
+}
+
+void Renderer::DrawFilledRect(const Vec2& oldA, const Vec2& oldB, Color col)
+{
+	Vec2 a = m_2Dview.Transform(oldA);
+	Vec2 b = m_2Dview.Transform(oldB);
+	if (a.y > b.y)
+		std::swap(a, b);
+
+	for (float y = a.y; y <= b.y; y++)
+		DrawScreenLine(a.x, y, b.x, y, col);
+}
+
+void Renderer::DrawFilledRect(const Vec2& pos, float width, float height, Color col)
+{
+	Vec2 half = Vec2(width, height) * 0.5f;
+	DrawFilledRect(pos - half, pos + half, col);
+}
+
+void Renderer::DrawCircle(const Vec2& pos, float radius, Color col)
+{
+	int segments = std::max(5, static_cast<int>((radius * m_2Dview.scale + 5.0f) * 0.5f));
 	DrawCircle(pos, radius, col, segments);
 }
 
-void Renderer::DrawCircle(Vec2 pos, float radius, Color col, int segments)
+void Renderer::DrawCircle(const Vec2& oldPos, float radius, Color col, int segments)
 {
+	Vec2 pos = m_2Dview.Transform(oldPos);
+	radius *= m_2Dview.scale;
+
 	float angleStep = TWO_PI / segments;
 
 	for (int i = 0; i < segments + 1; i++)
@@ -104,28 +159,18 @@ void Renderer::DrawCircle(Vec2 pos, float radius, Color col, int segments)
 		float x2 = cosf(angleStep * j) * radius + pos.x;
 		float y2 = sinf(angleStep * j) * radius + pos.y;
 
-		DrawLine(x1, y1, x2, y2, col);
+		DrawScreenLine(x1, y1, x2, y2, col);
 	}
 }
 
-void Renderer::DrawTexture(float x, float y, RID textureHandle)
+void Renderer::DrawTexture(const Transform2D& tf, RID textureHandle, Color modulate)
 {
-#ifdef PLATFORM_WINDOWS
-	CSimpleSprite& css = m_resourceManager.Get<Texture>(textureHandle).Get();
-	css.SetPosition(x, y);
-	css.Draw();
-#endif
+	DrawScreenTexture(tf.position.x, tf.position.y, tf.rotation, tf.scale, textureHandle, modulate);
 }
 
-void Renderer::DrawTexture(const Transform2D& tf, RID textureHandle)
+void Renderer::Set2DView(const Transform2D& view)
 {
-#ifdef PLATFORM_WINDOWS
-	CSimpleSprite& css = m_resourceManager.Get<Texture>(textureHandle).Get();
-	css.SetPosition(tf.position.x, tf.position.y);
-	css.SetAngle(tf.rotation);
-	css.SetScale(tf.scale);
-	css.Draw();
-#endif
+	m_2Dview = view;
 }
 
 void Renderer::ClearDepthRasterizer()
@@ -158,9 +203,10 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 	for (Vec4& p : m_vertexVRAM) 
 		p = MVP * p;
 
+	Mat4 MV = m_view * model;
 	if (meshInstance.mode == ShadingMode::SHADED)
-		for (Vec3& n : m_normalVRAM) 
-			n = model * n;
+		for (Vec3& n : m_normalVRAM)
+			n = model * Vec4(n.x, n.y, n.z, 0.0f);
 
 	// Near Culling
 	m_indexVRAM.clear();
@@ -349,7 +395,7 @@ void Renderer::DrawSphere(const Vec3& pos, float radius, Color col)
 	m_paintersRaster.RasterizeSphere(point, radius, col);
 }
 
-void Renderer::DrawBillboard(const Vec3& pos, float scale, RID textureHandle)
+void Renderer::Draw3DTexture(const Vec3& pos, float scale, RID textureHandle)
 {
 	// World Space -> Clip Space
 	Vec4 point = m_VP * Vec4(pos);
@@ -386,7 +432,7 @@ void Renderer::FlushDepthRasterizer()
 	// Downscaled raster lines make the debug info unreadable
 	// This fixes it
 #if defined(USE_DEBUG_RASTER_DOWNSCALING) && defined(_DEBUG)
-	DrawFilledRect(10, 10, 130, 50, Color::WHITE);
+	DrawFilledRect(Vec2(10, 10), Vec2(130, 50), Color::WHITE);
 #endif
 }
 

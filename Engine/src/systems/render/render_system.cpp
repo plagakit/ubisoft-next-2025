@@ -44,5 +44,5 @@ void RenderSystem::Render3DEntities()
 		m_renderer.DrawMesh(tf.ToMatrix(), mi);
 
 	for (auto [id, sp, tf] : m_registry.AllWith<Sprite, Transform3D>())
-		m_renderer.DrawBillboard(tf.position, tf.scale.LengthSq(), sp.textureHandle);
+		m_renderer.Draw3DTexture(tf.position, tf.scale.LengthSq(), sp.textureHandle);
 }

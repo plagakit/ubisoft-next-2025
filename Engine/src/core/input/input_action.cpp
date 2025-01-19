@@ -3,7 +3,9 @@
 
 #include "core/debug/assert.h"
 #include "math/math_utils.h"
+#ifdef PLATFORM_WINDOWS
 #include <App/app.h>
+#endif
 
 InputAction::InputAction(const std::string& name, float deadzone) :
 	m_name(name),

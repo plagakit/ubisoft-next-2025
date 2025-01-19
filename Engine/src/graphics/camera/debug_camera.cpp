@@ -13,7 +13,7 @@ void DebugCamera::Update(float dt)
 		+ Vec3::UP		* m_input.GetAxis("Q", "E");
 
 	move = m_transform.orientation * move;
-	m_transform.position += move * dt * 3.0f;
+	m_transform.position += move * dt * 5.0f;
 
 	float yawChange = m_input.GetAxis("J", "L") * 2.0f * dt;
 	float pitchChange = m_input.GetAxis("K", "I") * -2.0f * dt;

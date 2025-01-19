@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "font.h"
 
-#include <App/app.h>
 #include "core/debug/logger.h"
+#ifdef PLATFORM_WINDOWS
+#include <App/app.h>
+#endif
+
 
 
 void Font::Load(const char* path)

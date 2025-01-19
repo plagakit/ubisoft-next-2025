@@ -53,7 +53,7 @@ void MainMenuScene::Render()
 	Color start = Color(0.0f, 0.725f, 1.0f);
 	Color end = Color(0.5f, 0.0f, 1.0f);
 	for (float y = 0.0f; y < APP_VIRTUAL_HEIGHT; y++)
-		m_renderer.DrawLine(0.0f, y, APP_VIRTUAL_WIDTH, y,
+		m_renderer.DrawScreenLine(0.0f, y, APP_VIRTUAL_WIDTH, y,
 			Math::Lerp(start, end, 1.0f - y / APP_VIRTUAL_HEIGHT));
 
 	m_GUI->RenderGUI(m_renderer);

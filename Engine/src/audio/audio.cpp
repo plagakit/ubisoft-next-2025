@@ -3,7 +3,10 @@
 
 #include "core/debug/logger.h"
 #include "core/app_settings.h"
+
+#ifdef PLATFORM_WINDOWS
 #include <App/app.h>
+#endif
 
 bool Audio::m_simpleSoundInitialized = false;
 

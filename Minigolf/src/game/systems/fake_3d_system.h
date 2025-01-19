@@ -8,6 +8,7 @@
 class Fake3DSystem : public System
 {
 public:
+	Fake3DSystem(EntityManager& registry);
 	void RegisterAllRequiredComponents(size_t n) override;
 
 	void Update(float dt);

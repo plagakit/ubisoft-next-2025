@@ -2,8 +2,10 @@
 #include "texture.h"
 
 #include "core/debug/assert.h"
-#include <App/SimpleSprite.h>
 #include <filesystem>
+#ifdef PLATFORM_WINDOWS
+#include <App/SimpleSprite.h>
+#endif
 
 Texture::Texture() = default;
 Texture::~Texture() = default;

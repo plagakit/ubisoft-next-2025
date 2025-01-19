@@ -296,6 +296,7 @@
     <ClInclude Include="src\math\vector\vector2.h" />
     <ClInclude Include="src\math\vector\vector4.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\physics\collider\aabb_2d_collider.h" />
     <ClInclude Include="src\physics\collider\circle_collider.h" />
     <ClInclude Include="src\physics\collider\collider_2d.h" />
     <ClInclude Include="src\physics\collision\collision_data.h" />
@@ -371,6 +372,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\audio\audio.cpp" />
+    <ClCompile Include="src\components\2d\transform_2d.cpp" />
     <ClCompile Include="src\components\3d\transform_3d.cpp" />
     <ClCompile Include="src\core\input\input.cpp" />
     <ClCompile Include="src\core\input\input_action.cpp" />
@@ -410,6 +412,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\physics\collider\aabb_2d_collider.cpp" />
     <ClCompile Include="src\physics\collider\circle_collider.cpp" />
     <ClCompile Include="src\physics\collision\collision_solver.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />

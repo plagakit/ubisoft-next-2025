@@ -58,9 +58,25 @@ void PhysicsSystem::Update3DMovement(float dt)
 	}
 }
 
+void PhysicsSystem::Process2DCollision(Entity id1, Entity id2)
+{
+	auto& tf1 = m_registry.Get<Transform2D>(id1);
+	auto& tf2 = m_registry.Get<Transform2D>(id2);
+	auto& ph1 = m_registry.Get<Physics2D>(id1);
+	auto& ph2 = m_registry.Get<Physics2D>(id2);
+	Process2DCollision(id1, id2, tf1, ph1, tf2, ph2);
+}
+
+void PhysicsSystem::Process2DCollisions(const std::vector<Entity>& group1, const std::vector<Entity> group2)
+{
+	for (auto id1 : group1)
+		for (auto id2 : group2)
+			Process2DCollision(id1, id2);
+}
+
 void PhysicsSystem::ProcessAll2DCollisions(float dt)
 {
-	// We skip out on the syntactic sugar here for efficiency
+	// We skip out on the syntactic sugar here for efficiency (copying the iterator)
 	EntityView<Physics2D, Transform2D>&& entityView{ m_registry, 0 };
 	auto itBegin = entityView.begin();
 	auto itEnd = entityView.end();
@@ -92,6 +108,7 @@ void PhysicsSystem::RenderAllCollisionShapes()
 {
 	for (auto [id, ph, tf] : m_registry.AllWith<Physics2D, Transform2D>())
 	{
+		//Logger::Info("Debug drawing col shape %d", id);
 		Collider2D& collider = m_resourceMgr.Get<Collider2D>(ph.colliderHandle);
 		collider.DebugDraw(m_renderer, tf.position);
 	}
@@ -109,12 +126,13 @@ void PhysicsSystem::Process2DCollision(Entity id1, Entity id2, Transform2D& tf1,
 	{
 		ph1.lastHit = result;
 		ph2.lastHit = result;
+		ph2.lastHit.contactNormal *= -1.0f;
 
 		if (ph1.isTrigger || ph2.isTrigger)	
-			s_Triggered.Emit(id1, id2);
+			s_Triggered.Emit(id1, id2, result);
 		else
 		{
-			s_Collided.Emit(id1, id2);
+			s_Collided.Emit(id1, id2, result);
 
 			if (ph1.isImmovable)
 				tf2.position -= result.restitution * 2.0f;
