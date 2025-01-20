@@ -1,21 +1,26 @@
-. Legend:
-. . - line comment
-. number - wall, w/ num = index of wall. clump walls together to reduce collision time
+. GOOD RESOURCE FOR MAKING MAPS:
+. https://kirilllive.github.io/ASCII_Art_Paint/ascii_paint.html
 .
+.Legend:
+. '.' - line comment
+. ' ' - blank space
+.
+. hex number - wall, w/ num = index of wall. clump walls together to reduce collision time
+. wall indices range from 0-F, so there's a max of 16 walls in a part
 . ex. wall
 .  000000      0           000000
 .  000000   =           =  0    0  collision wise but not rendering wise
 .  000000           0      000000
 . the loader only looks for the most top left and most top right matching numbers
 . 
-. S - start
-. blank space - blank space
-. H - hole
-. * - water
-. I - enter
-. E - exit
-. I/E are connectors to other parts, must be 3-wide and on bottom/top respectively
-. - - end of part delimiter (not a tile)
+. 'S' - course start
+. 'H' - hole
+. 'I' - enter
+. 'X' - exit
+. I/X are connectors to other parts, must be 3-wide and on bottom/top respectively
+. '-' - end of part delimiter (not a tile)
+. '*' - water
+. '!' - powerup spawn
 .
 . first line is part name
 . followed by the part itself
@@ -23,7 +28,7 @@
 . max 32 width
 .
 start
-0EEE2
+0XXX2
 0   2
 0 S 2
 0   2
@@ -37,30 +42,107 @@ standard_hole
 1   2
 1III2
 -------------------------
-small_hole
-000
-1H2
-1I2
--------------------------
 zigzag
-00000000000EEE00
-1              2
-1              2
-1     6666666662
-1              2
-1              2
-1              2
-155555555      2
-1              2
-1              2
-133III4444444444
+0000000XXX2
+1         2
+1         2
+1 ! 6666662
+1         2
+15555555  2
+1         2
+1         2
+1III4444444
 -------------------------
+snake
+0000XXX1111
+3         5
+3   7777  5
+3      8  5
+3  AC 98  5
+3  A      5
+3  ABBB   5
+3         5
+3444III6665
+-------------------------
+corridor
+XXX
+0 1
+0 1
+0 1
+0 1
+III
+----------------
+left
+2XXX3333331
+2         1
+0000000III1
+----------------
+N                                               
+0111111XXX4                    
+0     5   4                    
+0   3     4                    
+0III2222224
+----------
+H     
+1XXX2       
+1   2       
+1 0 2       
+1 0 2       
+1 0 2       
+1 0 2       
+1   2       
+1III2
+----------
+chamber
+24444XXX55555   
+2C         D3   
+2     6     3   
+2  9  !  A  3   
+2     8     3   
+2B         E3   
+00000III11111
+-----
+plus_end
+555555555    
+3       4    
+3   H   4    
+3  000  4    
+3   6   4    
+3       4    
+111III222    
+------
+strange_start   
+6666XXX7777    
+5         4    
+5   000   4    
+5 1     2 4    
+5    S    4    
+5         4    
+33333333333  
+---------
+cup_start
+55XXX66      
+3     4      
+3 000 4      
+3 1S1 4      
+3 1 1 4      
+3     4      
+2222222      
+-----------
+annoying_hole
+899999999999A  
+8   H       A  
+8 0   3   6 A  
+8   2   5   A  
+8 1   4   7 A  
+8           A  
+8BBBBBBIIICCA
 .juke
 .   355555555555556
 .   3             6
 .   3    44444    6
 .   3    4   4    6
-.2222    44444    67777EEE8
+.2222    44444    67777XXX8
 .0        ***             8
 .0        ***             8
 .0III1111111111111111111111

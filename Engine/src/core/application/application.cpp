@@ -29,6 +29,26 @@ void Application::__Render__()
 	Render();
 }
 
+Input& Application::GetInput()
+{
+	return *m_input;
+}
+
+ResourceManager& Application::GetResourceManager()
+{
+	return *m_resourceMgr;
+}
+
+Renderer& Application::GetRenderer()
+{
+	return *m_renderer;
+}
+
+TweenManager& Application::GetTweenManager()
+{
+	return *m_tweenMgr;
+}
+
 void Application::PreInit()
 {
 	Logger::Init();

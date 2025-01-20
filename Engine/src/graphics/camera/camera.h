@@ -24,6 +24,7 @@ public:
 	const Mat4& GetInverseProjection() const;
 	Mat4 GetView() const;
 	Mat4 GetInverseView() const;
+	float GetFOV() const;
 
 	Ray3D ProjectRay(const Vec2& screenPos) const;
 

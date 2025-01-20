@@ -42,11 +42,24 @@ namespace Math
 			: val;
 	}
 
+	template<typename T>
+	Vector2<T> Min(const Vector2<T>& a, const Vector2<T>& b)
+	{
+		return a.x < b.x || a.y < b.y ? a : b;
+	}
+
+	template<typename T>
+	Vector2<T> Max(const Vector2<T>& a, const Vector2<T>& b)
+	{
+		return a.x < b.x || a.y < b.y ? b : a;
+	}
+
 	int Sign(float t);
 
 	Quat Slerp(Quat start, Quat end, float t);
 
 	float RandAngle();
 	Vec2 RandDirection();
+	int RandInt(int min, int max);
 
 }

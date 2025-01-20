@@ -191,11 +191,12 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\course_manager\course_file.cpp" />
-    <ClCompile Include="src\game\course_manager\course_manager.cpp" />
+    <ClCompile Include="src\game\course\course_template.cpp" />
+    <ClCompile Include="src\game\course\course_manager.cpp" />
     <ClCompile Include="src\game\game_scene.cpp" />
     <ClCompile Include="src\game\systems\fake_3d_system.cpp" />
     <ClCompile Include="src\game\systems\golfball_system.cpp" />
+    <ClCompile Include="src\game\systems\obstacle_system.cpp" />
     <ClCompile Include="src\minigolf.cpp" />
     <ClCompile Include="src\main_menu\main_menu_scene.cpp" />
   </ItemGroup>
@@ -208,11 +209,13 @@
     <ClInclude Include="src\game\components\fake_3d.h" />
     <ClInclude Include="src\game\components\golfball.h" />
     <ClInclude Include="src\game\components\obstacle.h" />
-    <ClInclude Include="src\game\course_manager\course_file.h" />
+    <ClInclude Include="src\game\course\course_template.h" />
+    <ClInclude Include="src\game\course\tile.h" />
     <ClInclude Include="src\game\game_scene.h" />
-    <ClInclude Include="src\game\course_manager\course_manager.h" />
+    <ClInclude Include="src\game\course\course_manager.h" />
     <ClInclude Include="src\game\systems\fake_3d_system.h" />
     <ClInclude Include="src\game\systems\golfball_system.h" />
+    <ClInclude Include="src\game\systems\obstacle_system.h" />
     <ClInclude Include="src\main_menu\main_menu_scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

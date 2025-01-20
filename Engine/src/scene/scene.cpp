@@ -3,10 +3,10 @@
 
 Scene::Scene(Application& game) :
 	m_game(game),
-	m_input(*game.m_input),
-	m_resourceMgr(*game.m_resourceMgr),
-	m_renderer(*game.m_renderer),
-	m_tweenMgr(*game.m_tweenMgr),
+	m_input(game.GetInput()),
+	m_resourceMgr(game.GetResourceManager()),
+	m_renderer(game.GetRenderer()),
+	m_tweenMgr(game.GetTweenManager()),
 	m_GUI(std::make_unique<GUIRoot>())
 {}
 

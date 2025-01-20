@@ -49,6 +49,11 @@ Mat4 Camera::GetInverseView() const
 	return m_transform.ToMatrix();
 }
 
+float Camera::GetFOV() const
+{
+	return m_FOV;
+}
+
 Ray3D Camera::ProjectRay(const Vec2& screenPos) const
 {
 	float ndcX = screenPos.x * 2.0f / APP_VIRTUAL_WIDTH - 1.0f;

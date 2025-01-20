@@ -40,6 +40,15 @@ void Audio::Play()
 #endif
 }
 
+void Audio::Stop()
+{
+#ifdef PLATFORM_WINDOWS
+	//SoundFlags flags = m_looping ? SoundFlags::Looping : SoundFlags::None;
+	//bool result = CSimpleSound::GetInstance().StartSound(m_path.c_str(), flags);
+	App::StopSound(m_path.c_str());
+#endif
+}
+
 void Audio::SetLooping(bool looping)
 {
 	m_looping = looping;

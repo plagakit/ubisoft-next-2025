@@ -128,9 +128,12 @@ void PhysicsSystem::Process2DCollision(Entity id1, Entity id2, Transform2D& tf1,
 		ph2.lastHit = result;
 		ph2.lastHit.contactNormal *= -1.0f;
 
-		if (ph1.isTrigger || ph2.isTrigger)	
+		if (ph1.isTrigger) 
 			s_Triggered.Emit(id1, id2, result);
-		else
+		if (ph2.isTrigger) 
+			s_Triggered.Emit(id2, id1, result);
+
+		if (!ph1.isTrigger && !ph2.isTrigger)
 		{
 			s_Collided.Emit(id1, id2, result);
 

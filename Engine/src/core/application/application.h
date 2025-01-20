@@ -22,12 +22,12 @@ public:
 	void __Update__(float dt);
 	void __Render__();
 
-protected:
-	// Allow scene to store references to Application's essential systems (input, renderer, etc.)
-	// but not any class that derives from Scene
-	// TODO: replace with getters
-	friend class Scene;
+	Input& GetInput();
+	ResourceManager& GetResourceManager();
+	Renderer& GetRenderer();
+	TweenManager& GetTweenManager();
 
+protected:
 	Input* m_input;
 	ResourceManager* m_resourceMgr;
 	Renderer* m_renderer;

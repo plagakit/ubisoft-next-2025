@@ -4,9 +4,8 @@ struct Obstacle
 {
 	enum Type
 	{
-		WALL,
-		WATER
+		LIP_OUT //https://www.youtube.com/watch?v=Ni5MQmQ-0Rk
 	};
 
-	Type type;
+	Type obstacle;
 };

@@ -11,6 +11,7 @@ public:
 	void Unload() override;
 
 	void Play();
+	void Stop();
 
 	void SetLooping(bool looping);
 

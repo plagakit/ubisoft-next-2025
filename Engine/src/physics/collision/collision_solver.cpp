@@ -31,12 +31,12 @@ CollisionResult2D CollisionSolver::Solve(const CircleCollider& c1, const CircleC
 // CIRCLE x AABB
 CollisionResult2D CollisionSolver::Solve(const CircleCollider& c, const AABB2DCollider& b, const CollisionData2D& data)
 {
-	// Get box extents
-	Vec2 half = Vec2(b.width, b.height) * 0.5f;
-	Vec2 min = data.tf2.position + b.offset - half;
-	Vec2 max = data.tf2.position + b.offset + half;
 	Vec2 circ = data.tf1.position + c.offset;
-
+	Vec2 aabb = data.tf2.position + b.offset;
+	Vec2 half = Vec2(b.width, b.height) * 0.5f;
+	Vec2 min = aabb - half;
+	Vec2 max = aabb + half;
+	
 	// Calc closest point from circ center to box
 	Vec2 closest;
 	closest.x = std::min(std::max(circ.x, min.x), max.x);
@@ -49,9 +49,40 @@ CollisionResult2D CollisionSolver::Solve(const CircleCollider& c, const AABB2DCo
 		CollisionResult2D result;
 		result.hit = true;
 
+
 		float dist = sqrtf(distSq);
-		if (dist < EPSILON)	result.contactNormal = Vec2(1, 0);
-		else				result.contactNormal = diff / dist;
+		if (dist < EPSILON * EPSILON) // If they are so close the contact normal is 0
+		{
+			// 1. Ball gets stuck
+			//result.contactNormal = (aabb - circ).Normalized();
+
+			// 2. Ball clips thru when going right fast
+			//result.contactNormal = Vec2(1.0f, 0.0f);
+
+			// Make the contact normal the opposite of 
+			// the movement that caused them to collide.
+			// If they are not moving, fall back to right. 
+			Vec2 relativeVel = (data.tf2.velocity - data.tf1.velocity);
+			float speed = relativeVel.Length();
+			if (speed < EPSILON)
+				result.contactNormal = Vec2(1.0f, 0.0f);
+			else
+			{
+				// Project onto x or y axis
+				Vec2 axis;
+				relativeVel = relativeVel.Normalized();
+				if (std::abs(relativeVel.x) > std::abs(relativeVel.y))
+					axis = Vec2(static_cast<float>(Math::Sign(relativeVel.x)), 0.0f);
+				else
+					axis = Vec2(0.0f, static_cast<float>(Math::Sign(relativeVel.y)));
+				
+				result.contactNormal = relativeVel.ProjectOnto(axis);
+			}
+		}
+		else
+		{
+			result.contactNormal = diff / dist;
+		}
 			
 		result.restitution = result.contactNormal * (c.radius - dist);
 		ASSERT_ERROR(!std::isnan(result.restitution.x), "");
@@ -139,13 +170,13 @@ CollisionResult2D CollisionSolver::Solve(const AABB2DCollider& b1, const AABB2DC
 		// Determine which axis to move based on greater overlap
 		if (overlap.x < overlap.y)
 		{
-			float dir = Math::Sign(dist.x);
+			float dir = static_cast<float>(Math::Sign(dist.x));
 			result.contactNormal = Vec2(dir, 0.0f);
 			result.restitution = overlap * Vec2(-1.0f * dir, 0);
 		}
 		else
 		{
-			float dir = Math::Sign(dist.y);
+			float dir = static_cast<float>(Math::Sign(dist.y));
 			result.contactNormal = Vec2(0.0f, dir);
 			result.restitution = overlap * Vec2(0, -1.0f * dir);
 		}
