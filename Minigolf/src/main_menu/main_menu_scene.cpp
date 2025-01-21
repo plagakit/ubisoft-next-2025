@@ -10,7 +10,7 @@ MainMenuScene::MainMenuScene(Application& game) :
 		m_input,
 		Dim2(0.5f, 0.5f, 0.0f, 0.0f),
 		Dim2(0.0f, 0.0f, 250.0f, 75.0f),
-		Color::DARK_GRAY, Color::BLACK, Color::GRAY, Color::WHITE
+		Color(0.8f, 0.4f, 1.0f), Color::BLACK, Color(0.9f, 0.7f, 1.0f), Color::WHITE
 	);
 	m_startButton = startGame.get();
 	startGame->GetAnchor() = Vec2(0.5f, 0.5f);
@@ -40,6 +40,27 @@ MainMenuScene::MainMenuScene(Application& game) :
 	hsLabel->GetPosition() = Dim2(0.5f, 0.3f, -100.0f, 0.0f);
 	m_highscoreLabel = hsLabel.get();
 
+	auto cprBtn = std::make_unique<Button>(
+		m_input,
+		Dim2(0.5f, 0.2f, 0.0f, 0.0f),
+		Dim2(0.0f, 0.0f, 300.0f, 75.0f),
+		Color(0.8f, 0.4f, 1.0f), Color::BLACK, Color(0.9f, 0.7f, 1.0f), Color::WHITE
+	);
+	m_toggleMusic = cprBtn.get();
+	m_toggleMusic->GetAnchor() = Vec2(0.5f, 0.5f);
+	m_toggleMusic->s_Clicked.Connect<MainMenuScene, &MainMenuScene::OnClickCopyrightMusicButton>(this);
+
+	auto cprBtnLbl = std::make_unique<Label>(
+		"Toggle Copyrighted Music: On",
+		m_startButtonFont,
+		Color::WHITE
+	);
+	m_toggleMusicText = cprBtnLbl.get();
+	m_toggleMusicText->GetPosition() = Dim2(0.5f, 0.5f, -130.0f, -font.GetFontHeight() * 0.5f);
+	m_toggleOn = true;
+
+	m_toggleMusic->AddChild(std::move(cprBtnLbl));
+	m_GUI->AddChild(std::move(cprBtn));
 	m_GUI->AddChild(std::move(hsLabel));
 	m_GUI->AddChild(std::move(byLabel));
 	startGame->AddChild(std::move(startGameLabel));
@@ -68,6 +89,11 @@ void MainMenuScene::Render()
 	m_GUI->RenderGUI(m_renderer);
 }
 
+bool MainMenuScene::IsCopyrightMusicOn() const
+{
+	return m_toggleOn;
+}
+
 void MainMenuScene::UpdateHighscore(int highscore)
 {
 	m_highscoreLabel->GetText() = "High Score: Round " + std::to_string(highscore);
@@ -94,4 +120,10 @@ void MainMenuScene::UnhoverStartButton()
 		m_startButton->GetSize().offset, 0.3f,
 		EasingMode::CUBIC, EasingType::OUT
 	);
+}
+
+void MainMenuScene::OnClickCopyrightMusicButton()
+{
+	m_toggleOn = !m_toggleOn;
+	m_toggleMusicText->GetText() = std::string("Toggle Copyrighted Music: ") + (m_toggleOn ? "On" : "Off");
 }

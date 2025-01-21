@@ -166,10 +166,6 @@ void CourseManager::GenerateCourse(int numParts)
 	ASSERT_ERROR(endParts.size() > 0, "Trying to generate a course w/ no end parts!");
 	ASSERT_ERROR(generalParts.size() > 0, "Trying to generate a course w/ no in between general parts!");
 
-	const auto& p = parts[2];
-	InstantiatePart(p, curGridPos);
-	return;
-
 	// Randomly choose a start part to start
 	int startIdx = Math::RandInt(0, static_cast<int>(startParts.size()) - 1);
 	const auto& startPart = parts[startParts[startIdx]];
@@ -283,6 +279,8 @@ void CourseManager::InstantiatePart(const CourseTemplate::Part& part, IVec2 pos)
 			std::istringstream stream(args);
 			IVec2 from, to;
 			stream >> from.x >> from.y >> to.x >> to.y;
+			from += pos;
+			to += pos;
 			InstantiateMovingObstacle(to, from);
 		}
 	}

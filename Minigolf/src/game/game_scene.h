@@ -11,7 +11,7 @@
 class GameScene : public Scene
 {
 public:
-	GameScene(Application& game);
+	GameScene(Application& game, bool playBGM);
 	~GameScene() override;
 	void Update(float dt) override;
 	void Render() override;
@@ -92,5 +92,6 @@ private:
 #pragma endregion
 
 	bool m_isDebugOn;
+	bool m_playBGM;
 
 };

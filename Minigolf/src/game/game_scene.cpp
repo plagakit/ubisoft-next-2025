@@ -4,7 +4,7 @@
 #include "components/golfball.h"
 #include "components/obstacle.h"
 
-GameScene::GameScene(Application& game) :
+GameScene::GameScene(Application& game, bool playBGM) :
 	Scene(game),
 	m_physicsSystem(m_registry, m_resourceMgr, m_renderer),
 	m_renderSystem(m_registry, m_renderer),
@@ -16,7 +16,8 @@ GameScene::GameScene(Application& game) :
 
 	m_course(m_registry, m_resourceMgr),
 
-	m_isDebugOn(false)
+	m_isDebugOn(false),
+	m_playBGM(playBGM)
 {
 	// Load inputs
 	m_input.CreateAction("toggle-debug");
@@ -260,7 +261,8 @@ void GameScene::Render()
 void GameScene::StartGame()
 {
 	m_course.LoadTemplate("res/courses/course0.txt");
-	m_resourceMgr.Get<Audio>(m_soundBGM).Play();
+	if (m_playBGM)
+		m_resourceMgr.Get<Audio>(m_soundBGM).Play();
 
 	m_curRound = 1;
 	m_roundPartCount = START_PART_COUNT;

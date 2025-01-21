@@ -13,7 +13,7 @@ void Minigolf::Init()
 	m_mainMenu->s_StartedGame.Connect<Minigolf, &Minigolf::SwitchToGame>(this);
 	m_currentScene = m_mainMenu.get();
 
-	SwitchToGame();
+	//SwitchToGame();
 }
 
 void Minigolf::Shutdown()
@@ -39,7 +39,7 @@ void Minigolf::Render()
 
 void Minigolf::SwitchToGame()
 {
-	m_gameScene = std::make_unique<GameScene>(*this);
+	m_gameScene = std::make_unique<GameScene>(*this, m_mainMenu->IsCopyrightMusicOn());
 	m_gameScene->s_EndedGame.Connect<Minigolf, &Minigolf::OnGameEnd>(this);
 	m_currentScene = m_gameScene.get();
 }
