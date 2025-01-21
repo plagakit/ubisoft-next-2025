@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/debug/assert.h"
+
 /*
 A class for using both free functions and member functions
 (of possibly different types) as generic, type-safe callbacks

@@ -6,9 +6,12 @@
 class CSimpleSprite;
 
 /** 
-* A wrapper over CSimpleSprite to make it a Resource. Does
-* not include CSimpleSprite - if you want to use its methods,
-* include it. (https://en.cppreference.com/w/cpp/language/pimpl)
+* A wrapper over CSimpleSprite to make it a Resource. Makes
+* so that anything that wants to use a texture doesn't necessarily
+* have to include everything in App.
+* 
+* Resources:
+* https://en.cppreference.com/w/cpp/language/pimpl
 */
 class Texture : public Resource
 {
@@ -25,6 +28,13 @@ public:
 
 	CSimpleSprite& Get();
 	const CSimpleSprite& Get() const;
+
+	float GetWidth() const;
+	float GetHeight() const;
+
+	// TODO: find a better solution for this
+	void SetSheetDimensions(int rows, int cols);
+	void SetFrame(unsigned int f);
 
 private:
 	std::unique_ptr<CSimpleSprite> m_sprite;

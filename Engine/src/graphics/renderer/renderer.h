@@ -93,6 +93,17 @@ public:
 		Vec4& out1A, Vec4& out1B, Vec4& out1C,
 		Vec4& out2A, Vec4& out2B, Vec4& out2C);
 
+	// METRICS
+	struct Metrics
+	{
+		int renderedMeshes;
+		int clippedTriangles;
+		int rasterizedTriangles;
+	};
+
+	const Metrics& GetMetrics() const;
+	void ResetMetrics();
+
 private:
 	ResourceManager& m_resourceManager;
 
@@ -127,5 +138,7 @@ private:
 
 	DepthBufferRasterizer m_depthRaster;
 	PaintersRasterizer m_paintersRaster;
+
+	Metrics m_metrics;
 
 };

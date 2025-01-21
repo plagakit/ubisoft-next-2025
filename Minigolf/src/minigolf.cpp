@@ -1,63 +1,60 @@
-#include <engine.h>
+#include "minigolf.h"
 
-#include "main_menu/main_menu_scene.h"
-#include "game/game_scene.h"
-
-class Minigolf : public Application
+void Minigolf::Init()
 {
-private:
-	Scene* currentScene;
-	std::unique_ptr<MainMenuScene> m_mainMenu;
-	std::unique_ptr<GameScene> m_gameScene;
+	m_input->InitDefaultActions();
+	m_input->CreateAction("pause");
+	m_input->AddEvent<InputEventVirtual>("pause", 'P');
 
-	bool m_paused = false;
-	RID m_pauseTxt;
+	//m_paused = false;
+	//m_pauseTxt = m_resourceMgr->Load<Texture>("res/sprites/pause_screen.png");
 
-public:
-	void SwitchToGame()
-	{
-		m_gameScene = std::make_unique<GameScene>(*this);
-		currentScene = m_gameScene.get();
-	}
+	m_mainMenu = std::make_unique<MainMenuScene>(*this);
+	m_mainMenu->s_StartedGame.Connect<Minigolf, &Minigolf::SwitchToGame>(this);
+	m_currentScene = m_mainMenu.get();
 
-	void Init()
-	{
-		m_input->InitDefaultActions();
-		m_input->CreateAction("pause");
-		m_input->AddEvent<InputEventVirtual>("pause", 'P');
+	//SwitchToGame();
+}
 
-		m_paused = false;
-		m_pauseTxt = m_resourceMgr->Load<Texture>("res/sprites/pause_screen.png");
+void Minigolf::Shutdown()
+{
+	//if (m_gameScene) 
+	//	delete m_gameScene;
 
-		m_mainMenu = std::make_unique<MainMenuScene>(*this);
-		m_mainMenu->s_StartedGame.Connect<Minigolf, &Minigolf::SwitchToGame>(this);
-		currentScene = m_mainMenu.get();
+	//if (m_mainMenu) 
+	//	delete m_mainMenu;
+}
 
-		SwitchToGame();
-	}
+void Minigolf::Update(float dt)
+{
+	if (m_currentScene)
+		m_currentScene->Update(dt);
+}
 
-	void Shutdown()
-	{
+void Minigolf::Render()
+{
+	if (m_currentScene)
+		m_currentScene->Render();
+}
 
-	}
+void Minigolf::SwitchToGame()
+{
+	m_gameScene = std::make_unique<GameScene>(*this);
+	m_gameScene->s_EndedGame.Connect<Minigolf, &Minigolf::OnGameEnd>(this);
+	m_currentScene = m_gameScene.get();
+}
 
-	void Update(float dt)
-	{
-		if (m_input->IsJustPressed("pause"))
-			m_paused = !m_paused;
+void Minigolf::OnGameEnd(int score)
+{
+	if (score > m_highScore)
+		m_highScore = score;
 
+	m_gameScene.reset();
+	m_mainMenu->UpdateHighscore(score);
+	m_currentScene = m_mainMenu.get();
+}
 
-		if (!m_paused)
-			currentScene->Update(dt);
-	}
-
-	void Render()
-	{
-		currentScene->Render();
-
-		if (m_paused)
-			m_renderer->DrawScreenTexture(APP_VIRTUAL_WIDTH / 2, APP_VIRTUAL_HEIGHT / 2, 0.0f, 1.0f, m_pauseTxt, Color::WHITE);
-	}
-};
-
-REGISTER_GAME(Minigolf)
+int Minigolf::GetHighscore() const
+{
+	return m_highScore;
+}

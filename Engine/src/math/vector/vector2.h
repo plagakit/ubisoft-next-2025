@@ -7,8 +7,8 @@ struct Vector2
 {
 	T x, y;
 
-	Vector2();
-	Vector2(T x, T y);
+	constexpr Vector2();
+	constexpr Vector2(T x, T y);
 
 	Vector2 operator-() const;
 	Vector2 operator+(const Vector2& v) const;

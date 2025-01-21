@@ -12,12 +12,15 @@ public:
 
 	Signal<> s_StartedGame;
 
+	void UpdateHighscore(int highscore);
+
 private:
 	void EmitStartGame();
 	void HoverStartButton();
 	void UnhoverStartButton();
 
 	Button* m_startButton;
+	Label* m_highscoreLabel;
 	RID m_startButtonFont;
 
 };

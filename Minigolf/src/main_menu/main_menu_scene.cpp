@@ -32,6 +32,15 @@ MainMenuScene::MainMenuScene(Application& game) :
 	);
 	byLabel->GetPosition() = Dim2(0.5f, 0.4f, -200.0f, -font.GetFontHeight() * 0.5f);
 
+	auto hsLabel = std::make_unique<Label>(
+		"High Score: ",
+		m_startButtonFont,
+		Color::WHITE
+	);
+	hsLabel->GetPosition() = Dim2(0.5f, 0.3f, -100.0f, 0.0f);
+	m_highscoreLabel = hsLabel.get();
+
+	m_GUI->AddChild(std::move(hsLabel));
 	m_GUI->AddChild(std::move(byLabel));
 	startGame->AddChild(std::move(startGameLabel));
 	m_GUI->AddChild(std::move(startGame));
@@ -57,6 +66,11 @@ void MainMenuScene::Render()
 			Math::Lerp(start, end, 1.0f - y / APP_VIRTUAL_HEIGHT));
 
 	m_GUI->RenderGUI(m_renderer);
+}
+
+void MainMenuScene::UpdateHighscore(int highscore)
+{
+	m_highscoreLabel->GetText() = "High Score: Round " + std::to_string(highscore);
 }
 
 void MainMenuScene::EmitStartGame()

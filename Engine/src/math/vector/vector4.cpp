@@ -2,7 +2,7 @@
 #include "vector4.h"
 
 template<typename T>
-Vector4<T>::Vector4() :
+constexpr Vector4<T>::Vector4() :
 	x(static_cast<T>(0)),
 	y(static_cast<T>(0)),
 	z(static_cast<T>(0)),
@@ -15,7 +15,7 @@ Vector4<T>::Vector4(Vector3<T> v) :
 {}
 
 template<typename T>
-Vector4<T>::Vector4(T x, T y, T z, T w) :
+constexpr Vector4<T>::Vector4(T x, T y, T z, T w) :
 	x(x), y(y), z(z), w(w)
 {}
 

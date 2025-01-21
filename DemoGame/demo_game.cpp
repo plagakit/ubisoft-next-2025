@@ -27,9 +27,14 @@ private:
 
 public:
 
-	void CollisionSignalTest(Entity id1, Entity id2)
+	void CollisionSignalTest(Entity id1, Entity id2, CollisionResult2D col)
 	{
-		//Logger::Info("%d collided w/ %d!", id1, id2);
+		Logger::Info("%d collided w/ %d!", id1, id2);
+	}
+
+	void TweenFinishCallbackTest()
+	{
+		Logger::Info("Tween finished!");
 	}
 
 	void TweenTo()
@@ -39,10 +44,14 @@ public:
 			f->GetPosition().relative,
 			10.0f, EasingMode::CUBIC, EasingType::OUT);
 
+		Callback<void> tweenCB;
+		tweenCB.Bind<DemoGame, &DemoGame::TweenFinishCallbackTest>(this);
+
 		Tween<Vec2> tween2 = m_tweenMgr->CreateTween<Vec2>(
 			{ 0.5f, 0.5f }, { 0.2f, 0.6f },
 			f->GetSize().relative,
-			5.0f, EasingMode::ELASTIC, EasingType::OUT);
+			5.0f, EasingMode::ELASTIC, EasingType::OUT,
+			tweenCB);
 
 		//Tween<Color> tween3 = m_tweenMgr->CreateTween<Color>(
 		//	Color::GREEN, Color::RED, f->GetColor(), 
@@ -185,6 +194,18 @@ public:
 		ctf.velocity.y = m_input->GetAxis("K", "I");
 		ctf.velocity *= 200.0f;
 
+		Vec3 move =
+			Vec3::FORWARD * m_input->GetAxis("down", "up")
+			+ Vec3::RIGHT * m_input->GetAxis("left", "right")
+			+ Vec3::UP * m_input->GetAxis("Q", "E");
+
+		move = camera.GetTransform().orientation * move;
+		camera.GetTransform().position += move * dt * 10.0f;
+
+		float yawChange = m_input->GetAxis("J", "L") * 2.0f * dt;
+		float pitchChange = m_input->GetAxis("K", "I") * -2.0f * dt;
+		camera.GetTransform().orientation = Quat::FromEulerAngles(0, yawChange, 0) * camera.GetTransform().orientation;
+		camera.GetTransform().orientation *= Quat::FromEulerAngles(0, 0, pitchChange);
 
 		m_renderer->SetViewMatrix(camera.GetView());
 
@@ -276,45 +297,64 @@ public:
 
 		m_sysRender.Render3DEntities();
 
-		for (int i = 0; i < 100; i++)
-		{
-			Vec3 pos = Vec3::DOWN * 5.0f;
-			m_renderer->Draw3DLine(pos + Vec3::FORWARD * i, pos + Vec3::FORWARD * (i + 1), Color::DARK_GRAY);
-		}
-		m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 1.0f, Color::RED);
-		m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 3.0f, Color::BLUE);
-		m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 10.0f, Color::GREEN);
-		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::RIGHT, Color::WHITE);
-		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::UP, Color::WHITE);
-		m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::FORWARD, Color::WHITE);
+		//for (int i = 0; i < 100; i++)
+		//{
+		//	Vec3 pos = Vec3::DOWN * 5.0f;
+		//	m_renderer->Draw3DLine(pos + Vec3::FORWARD * i, pos + Vec3::FORWARD * (i + 1), Color::DARK_GRAY);
+		//}
+		//m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 1.0f, Color::RED);
+		//m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 3.0f, Color::BLUE);
+		//m_renderer->DrawSphere(Vec3::FORWARD * 5.0f, 10.0f, Color::GREEN);
+		//m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::RIGHT, Color::WHITE);
+		//m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::UP, Color::WHITE);
+		//m_renderer->Draw3DLine(Vec3::FORWARD * 5.0f, Vec3::FORWARD * 5.0 + Vec3::FORWARD, Color::WHITE);
 
 		m_renderer->FlushDepthRasterizer();
 		m_renderer->FlushPaintersRasterizer();
 
-		m_sysRender.Render2DEntities();
+		//m_sysRender.Render2DEntities();
 
-		/*m_renderer->DrawCircle({ 300, 300 }, 4, Color::RED);
-		m_renderer->DrawCircle({ 300, 300 }, 16, Color::RED);
-		m_renderer->DrawCircle({ 350, 300 }, 32, Color::RED);
-		m_renderer->DrawCircle({ 350, 300 }, 100, Color::RED);
-		m_renderer->DrawCircle({ 350, 300 }, 300, Color::RED);*/
+		///*m_renderer->DrawCircle({ 300, 300 }, 4, Color::RED);
+		//m_renderer->DrawCircle({ 300, 300 }, 16, Color::RED);
+		//m_renderer->DrawCircle({ 350, 300 }, 32, Color::RED);
+		//m_renderer->DrawCircle({ 350, 300 }, 100, Color::RED);
+		//m_renderer->DrawCircle({ 350, 300 }, 300, Color::RED);*/
 
-		m_renderer->DrawTextLine({ 100.0f, 50.0f }, "Default Font", Color::WHITE);
-		m_renderer->DrawTextLine({ 100.0f, 100.0f }, "Monospace 8x13", Color::WHITE, f1);
-		m_renderer->DrawTextLine({ 100.0f, 100.0f + m_resourceMgr->Get<Font>(f2).GetFontHeight() }, "Monospace 9x15", Color::WHITE, f2);
+		//m_renderer->DrawTextLine({ 100.0f, 50.0f }, "Default Font", Color::WHITE);
+		//m_renderer->DrawTextLine({ 100.0f, 100.0f }, "Monospace 8x13", Color::WHITE, f1);
+		//m_renderer->DrawTextLine({ 100.0f, 100.0f + m_resourceMgr->Get<Font>(f2).GetFontHeight() }, "Monospace 9x15", Color::WHITE, f2);
 
-		auto testStr1 = "Hello World!";
-		auto testStr2 = "Goodbye World!";
-		m_renderer->DrawTextLine({ 220.0f, 50.0f }, testStr1, Color::RED, f2);
-		m_renderer->DrawTextLine({ 220.0f + m_resourceMgr->Get<Font>(f2).GetFontLength(testStr1), 50.0f }, testStr2, Color::BLUE, f2);
+		//auto testStr1 = "Hello World!";
+		//auto testStr2 = "Goodbye World!";
+		//m_renderer->DrawTextLine({ 220.0f, 50.0f }, testStr1, Color::RED, f2);
+		//m_renderer->DrawTextLine({ 220.0f + m_resourceMgr->Get<Font>(f2).GetFontLength(testStr1), 50.0f }, testStr2, Color::BLUE, f2);
 
-		Collider2D& circle = m_resourceMgr->Get<CircleCollider>(circleCol);
-		//circle.DebugDraw(*m_renderer, { 400, 300 });
+		//Collider2D& circle = m_resourceMgr->Get<CircleCollider>(circleCol);
+		////circle.DebugDraw(*m_renderer, { 400, 300 });
 
-		PhysicsSystem s_physics{ m_registry, *m_resourceMgr, *m_renderer };
-		s_physics.RenderAllCollisionShapes();
+		//PhysicsSystem s_physics{ m_registry, *m_resourceMgr, *m_renderer };
+		//s_physics.RenderAllCollisionShapes();
 
-		guiRoot.RenderGUI(*m_renderer);
+		//guiRoot.RenderGUI(*m_renderer);
+
+
+		Vec2 pos = Vec2(APP_VIRTUAL_WIDTH * 0.5f, APP_VIRTUAL_HEIGHT * 0.2f);
+		Frustum f = camera.CreateFrustum();
+		Logger::Info("Near: %s %s", f.near.position.ToString().c_str(), f.near.normal.ToString().c_str());
+
+		Vec2 near = Vec2(f.near.normal.y, f.near.normal.z);
+		Vec2 far = Vec2(f.far.normal.x, f.far.normal.z);      
+		Vec2 left = Vec2(f.left.normal.x, f.left.normal.z);   
+		Vec2 right = Vec2(f.right.normal.x, f.right.normal.z);
+		Vec2 top = Vec2(f.top.normal.x, f.top.normal.z);      
+		Vec2 bottom = Vec2(f.bottom.normal.x, f.bottom.normal.z);
+
+		m_renderer->Set2DView({});
+		m_renderer->Draw2DLine(pos, pos + near * 100.0f, Color::RED, 3);
+		m_renderer->Draw2DLine(pos, pos + far * 100.0f, Color::MAGENTA, 3);
+		m_renderer->Draw2DLine(pos, pos + right * 100.0f, Color::GREEN, 3);
+		m_renderer->Draw2DLine(pos, pos + left * 100.0f, Color::BLUE, 3);
+
 	}
 };
 

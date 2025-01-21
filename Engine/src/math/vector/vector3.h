@@ -10,8 +10,15 @@ struct Vector3
 {
 	T x, y, z;
 
-	Vector3();
-	Vector3(T x, T y, T z);
+	constexpr Vector3() :
+		x(static_cast<T>(0)),
+		y(static_cast<T>(0)),
+		z(static_cast<T>(0))
+	{};
+
+	constexpr Vector3(T x, T y, T z) :
+		x(x), y(y), z(z)
+	{};
 
 	// Converts by copying values, no homogenous division
 	Vector3(const Vector4<T>& v);

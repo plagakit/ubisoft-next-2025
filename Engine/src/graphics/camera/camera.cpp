@@ -4,10 +4,6 @@
 #include "math/math_utils.h"
 #include "core/app_settings.h"
 
-const float Camera::NEAR = 1.0f;
-const float Camera::FAR = 1000.0f;
-const float Camera::ASPECT_RATIO = (float)APP_VIRTUAL_WIDTH / (float)APP_VIRTUAL_HEIGHT;
-
 Camera::Camera()
 {
 	m_FOV = 60.0f;
@@ -72,6 +68,58 @@ Ray3D Camera::ProjectRay(const Vec2& screenPos) const
 	ray.origin = worldSpaceNear;
 	ray.direction = (worldSpaceFar - worldSpaceNear).Normalized();
 	return ray;
+}
+
+Frustum Camera::CreateFrustum() const
+{
+	// TODO
+
+	// https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+	
+	// https://gamedev.stackexchange.com/questions/29999/how-do-i-create-a-bounding-frustum-from-a-view-projection-matrix
+
+	//Vec4 ndcCorners[8] = {
+	//	{ -1.0f, -1.0f, -1.0f, 1.0f }, // near bot left		0
+	//	{  1.0f, -1.0f, -1.0f, 1.0f }, // near bot right	1
+	//	{ -1.0f,  1.0f, -1.0f, 1.0f }, // near top left		2
+	//	{  1.0f,  1.0f, -1.0f, 1.0f }, // near top right	3
+	//	{ -1.0f, -1.0f,  1.0f, 1.0f }, // far bot left		4
+	//	{  1.0f, -1.0f,  1.0f, 1.0f }, // far bot right		5
+	//	{ -1.0f,  1.0f,  1.0f, 1.0f }, // far top left		6
+	//	{  1.0f,  1.0f,  1.0f, 1.0f }  // far top right		7
+	//};
+
+	//// Transform NDC to world space
+	//Vec3 world[8];
+	//for (int i = 0; i < 8; ++i)
+	//{
+	//	world[i] = Vec3::FromHomogenous(m_invProjection * ndcCorners[i]);
+	//	world[i] = m_transform.position + m_transform.orientation * world[i];
+	//}
+	//	
+
+	//Vec3 up = (world[2] - world[0]).Normalized();
+	//Vec3 right = (world[1] - world[0]).Normalized();
+	////Vec3 nearToFarLeft = (world[4] - world[0]).Normalized();
+	////Vec3 nearToFarRight = (world[5] - world[1]).Normalized();
+	////Vec3 nearToFarTop = (world[6] - world[2]).Normalized();
+	////Vec3 nearToFarBot = ()
+
+	//Frustum frustum;
+	////frustum.near = { world[0], up.Cross(right) };
+	////frustum.far = { world[4], -frustum.near.normal };
+
+	////frustum.left = { world[0], nearToFarLeft.Cross(up) };
+	////frustum.right = { world[1], nearToFarRight.Cross(up) };
+
+	//frustum.near = { world[0], (world[0] - world[4]).Normalized() };
+	//frustum.far = { world[4], -frustum.near.normal };
+	//frustum.left = { world[0], frustum.far.normal.Cross(world[2] - world[0]).Normalized() };
+	//frustum.right = { world[1], (world[3] - world[1]).Cross(world[5] - world[1]).Normalized() };
+	//frustum.top = { world[2], (world[6] - world[2]).Cross(world[3] - world[2]).Normalized() };
+	//frustum.bottom = { world[0], (world[1] - world[0]).Cross(world[5] - world[0]).Normalized() };
+
+	return {};
 }
 
 void Camera::RecalculateProjection()

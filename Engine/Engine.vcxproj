@@ -254,6 +254,8 @@
     <ClInclude Include="src\core\resource\resource_manager.h" />
     <ClInclude Include="src\core\signal\callback.h" />
     <ClInclude Include="src\core\signal\signal.h" />
+    <ClInclude Include="src\core\state\state.h" />
+    <ClInclude Include="src\core\state\state_machine.h" />
     <ClInclude Include="src\core\uid\uid.h" />
     <ClInclude Include="src\components\2d\sprite.h" />
     <ClInclude Include="src\components\test_component.h" />
@@ -290,8 +292,11 @@
     <ClInclude Include="src\math\math_utils.h" />
     <ClInclude Include="src\math\matrix\mat4.h" />
     <ClInclude Include="src\math\quaternion\quat.h" />
+    <ClInclude Include="src\math\shape\frustum.h" />
+    <ClInclude Include="src\math\shape\plane.h" />
     <ClInclude Include="src\math\shape\ray_2d.h" />
     <ClInclude Include="src\math\shape\ray_3d.h" />
+    <ClInclude Include="src\math\shape\sphere.h" />
     <ClInclude Include="src\math\vector\vector3.h" />
     <ClInclude Include="src\math\vector\vector2.h" />
     <ClInclude Include="src\math\vector\vector4.h" />

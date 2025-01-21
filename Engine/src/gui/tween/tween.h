@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gui/tween/easing.h"
+#include "core/signal/callback.h"
 #include "math/math_utils.h"
 
 class ITween
@@ -15,6 +16,7 @@ class Tween : public ITween
 {
 public:
 	Tween(const T& start, const T& end, T& value, float duration, EasingMode mode, EasingType type);
+	Tween(const T& start, const T& end, T& value, float duration, EasingMode mode, EasingType type,	Callback<void> callback);
 	void Update(float dt) override;
 	bool IsDone() const override;
 
@@ -32,6 +34,9 @@ private:
 	EasingType m_type;
 	EasingFunction m_easing;
 
+	Callback<void> m_callback;
+	static void DoNothing() {};
+
 	T Interpolate();
 };
 
@@ -47,6 +52,24 @@ inline Tween<T>::Tween(const T& start, const T& end, T& value, float duration, E
 	m_mode(mode),
 	m_type(type),
 	m_easing(Easing::GetFunc(mode, type))
+{
+	m_callback = Callback<void>();
+	m_callback.Bind<&DoNothing>();
+}
+
+template<typename T>
+inline Tween<T>::Tween(const T & start, const T & end, T & value, float duration, EasingMode mode, EasingType type, Callback<void> callback) :
+	m_start(start),
+	m_end(end),
+	m_value(value),
+	m_duration(duration),
+	m_t(0.0f),
+	m_tStep(1.0f / duration),
+	m_done(false),
+	m_mode(mode),
+	m_type(type),
+	m_easing(Easing::GetFunc(mode, type)),
+	m_callback(callback)
 {}
 
 template<typename T>
@@ -62,6 +85,7 @@ void inline Tween<T>::Update(float dt)
 	{
 		m_done = true;
 		m_value = m_end;
+		m_callback();
 	}	
 }
 

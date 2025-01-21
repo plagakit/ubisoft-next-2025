@@ -185,6 +185,8 @@ void Renderer::ClearPaintersRasterizer()
 
 void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 {
+	m_metrics.renderedMeshes++;
+
 	Mesh& mesh = m_resourceManager.Get<Mesh>(meshInstance.meshHandle);
 	const auto& vertices = mesh.GetVertexBuffer();
 	const auto& normals = mesh.GetNormalBuffer();
@@ -226,6 +228,7 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 		switch (clip)
 		{
 		case DISCARD:
+			m_metrics.clippedTriangles++;
 			continue;
 
 		case GOOD: // Add original tri to index buffer (copy 6 indices)
@@ -301,6 +304,19 @@ void Renderer::DrawMesh(const Mat4& model, const MeshInstance& meshInstance)
 		// Backface culling
 		if (!IsCounterClockwise(a, b, c))
 			continue;
+
+		// Out of screen culling
+		if (a.x < 0.0f && b.x < 0.0f && c.x < 0.0f)	
+			continue;
+		if (a.x > APP_VIRTUAL_WIDTH && b.x > APP_VIRTUAL_WIDTH && c.x > APP_VIRTUAL_WIDTH)
+			continue;
+		if (a.y < 0.0f && b.y < 0.0f && c.y < 0.0f)
+			continue;
+		if (a.y > APP_VIRTUAL_HEIGHT && b.y > APP_VIRTUAL_HEIGHT && c.y > APP_VIRTUAL_HEIGHT)
+			continue;
+
+		m_metrics.rasterizedTriangles++;
+
 
 #ifdef USE_PAINTERS_FOR_WIREFRAME
 		if (meshInstance.mode == ShadingMode::WIREFRAME)
@@ -561,4 +577,16 @@ Renderer::ClipResult Renderer::ClipTriangleAgainstPlane(
 	}
 
 	return ClipResult::ERROR;
+}
+
+const Renderer::Metrics& Renderer::GetMetrics() const
+{
+	return m_metrics;
+}
+
+void Renderer::ResetMetrics()
+{
+	m_metrics.renderedMeshes = 0;
+	m_metrics.clippedTriangles = 0;
+	m_metrics.rasterizedTriangles = 0;
 }

@@ -47,5 +47,5 @@ void Shutdown()
 {
 	Logger::Info("Running Shutdown...");
 	s_application->__Shutdown__();
-	delete s_application;
+	//delete s_application;
 }

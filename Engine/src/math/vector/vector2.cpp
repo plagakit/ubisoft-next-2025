@@ -5,13 +5,13 @@
 #include "core/debug/assert.h"
 
 template <typename T>
-Vector2<T>::Vector2() :
+constexpr Vector2<T>::Vector2() :
 	x(static_cast<T>(0)),
 	y(static_cast<T>(0))
 {}
 
 template <typename T>
-Vector2<T>::Vector2(T x, T y) :
+constexpr Vector2<T>::Vector2(T x, T y) :
 	x(x), y(y)
 {};
 

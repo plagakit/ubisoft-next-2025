@@ -189,6 +189,21 @@ Mat4& Mat4::Scale(const Vec3& factor)
 	return *this;
 }
 
+Vec3 Mat4::Right() const
+{
+	return Vec3(m[0], m[1], m[2]);
+}
+
+Vec3 Mat4::Up() const
+{
+	return Vec3(m[4], m[5], m[6]);
+}
+
+Vec3 Mat4::Front() const
+{
+	return Vec3(m[8], m[9], m[10]);
+}
+
 std::string Mat4::ToString() const
 {
 	return "[[" + 

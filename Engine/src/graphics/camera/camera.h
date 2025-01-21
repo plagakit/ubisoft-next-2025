@@ -5,15 +5,16 @@
 #include "math/matrix/mat4.h"
 #include "math/vector/vector2.h"
 #include "math/shape/ray_3d.h"
+#include "math/shape/frustum.h"
 #include "core/app_settings.h"
 
 class Camera
 {
 public:
-	static const float NEAR;
-	static const float FAR;
-	static const float ASPECT_RATIO;
-
+	static constexpr float NEAR = 1.0f;
+	static constexpr float FAR = 1000.0f;
+	static constexpr float ASPECT_RATIO = (float)APP_VIRTUAL_WIDTH / (float)APP_VIRTUAL_HEIGHT;
+	
 	Camera();
 
 	Transform3D& GetTransform();
@@ -27,6 +28,7 @@ public:
 	float GetFOV() const;
 
 	Ray3D ProjectRay(const Vec2& screenPos) const;
+	Frustum CreateFrustum() const;
 
 protected:
 	Transform3D m_transform;

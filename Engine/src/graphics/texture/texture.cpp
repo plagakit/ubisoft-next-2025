@@ -30,3 +30,23 @@ const CSimpleSprite& Texture::Get() const
 {
 	return *m_sprite.get();
 }
+
+float Texture::GetWidth() const
+{
+	return m_sprite->GetWidth();
+}
+
+float Texture::GetHeight() const
+{
+	return m_sprite->GetHeight();
+}
+
+void Texture::SetSheetDimensions(int rows, int cols)
+{
+	m_sprite = std::make_unique<CSimpleSprite>(m_path.c_str(), cols, rows);
+}
+
+void Texture::SetFrame(unsigned int f)
+{
+	m_sprite->SetFrame(f);
+}

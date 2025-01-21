@@ -40,6 +40,10 @@ struct Mat4
     Mat4& Rotate(const Vec3& axis, float angleRad);
     Mat4& Scale(const Vec3& factor);
 
+    Vec3 Right() const;
+    Vec3 Up() const;
+    Vec3 Front() const;
+
     std::string ToString() const;
 
     static const Mat4 IDENTITY;
