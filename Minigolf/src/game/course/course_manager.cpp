@@ -3,6 +3,8 @@
 #include "game/components/fake_3d.h"
 #include "game/components/obstacle.h"
 #include "game/course/tile.h"
+#include <iostream>
+#include <sstream>
 
 CourseManager::CourseManager(EntityManager& registry, ResourceManager& resourceMgr) :
 	m_registry(registry),
@@ -10,7 +12,7 @@ CourseManager::CourseManager(EntityManager& registry, ResourceManager& resourceM
 	m_curTemplate(INVALID_RID)
 {
 	m_registry.RegisterComponentType<Tile>(500);
-	m_registry.RegisterComponentType<Obstacle>(500);
+	m_registry.RegisterComponentType<ObstacleLipOut>(500);
 
 	//auto [wcRID, wc] = m_resourceMgr.LoadAndGet<AABB2DCollider>("wall_collider");
 	//m_colliderWall = wcRID;
@@ -19,6 +21,7 @@ CourseManager::CourseManager(EntityManager& registry, ResourceManager& resourceM
 
 	// Load wall resources
 	m_meshWall = m_resourceMgr.Load<Mesh>("res/models/wall.obj");
+	m_meshMovingObstacle = m_resourceMgr.Load<Mesh>("res/models/wall.obj");
 
 	// Load hole resoruces
 	m_texHole = m_resourceMgr.Load<Texture>("res/sprites/hole.png");
@@ -31,6 +34,11 @@ CourseManager::CourseManager(EntityManager& registry, ResourceManager& resourceM
 	m_colLip = lrid;
 	colLip.width = 2.8f;
 	colLip.height = 1.5f;
+
+	auto [morid, colMovOb] = m_resourceMgr.LoadAndGet<AABB2DCollider>("moving_obstacle_collider");
+	m_colMovingObstacle = morid;
+	colMovOb.width = m_gridSize;
+	colMovOb.height = m_gridSize;
 }
 
 CourseManager::~CourseManager()
@@ -158,6 +166,10 @@ void CourseManager::GenerateCourse(int numParts)
 	ASSERT_ERROR(endParts.size() > 0, "Trying to generate a course w/ no end parts!");
 	ASSERT_ERROR(generalParts.size() > 0, "Trying to generate a course w/ no in between general parts!");
 
+	const auto& p = parts[2];
+	InstantiatePart(p, curGridPos);
+	return;
+
 	// Randomly choose a start part to start
 	int startIdx = Math::RandInt(0, static_cast<int>(startParts.size()) - 1);
 	const auto& startPart = parts[startParts[startIdx]];
@@ -196,6 +208,8 @@ void CourseManager::InstantiatePart(const CourseTemplate::Part& part, IVec2 pos)
 		enterPos.y--;
 		pos -= enterPos;
 	}
+
+	// INSTANTIATE TILES
 
 	// Temporary struct that isn't needed outside of instantiation
 	struct WallMinMax
@@ -258,6 +272,19 @@ void CourseManager::InstantiatePart(const CourseTemplate::Part& part, IVec2 pos)
 		auto& [isValid, min, max] = walls[i];
 		if (isValid)
 			InstantiateWallBody(min, max, i);
+	}
+
+	// Create any obstacles
+	for (const auto& [obstName, args] : part.m_rawObstacles)
+	{
+		if (obstName == "moving")
+		{
+			//Logger::Info("Making moving obstacle, strings %s/%s", obstName.c_str(), args.c_str());
+			std::istringstream stream(args);
+			IVec2 from, to;
+			stream >> from.x >> from.y >> to.x >> to.y;
+			InstantiateMovingObstacle(to, from);
+		}
 	}
 }
 
@@ -359,10 +386,47 @@ void CourseManager::InstantiateHole(IVec2 pos)
 
 		m_registry.Add<Transform2D>(lip, tf);
 		m_registry.Add<Physics2D>(lip, ph);
-		m_registry.Add<Obstacle>(lip, { Obstacle::Type::LIP_OUT });
+		m_registry.Add<ObstacleLipOut>(lip, { });
 
 		m_courseEntities.push_back(lip);
 		m_physicsBodies.push_back(lip);
 	}
 
+}
+
+void CourseManager::InstantiateMovingObstacle(IVec2 to, IVec2 from)
+{
+	Entity o = m_registry.CreateEntity();
+
+	ObstacleMoving om;
+	om.src = GridPosToWorldPos(from);
+	om.dest = GridPosToWorldPos(to);
+	om.toDest = true;
+
+	Transform2D tf2D;
+	tf2D.position = GridPosToWorldPos(to);
+	tf2D.velocity = (om.dest - om.src).Normalized() * om.speed;
+
+	Physics2D ph;
+	ph.colliderHandle = m_colMovingObstacle;
+	ph.isImmovable = true;
+
+	Transform3D tf3D;
+	tf3D.scale = Vec3::ONE * m_gridSize / 2.0f;
+
+	MeshInstance m;
+	m.meshHandle = m_meshMovingObstacle;
+	m.mode = ShadingMode::SHADED;
+	m.color = Color::WHITE;
+
+	m_registry.Add<Transform2D>(o, tf2D);
+	m_registry.Add<Transform3D>(o, tf3D);
+	m_registry.Add<Physics2D>(o, ph);
+	m_registry.Add<Fake3D>(o, { 3.2f });
+	m_registry.Add<MeshInstance>(o, m);
+	m_registry.Add<ObstacleMoving>(o, om);
+	m_registry.Add<Tile>(o, { Tile::Type::WALL });
+
+	m_physicsBodies.push_back(o);
+	m_courseEntities.push_back(o);
 }

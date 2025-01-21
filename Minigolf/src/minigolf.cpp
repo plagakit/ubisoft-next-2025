@@ -13,7 +13,7 @@ void Minigolf::Init()
 	m_mainMenu->s_StartedGame.Connect<Minigolf, &Minigolf::SwitchToGame>(this);
 	m_currentScene = m_mainMenu.get();
 
-	//SwitchToGame();
+	SwitchToGame();
 }
 
 void Minigolf::Shutdown()

@@ -59,7 +59,7 @@ private:
 	float m_strength	= 0.0f;
 	
 	void UpdateDrag();
-	void ReflectBallOffWall(Entity ball, CollisionResult2D collision);
+	void ReflectBallOffWall(Entity ball, Entity wall, CollisionResult2D collision);
 	void SinkBall(Entity ball, Entity hole);
 
 	void CreateSwooshParticle(Vec2 direction);

@@ -27,6 +27,9 @@
 . repeat to make all the parts of the course
 . max 32 width
 .
+. lines after 'OBSTACLES:' are custom obstacles
+. moving sx sy ex ey - moving obstacle w/ start and end positions
+.
 start
 0XXX2
 0   2
@@ -42,6 +45,17 @@ standard_hole
 1   2
 1III2
 -------------------------
+moving_obstacle
+1XXX2
+1   2
+1   2
+1   2
+1   2
+1   2
+1III2
+OBSTACLES:
+moving 1 2 1 5
+----------------------
 zigzag
 0000000XXX2
 1         2
@@ -154,7 +168,7 @@ curve_hole
 3   0   1        
 3   0 H 1        
 3   0   1        
-3III02221        
+3III04441        
 ------
 T_start
 5777XXX8886    
@@ -167,6 +181,28 @@ T_start
    1   2       
    00000    
 ---------
+moving_end
+222222222        
+3       1        
+3   H   1        
+3       1        
+3       1        
+3       1        
+300III441 
+OBSTACLES:
+moving -1 3 3 3
+------
+moving_2
+22222222XXX1        
+3          1        
+3          1        
+3          1        
+3          1        
+3          1        
+3III44444444 
+OBSTACLES:
+moving 1 5 8 3
+--------------
 .juke
 .   355555555555556
 .   3             6

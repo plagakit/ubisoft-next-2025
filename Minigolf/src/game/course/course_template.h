@@ -20,6 +20,7 @@ public:
 	{
 		std::string m_name;
 		std::vector<std::vector<Tile>> m_tilemap;
+		std::vector<std::pair<std::string, std::string>> m_rawObstacles;
 		bool m_isHole;
 		bool m_isStart;
 	};

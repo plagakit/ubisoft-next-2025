@@ -16,7 +16,7 @@ GameScene::GameScene(Application& game) :
 
 	m_course(m_registry, m_resourceMgr),
 
-	m_isDebugOn(true)
+	m_isDebugOn(false)
 {
 	// Load inputs
 	m_input.CreateAction("toggle-debug");
@@ -53,6 +53,7 @@ GameScene::GameScene(Application& game) :
 	m_particleSystem.RegisterAllRequiredComponents(1000);
 	m_golfballSystem.RegisterAllRequiredComponents(2);
 	m_fake3DSystem.RegisterAllRequiredComponents(1000);
+	m_obstacleSystem.RegisterAllRequiredComponents(500);
 
 	// Create plane
 	// I took the plane out at the last minute because it takes
@@ -115,6 +116,7 @@ void GameScene::Update(float dt)
 		m_isDebugOn = !m_isDebugOn;
 
 	// Process movement
+	m_obstacleSystem.Update(dt);
 	m_physicsSystem.Update2DMovement(dt);
 	m_particleSystem.Update(dt);
 	m_fake3DSystem.Update(dt);

@@ -31,6 +31,7 @@ public:
 	void InstantiateWallBody(IVec2 min, IVec2 max, int wallIdx);
 
 	void InstantiateHole(IVec2 pos);
+	void InstantiateMovingObstacle(IVec2 to, IVec2 from);
 
 	const std::vector<Entity>& GetPhysicsBodies() const;
 	Vec2 GetGolfStartPos() const;
@@ -45,9 +46,9 @@ private:
 	EntityManager& m_registry;
 	ResourceManager& m_resourceMgr;
 	
-	RID m_meshWall;
+	RID m_meshWall, m_meshMovingObstacle;
 	RID m_texHole, m_colHole;
-	RID m_colLip; // see obstacle.h
+	RID m_colLip, m_colMovingObstacle; // see obstacle.h
 
 	Vec2 m_origin;
 	float m_gridSize = 4.0f;

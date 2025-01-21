@@ -15,8 +15,11 @@ void CourseTemplate::Load(const char* path)
 
 	std::string partName;
 	std::vector<std::vector<Tile>> currentPart;
+	std::vector<std::pair<std::string, std::string>> rawObstacles;
 	bool isHole = false;
 	bool isStart = false;
+
+	bool parsingObstacles = false;
 
 	while (!file.eof())
 	{
@@ -31,15 +34,17 @@ void CourseTemplate::Load(const char* path)
 			m_parts.push_back({
 				std::move(partName),
 				std::move(currentPart),
+				std::move(rawObstacles),
 				isHole,
 				isStart
-			});
+				});
 			//m_parts.emplace_back(std::move(partName), std::move(currentPart), isHole);
 
 			partName.clear();
 			currentPart.clear();
 			isHole = false;
 			isStart = false;
+			parsingObstacles = false;
 			continue;
 		}
 
@@ -50,6 +55,27 @@ void CourseTemplate::Load(const char* path)
 			continue;
 		}
 
+		// Parse obstacles
+		if (std::string(line) == "OBSTACLES:")
+		{
+			parsingObstacles = true;
+			continue;
+		}
+
+		if (parsingObstacles)
+		{
+			std::string lineStr(line);
+			size_t firstSpace = lineStr.find(' ');
+			if (firstSpace != std::string::npos)
+			{
+				std::string name = lineStr.substr(0, firstSpace);
+				std::string rest = lineStr.substr(firstSpace + 1);
+				rawObstacles.emplace_back(name, rest);
+			}
+			continue;
+		}
+
+		// parse tiles
 		std::vector<Tile> row;
 		for (char c : line)
 		{

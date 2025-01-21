@@ -11,11 +11,11 @@ public:
 	ObstacleSystem(EntityManager& registry);
 	void RegisterAllRequiredComponents(size_t n) override;
 
+	void Update(float dt);
+
 	void OnTrigger(Entity trigger, Entity e, CollisionResult2D col);
 
 private:
-	static constexpr float CENTRIPETAL_MULTIPLIER = 2.0f;
-
 	void ApplyLipoutForce(Entity lip, Entity ball);
 
 };

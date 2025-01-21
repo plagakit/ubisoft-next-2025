@@ -34,7 +34,7 @@ void GolfballSystem::RegisterAllRequiredComponents(size_t n)
 
 	// For collisions
 	m_registry.RegisterComponentType<Tile>();
-	m_registry.RegisterComponentType<Obstacle>();
+	m_registry.RegisterComponentType<ObstacleLipOut>();
 }
 
 Entity GolfballSystem::CreateGolfball()
@@ -132,7 +132,7 @@ void GolfballSystem::OnCollision(Entity e1, Entity e2, CollisionResult2D result)
 	{
 		Tile tile = m_registry.Get<Tile>(e2);
 		if (tile.type == Tile::Type::WALL)
-			ReflectBallOffWall(e1, result);
+			ReflectBallOffWall(e1, e2, result);
 	}
 }
 
@@ -183,12 +183,14 @@ void GolfballSystem::UpdateDrag()
 	}
 }
 
-void GolfballSystem::ReflectBallOffWall(Entity ball, CollisionResult2D col)
+void GolfballSystem::ReflectBallOffWall(Entity ball, Entity wall, CollisionResult2D col)
 {
+	const Transform2D& wallTF = m_registry.Get<Transform2D>(wall);
 	Transform2D& tf = m_registry.Get<Transform2D>(ball);
 	Vec2 refAxis = tf.velocity.ProjectOnto(col.contactNormal);
 	tf.velocity -= refAxis * 2.0f;
 	tf.velocity *= BOUNCE_ENERGY_LOSS;
+	tf.velocity += wallTF.velocity;
 
 	m_resourceMgr.Get<Audio>(m_soundBallCollide).Play();
 }
